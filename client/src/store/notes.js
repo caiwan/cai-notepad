@@ -7,7 +7,6 @@ export default {
 
   state: {
     items: [],
-    // uid: 0,
     editingItem: null,
     beforeEditCache: "",
   },
@@ -46,12 +45,7 @@ export default {
     async fetchAll({
       commit
     }) {
-      // const items = await io.notes.fetchAll();
-      const items = [
-        { _id: 1, title: 'hello', content: 'exmaple' },
-        { _id: 2, title: 'hello2', content: 'exmaple2' }
-      ];
-      console.error('Not implemented');
+      const items = await io.notes.fetchAll();
       commit("clear");
       commit("putAll", items);
     },
@@ -65,17 +59,10 @@ export default {
       if (!value.title && !value.content) {
         return;
       }
-      // const item = await io.notes.add({
-      //   title: value,
-      //   completed: false
-      // });
-
-      console.error('Not implemented');
-
-      const item = {
-        id: _id++,
-        ...value
-      }
+      const item = await io.notes.add({
+        title: value,
+        completed: false
+      });
 
       commit("put", item);
     },
@@ -84,8 +71,6 @@ export default {
       commit
     }, item) {
       console.error('Not implemented');
-      // await io.notes.remove(item);
-      // commit("rm", item);
     },
 
     startEdit({
@@ -111,16 +96,14 @@ export default {
         return;
       }
 
-      // item.title = item.title.trim();
-      // if (!item.title) {
-      //   await io.notes.remove(item);
-      //   commit("remove", item);
-      // } else {
-      //   const edited = await io.notes.edit(item);
-      //   commit("edit", edited);
-      // }
-
-      console.error('Not implemented');
+      item.title = item.title.trim();
+      if (!item.title) {
+        await io.notes.remove(item);
+        commit("remove", item);
+      } else {
+        const edited = await io.notes.edit(item);
+        commit("edit", edited);
+      }
 
       state.editingItem = null;
     },
@@ -138,8 +121,7 @@ export default {
     async remove({
       commit
     }, item) {
-      // await io.notes.remove(item);
-      console.error('Not implemented');
+      await io.notes.remove(item);
       commit("rm", item);
     },
 
@@ -147,8 +129,6 @@ export default {
       commit
     }, item) {
       console.error('Not implemented');
-      // await io.notes.remove(item);
-      // commit("rm", item);
     },
 
 
