@@ -10,7 +10,6 @@ import mongoengine
 
 class Task(components.BaseModel):
     title = mongoengine.StringField(max_length=512)
-    text = mongoengine.StringField()
     completed = mongoengine.BooleanField(default=False)    
     pass
 
@@ -85,4 +84,4 @@ class TaskController(components.Controller):
 
 
 def init(app, api, model_target):
-    components.register_controllers(api, components.Controller.__subclasses__())
+    components.register_controllers(api, [TaskController, TaskListController])

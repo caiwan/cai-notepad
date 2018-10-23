@@ -22,6 +22,18 @@ BASE_PATH = "/api"
 class Controller(Resource):
     path = ""
 
+    #TODO add CRUD helper functions here:
+    def _fetchAll(self, cls):
+        pass
+    def _create(self, cls):
+        pass
+    def _read(self, cls, id):
+        pass
+    def _update(self, cls, item):
+        pass
+    def _delere(self, cls, id):
+        pass
+
 
 class MyJsonEncoder(json.JSONEncoder):
     def default(self, obj):

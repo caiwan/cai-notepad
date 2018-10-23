@@ -54,11 +54,13 @@ api = Api(app)
 
 import components
 import tasks
+import notes 
 
 components.database_init(app)
 
 models = []
 tasks.init(app, api, models)
+notes.init(app, api, models)
 
 
 # --- start dev server
