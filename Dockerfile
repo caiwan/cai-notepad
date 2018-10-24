@@ -1,4 +1,4 @@
-FROM python:3.4-alpine
+FROM python:3.7-alpine
 RUN apk update && apk add bash
 ADD ./server/ /app
 COPY ./docker/wait-for-it.sh /app/wait-for-it.sh

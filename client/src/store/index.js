@@ -3,8 +3,8 @@ import Vuex from 'vuex';
 
 // import createPersistedState from 'vuex-persistedstate';
 
-import Todos from './todos';
-import Notes from './notes';
+import Todos from './todosStore';
+import Notes from './notesStore';
 
 Vue.use(Vuex);
 

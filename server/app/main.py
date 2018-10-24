@@ -4,11 +4,13 @@ import os
 import sys
 import inspect
 
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s')
 logging.getLogger().setLevel(logging.DEBUG)
 logging.disable(logging.NOTSET)
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
+
 
 # fix import paths for internal imports
 cmd_folder = os.path.dirname(__file__)
@@ -56,12 +58,11 @@ import components
 import tasks
 import notes 
 
-components.database_init(app)
-
 models = []
 tasks.init(app, api, models)
 notes.init(app, api, models)
 
+components.database_init(app, models)
 
 # --- start dev server
 

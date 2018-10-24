@@ -22,17 +22,70 @@ BASE_PATH = "/api"
 class Controller(Resource):
     path = ""
 
-    #TODO add CRUD helper functions here:
-    def _fetchAll(self, cls):
-        pass
-    def _create(self, cls):
-        pass
-    def _read(self, cls, id):
-        pass
-    def _update(self, cls, item):
-        pass
-    def _delere(self, cls, id):
-        pass
+    # -- BASIC CRUD implementations for rapid prototyping
+    def _fetch_all(self, _cls):
+        items_json = [item.to_mongo() for item in _cls.objects(is_deleted=False)]
+        return(items_json, 200)
+
+
+    def _create(self, _cls, _request):
+        item_json = _request.json
+        if '_id' in item_json:
+            del item_json['_id']
+
+        item = BaseModel.update_document(_cls(), item_json)
+        item.save()
+        return (item.to_mongo(), 201)
+
+
+    def _read(self, _cls, item_id):
+        try: 
+            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+            return (item.to_mongo(), 200)
+
+        except _cls.DoesNotExist as e:
+            return({"error" : [str(e)]}, 404)
+        except e:
+            return({"error" : [str(e)]}, 500)
+
+        return({"error" : ["FATAL: you should not be able to see this"]}, 500)
+
+
+    def _update(self, _cls, _request, item_id):
+        item_json = _request.json
+        if '_id' in item_json:
+            del item_json['_id']
+        try: 
+            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+            BaseModel.update_document(item, item_json)
+            item.changed()
+            item.save()
+            return (item.to_mongo(), 200)
+
+        except _cls.DoesNotExist as e:
+            return({"error" : str(e)}, 404)
+
+        except :
+            return({
+                "error" : [str(err) for err in sys.exc_info()]
+            }, 500)
+
+        return({"error" : ["FATAL: you should not be able to see this"]}, 500)
+        
+
+    def _delete(self, _cls, item_id):
+        try: 
+            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+            item.is_deleted = True
+            item.changed()
+            item.save()
+        except _cls.DoesNotExist as e:
+            return({"error" : [str(e)]}, 404)
+        except e:
+            return({"error" : [str(e)]}, 500)
+
+        return ('', 201)
+
 
 
 class MyJsonEncoder(json.JSONEncoder):
@@ -59,6 +112,9 @@ class BaseModel(mongoengine.DynamicDocument):
     created = mongoengine.DateTimeField(default=datetime.now)
     edited = mongoengine.DateTimeField(default=datetime.now)
     is_deleted = mongoengine.BooleanField(default=False)
+
+    def changed(self):
+        self.edited = datetime.now()
 
     @staticmethod
     def update_document(document, data_dict):
@@ -108,6 +164,6 @@ def register_controllers(api, controllers):
     pass
 
 
-def database_init(app):
+def database_init(app, models):
     DB.init_app(app)
     pass

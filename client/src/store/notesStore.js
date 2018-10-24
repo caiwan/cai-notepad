@@ -1,9 +1,15 @@
 import io from '@/services/io';
 
-var _id = 0;
+import Tags from './notes/noteTags';
+import Categoies from './notes/noteCategories';
+import Tasks from './notes/noteTasks';
 
 export default {
   namespaced: true,
+
+  modules: {
+    Tags, Categoies, Tasks
+  },
 
   state: {
     items: [],
@@ -60,8 +66,7 @@ export default {
         return;
       }
       const item = await io.notes.add({
-        title: value,
-        completed: false
+        ...value
       });
 
       commit("put", item);
@@ -130,7 +135,6 @@ export default {
     }, item) {
       console.error('Not implemented');
     },
-
 
   }
 

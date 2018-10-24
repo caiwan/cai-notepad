@@ -9,72 +9,33 @@ import mongoengine
 class Note(components.BaseModel):
     title = mongoengine.StringField(max_length=512)
     content = mongoengine.StringField()
+    is_archived = mongoengine.BooleanField(default=False)
+    is_pinned = mongoengine.BooleanField(default=False)
     pass
 
 
 class NoteListController(components.Controller):
     path = "/notes/"
     def get(self):
-        note_json = [note.to_mongo() for note in Note.objects(is_deleted=False)]
-        return(note_json, 200)
+        return self._fetch_all(Note)
 
     def post(self):
-        note_json = request.json
-        if '_id' in note_json:
-            del note_json['_id']
-
-        note = components.BaseModel.update_document(Note(), note_json)
-        note.save()
-        return (note.to_mongo(), 201)
+        return self._create(Note, request)
 
     pass
 
 
 class NoteController(components.Controller):
-    path = "/notes/<string:note_id>"
+    path = "/notes/<string:note_id>/"
 
     def get(self, note_id):
-        try: 
-            note = Note.objects.get(_id=mongoengine.fields.ObjectId(note_id), is_deleted=False)
-            return (note.to_mongo(), 200)
-
-        except note.DoesNotExist as e:
-            return({"error" : [str(e)]}, 404)
-        except e:
-            return({"error" : [str(e)]}, 500)
-
-        return ('', 500)
-
+        return self._read(Note, note_id)
 
     def put(self, note_id):
-        note_json = request.json
-        if '_id' in note_json:
-            del note_json['_id']
-        try: 
-            task = Note.objects.get(_id=mongoengine.fields.ObjectId(note_id), is_deleted=False)
-            components.BaseModel.update_document(task, note_json)
-            # TODO: update modification date here 
-            task.save()
-            return (task.to_mongo(), 200)
-        except Note.DoesNotExist as e:
-            return({"error" : str(e)}, 404)
-        except :
-            return({
-                "error" : [str(err) for err in sys.exc_info()]
-            }, 500)
-        return ('', 500)
+        return self._update(Note, request, note_id)
 
     def delete(self, note_id):
-        try: 
-            note = Note.objects.get(_id=mongoengine.fields.ObjectId(note_id), is_deleted=False)
-            note.is_deleted = True
-            note.save()
-        except Note.DoesNotExist as e:
-            return({"error" : [str(e)]}, 404)
-        except e:
-            return({"error" : [str(e)]}, 500)
-
-        return ('', 500)
+        return self._delete(Note, note_id)
 
     pass
 
