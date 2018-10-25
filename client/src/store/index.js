@@ -5,12 +5,13 @@ import Vuex from 'vuex';
 
 import Todos from './todosStore';
 import Notes from './notesStore';
+import UI from './ui'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
-    Todos, Notes
+    Todos, Notes, UI
   },
 
   plugins: [

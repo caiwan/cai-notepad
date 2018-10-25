@@ -1,15 +1,15 @@
 import io from '@/services/io';
 
-import Tags from './notes/noteTags';
-import Categoies from './notes/noteCategories';
-import Tasks from './notes/noteTasks';
+// import Tags from './notes/noteTags';
+// import Categoies from './notes/noteCategories';
+// import Tasks from './notes/noteTasks';
 
 export default {
   namespaced: true,
 
-  modules: {
-    Tags, Categoies, Tasks
-  },
+  // modules: {
+  //   Tags, Categoies, Tasks
+  // },
 
   state: {
     items: [],
@@ -92,14 +92,16 @@ export default {
       state
     },
       item) {
+
       if (!state.editingItem) {
         return;
       }
 
-      if (item.title.trim() == state.beforeEditCache) {
-        state.editingItem = null;
-        return;
-      }
+      // Does not work; only looks for the title 
+      // if (item.title.trim() === state.beforeEditCache) {
+      //   state.editingItem = null;
+      //   return;
+      // }
 
       item.title = item.title.trim();
       if (!item.title) {

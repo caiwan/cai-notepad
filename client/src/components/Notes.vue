@@ -1,26 +1,33 @@
 <template>
   <section class="container-fluid">
 
-    <header>
-      <div :class="{hide : isCreateNew}">
-        <button @click="createNewNote()" class="btn btn-primary btn-raised">New note</button></div>
-      <div :class="{hide : !isCreateNew}">
-        <note-editor :note="newNote" v-on:doneEdit="addNewNote()" v-on:cancelEdit="clearNewNote()"></note-editor>
-        <!-- todos goez here -->
+    <header class="row">
+      <div class="col-12">
+        <div :class="{hide : isCreateNew}">
+          <section class="card bg-light mx-1 my-2">
+            <div class="card-body py-2"><button @click="createNewNote()" class="btn btn-primary btn-raised">New note</button></div>
+          </section>
+        </div>
+        <div :class="{hide : !isCreateNew}">
+          <note-editor :note="newNote" v-on:doneEdit="addNewNote()" v-on:cancelEdit="clearNewNote()"></note-editor>
+          <!-- todos goez here -->
+        </div>
       </div>
     </header>
 
-    <section>
-      <article class="notes form-group" v-for="note in notes" :key="note._id">
-        <div class="view" :class="{editing : editingNote == note}">
-          <note :note="note" v-on:editNote="startEditNote(note)" v-on:pinNote="togglePinNote(note)" v-on:removeNote="removeNote(note)"></note>
-        </div>
-        <div class="editor" :class="{editing : editingNote == note}">
-          <note-editor :note="note" v-on:doneEdit="doneEditNote(note)" v-on:cancelEdit="cancelEditNote(note)">
-          </note-editor>
-        </div>
-        <!-- todos || tasks goez here -->
-      </article>
+    <section class="row">
+      <div class="col-12">
+        <article class="notes form-group" v-for="note in notes" :key="note._id">
+          <div class="view" :class="{editing : editingNote == note}">
+            <note :note="note" v-on:editNote="startEditNote(note)" v-on:pinNote="togglePinNote(note)" v-on:removeNote="removeNote(note)"></note>
+          </div>
+          <div class="editor" :class="{editing : editingNote == note}">
+            <note-editor :note="note" v-on:doneEdit="doneEditNote(note)" v-on:cancelEdit="cancelEditNote(note)">
+            </note-editor>
+          </div>
+          <!-- todos || tasks goez here -->
+        </article>
+      </div>
     </section>
 
   </section>
