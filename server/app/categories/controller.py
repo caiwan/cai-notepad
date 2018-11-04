@@ -10,8 +10,7 @@ class CategoryListController(components.Controller):
     _service = CategoryService()
 
     def get(self):
-        is_list_as_tree = request.args.get('tree').lower() == 'true'
-        return self._fetch_all(is_list_as_tree)
+        return self._fetch_all()
     
     def post(self):
         return self._create(request.json)
@@ -21,11 +20,11 @@ class CategoryController(components.Controller):
     path = "categories/{category_id}"
     _service = CategoryService()
 
-    def get(self, category_id):
-        return self._read(category_id)
+    # def get(self, category_id):
+    #     return self._read(category_id)
 
-    def put(self, catagory_id):
-        return self._update(item_id, request.json)
+    # def put(self, catagory_id):
+    #     return self._update(item_id, request.json)
 
-    def delete(self, category_id):
-        return self._delete(item_id)
+    # def delete(self, category_id):
+    #     return self._delete(item_id)

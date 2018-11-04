@@ -9,7 +9,7 @@ class CategoryService(components.Service):
 
 
 def init(app, api, models):
-    # from categories.controller import CategoryController, CategoryListController
-    # components.register_controllers(api, [CategoryController, CategoryListController])
-    # models += [Category]
+    from categories.controller import CategoryController, CategoryListController
+    components.register_controllers(api, [CategoryController, CategoryListController])
+    models.extend([Category])
     pass
