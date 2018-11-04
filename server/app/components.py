@@ -59,53 +59,73 @@ class Controller(Resource):
         return self._service._model_class
 
     # -- BASIC CRUD implementations for rapid prototyping
-    def _fetch_all(self):
+    def _fetch_all(self, *args, **kwargs):
         assert self._service
-        items_json = [self._service.seitalize_item(item) for item in self._service.fetch_all_items()]
-        return(items_json, 200)
-
-    def _create(self, item_json):
-        assert self._service
-        if '_id' in item_json:
-            del item_json['_id']
-        try: 
-            return (self._service.serialize_item(self._service.create_item(item_json)), 201)
+        try:
+            items_json = [self._service.seitalize_item(item) for item in self._service.fetch_all_items(*args, **kwargs)]
+            return(items_json, 200)
+        except RuntimeError as e:
+            logging.info("Bad request: " + str(e))
+            return(items_json, 400)
         except Exception as e:
             logging.error("Excpetion: " + str(e))
             return({"error": [str(e)]}, 500)   
 
-    def _read(self, item_id):
+
+    def _create(self, item_json, *args, **kwargs):
+        assert self._service
+        if '_id' in item_json:
+            del item_json['_id']
+        try: 
+            return (self._service.serialize_item(self._service.create_item(item_json, *args, **kwargs)), 201)
+        except RuntimeError as e:
+            logging.info("Bad request: " + str(e))
+            return(items_json, 400)
+        except Exception as e:
+            logging.error("Excpetion: " + str(e))
+            return({"error": [str(e)]}, 500)   
+
+    def _read(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
-            return (self._service.serialize_item(self._service.read_item(item_id)), 200)
+            return (self._service.serialize_item(self._service.read_item(item_id, *args, **kwargs)), 200)
         except _cls.DoesNotExist as e:
             return({"error": [str(e)]}, 404)
+        except RuntimeError as e:
+            logging.info("Bad request: " + str(e))
+            return(items_json, 400)
         except Exception as e:
             logging.error("Excpetion: " + str(e))
             return({"error": [str(e)]}, 500)
 
         return({"error": ["FATAL: you should not be able to see this"]}, 500)
 
-    def _update(self, item_id, item_json):
+    def _update(self, item_id, item_json, *args, **kwargs):
         _cls = self._get_cls()
         if '_id' in item_json:
             del item_json['_id']
         try:
-            return (self._service.serialize_item(self._service.update_item(item_id, item_json)), 200)
+            return (self._service.serialize_item(self._service.update_item(item_id, item_json, *args, **kwargs)), 200)
         except _cls.DoesNotExist as e:
             return({"error": str(e)}, 404)
+        except RuntimeError as e:
+            logging.info("Bad request: " + str(e))
+            return(items_json, 400)
         except Exception as e:
             logging.error("Excpetion: " + str(e))
             return({"error": [str(e)]}, 500)
 
         return({"error": ["FATAL: you should not be able to see this"]}, 500)
 
-    def _delete(self, item_id):
+    def _delete(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
-            self._service.delete_item(item_id)
+            self._service.delete_item(item_id, *args, **kwargs)
         except _cls.DoesNotExist as e:
             return({"error": [str(e)]}, 404)
+        except RuntimeError as e:
+            logging.info("Bad request: " + str(e))
+            return(items_json, 400)
         except Exception as e:
             logging.error("Excpetion: " + str(e))
             return({"error": [str(e)]}, 500)

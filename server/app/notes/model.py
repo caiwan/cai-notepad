@@ -9,7 +9,10 @@ class Note(components.BaseModel):
     is_archived = mongoengine.BooleanField(default=False)
     is_pinned = mongoengine.BooleanField(default=False)
     tags = mongoengine.ListField(mongoengine.ReferenceField(Tag), default=[])
-    # category = mongoengine.ReferenceField(Tag)
-    pass
+    category = mongoengine.ReferenceField(Tag, default=None)
+    # tasks = 
+    # due_date = ?
+    # milestone = ? 
+    # decoration = ? (like colors, etc)
 
 # Other type of notes and its extensions goez here
