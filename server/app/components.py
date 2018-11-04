@@ -1,10 +1,6 @@
 import logging
-import inspect
-import os
-import sys
-import inspect
+import os, sys
 
-import logging
 import json
 
 from datetime import datetime
@@ -19,73 +15,101 @@ from flask_restful import Resource
 BASE_PATH = "/api"
 
 
+class Service:
+    _model_class = None
+    
+    def fetch_all_items(self):
+        assert self._model_class
+        return _model_class.objects(is_deleted=False).order_by('edited')
+
+    def read_item(self, item_id):
+        return self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+
+    def create_item(self, item_json):
+        item = BaseModel.update_document(self._model_class(), item_json)
+        item.save()
+        return item
+
+    def update_item(self, item_id, item_json):
+        item = self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+        BaseModel.update_document(item, item_json)
+        item.changed()
+        item.save()
+        return item
+
+    def delete_item(self, item_id):
+        item = self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+        item.is_deleted = True
+        item.changed()
+        item.save()
+
+    def serialize_item(item):
+        return item.to_mongo()
+
+    pass
+
+
 class Controller(Resource):
     path = ""
+    _service = None
+
+    def _get_cls(self):
+        assert self._service
+        assert self._service._model_class
+        return self._service._model_class
 
     # -- BASIC CRUD implementations for rapid prototyping
-    def _fetch_all(self, _cls):
-        items_json = [item.to_mongo() for item in _cls.objects(is_deleted=False)]
+    def _fetch_all(self):
+        assert self._service
+        items_json = [self._service.seitalize_item(item) for item in self._service.fetch_all_items()]
         return(items_json, 200)
 
-
-    def _create(self, _cls, _request):
-        item_json = _request.json
-        if '_id' in item_json:
-            del item_json['_id']
-
-        item = BaseModel.update_document(_cls(), item_json)
-        item.save()
-        return (item.to_mongo(), 201)
-
-
-    def _read(self, _cls, item_id):
-        try: 
-            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
-            return (item.to_mongo(), 200)
-
-        except _cls.DoesNotExist as e:
-            return({"error" : [str(e)]}, 404)
-        except e:
-            return({"error" : [str(e)]}, 500)
-
-        return({"error" : ["FATAL: you should not be able to see this"]}, 500)
-
-
-    def _update(self, _cls, _request, item_id):
-        item_json = _request.json
+    def _create(self, item_json):
+        assert self._service
         if '_id' in item_json:
             del item_json['_id']
         try: 
-            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
-            BaseModel.update_document(item, item_json)
-            item.changed()
-            item.save()
-            return (item.to_mongo(), 200)
+            return (self._service.serialize_item(self._service.create_item(item_json)), 201)
+        except Exception as e:
+            logging.error("Excpetion: " + str(e))
+            return({"error": [str(e)]}, 500)   
 
+    def _read(self, item_id):
+        _cls = self._get_cls()
+        try:
+            return (self._service.serialize_item(self._service.read_item(item_id)), 200)
         except _cls.DoesNotExist as e:
-            return({"error" : str(e)}, 404)
+            return({"error": [str(e)]}, 404)
+        except Exception as e:
+            logging.error("Excpetion: " + str(e))
+            return({"error": [str(e)]}, 500)
 
-        except :
-            return({
-                "error" : [str(err) for err in sys.exc_info()]
-            }, 500)
+        return({"error": ["FATAL: you should not be able to see this"]}, 500)
 
-        return({"error" : ["FATAL: you should not be able to see this"]}, 500)
-        
-
-    def _delete(self, _cls, item_id):
-        try: 
-            item = _cls.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
-            item.is_deleted = True
-            item.changed()
-            item.save()
+    def _update(self, item_id, item_json):
+        _cls = self._get_cls()
+        if '_id' in item_json:
+            del item_json['_id']
+        try:
+            return (self._service.serialize_item(self._service.update_item(item_id, item_json)), 200)
         except _cls.DoesNotExist as e:
-            return({"error" : [str(e)]}, 404)
-        except e:
-            return({"error" : [str(e)]}, 500)
+            return({"error": str(e)}, 404)
+        except Exception as e:
+            logging.error("Excpetion: " + str(e))
+            return({"error": [str(e)]}, 500)
 
+        return({"error": ["FATAL: you should not be able to see this"]}, 500)
+
+    def _delete(self, item_id):
+        _cls = self._get_cls()
+        try:
+            self._service.delete_item(item_id)
+        except _cls.DoesNotExist as e:
+            return({"error": [str(e)]}, 404)
+        except Exception as e:
+            logging.error("Excpetion: " + str(e))
+            return({"error": [str(e)]}, 500)
         return ('', 201)
-
 
 
 class MyJsonEncoder(json.JSONEncoder):
@@ -122,7 +146,7 @@ class BaseModel(mongoengine.DynamicDocument):
         def field_value(field, value):
 
             if field.__class__ in (
-                mongoengine.fields.ListField, 
+                mongoengine.fields.ListField,
                 mongoengine.fields.SortedListField
             ):
                 return [
@@ -142,7 +166,8 @@ class BaseModel(mongoengine.DynamicDocument):
                 mongoengine.fields.DateTimeField,
                 mongoengine.fields.ComplexDateTimeField,
             ):
-                return datetime.utcfromtimestamp(int(value)) # field.__class__(datetime.utcfromtimestamp(int(**value)))
+                # field.__class__(datetime.utcfromtimestamp(int(**value)))
+                return datetime.utcfromtimestamp(int(value))
 
             return value
 
@@ -165,5 +190,6 @@ def register_controllers(api, controllers):
 
 
 def database_init(app, models):
+    # models are unnesesarry, however it's nesesarry for dump/import db or backup
     DB.init_app(app)
     pass

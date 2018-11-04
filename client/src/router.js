@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Todos from '@/components/Todos'
-import Notes from '@/components/Notes'
+// import Todos from '@/components/tasks'
+import Notes from '@/components/notes/component'
 
 Vue.use(Router)
 
@@ -10,11 +10,11 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    {
-      path: '/tasks',
-      name: 'Todos',
-      component: Todos
-    },
+    // {
+    //   path: '/tasks',
+    //   name: 'Todos',
+    //   component: Todos
+    // },
     {
       path: '/',
       name: 'Notes',

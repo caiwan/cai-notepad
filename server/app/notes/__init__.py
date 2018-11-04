@@ -1,44 +1,51 @@
-import sys
+# coding=utf-8
 
-from flask import request
-import components
+import logging
+import copy
 
 import mongoengine
 
-
-class Note(components.BaseModel):
-    title = mongoengine.StringField(max_length=512)
-    content = mongoengine.StringField()
-    is_archived = mongoengine.BooleanField(default=False)
-    is_pinned = mongoengine.BooleanField(default=False)
-    pass
+import components
+from notes.model import Note
+from tags import TagService
 
 
-class NoteListController(components.Controller):
-    path = "/notes/"
-    def get(self):
-        return self._fetch_all(Note)
+class NoteService(components.Service):
+    _model_class = Note
+    _tagService = TagService()
 
-    def post(self):
-        return self._create(Note, request)
+    def create_item(self, item_json):
+        (note_json, tags) = self._select_and_sanitize_tags(item_json)
+        item = Note.update_document(Note(tags=tags), item_json)
+        item.save()
+        return item
 
-    pass
+    def update_item(self, item_id, item_json):
+        (item_json, tags) = self._select_and_sanitize_tags(item_json)
+        item = Note.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
+        Note.update_document(item, item_json)
+        item.tags = tags
+        item.changed()
+        item.save()
+        return item
+
+    def serialize_item(self, item):
+        json = item.to_mongo()
+        json['tags'] = [tag.tag for tag in item.tags] 
+        return json
+
+    def _select_and_sanitize_tags(self, item_json):
+        tags = []
+        if 'tags' in item_json:
+            tags = self._tagService.bulk_search_or_insert(item_json['tags'])
+            del item_json['tags']
+        logging.debug("Tags:" + ",".join([tag.tag for tag in tags]))
+        return (item_json, tags)
 
 
-class NoteController(components.Controller):
-    path = "/notes/<string:note_id>/"
+# ----------------------------------------
 
-    def get(self, note_id):
-        return self._read(Note, note_id)
-
-    def put(self, note_id):
-        return self._update(Note, request, note_id)
-
-    def delete(self, note_id):
-        return self._delete(Note, note_id)
-
-    pass
-
-
-def init(app, api, model_target):
+def init(app, api, models):
+    from notes.controller import NoteListController, NoteController
     components.register_controllers(api, [NoteListController, NoteController])
+    models += [Note]

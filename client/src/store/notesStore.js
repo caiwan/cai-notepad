@@ -1,53 +1,26 @@
 import io from '@/services/io';
-
-// import Tags from './notes/noteTags';
-// import Categoies from './notes/noteCategories';
-// import Tasks from './notes/noteTasks';
+import common from '@/store/_common';
 
 export default {
   namespaced: true,
 
-  // modules: {
-  //   Tags, Categoies, Tasks
-  // },
-
   state: {
     items: [],
     editingItem: null,
-    beforeEditCache: "",
+    beforeEditCache: null,
+    isDirty: false // TODO: ... 
   },
 
   mutations: {
-    clear: (state) => state.items = [],
-
-    put: (state, item) => state.items.push(item),
-
-    putAll: (state, items) => state.items = state.items.concat(items),
-
-    edit: (state, item) => {
-      const index = state.items.findIndex((elem) => {
-        return elem._id === item._id;
-      });
-      // we get back a new object, and we need to get setters to be invoked
-      var storedItem = state.items[index];
-      for (var key in item) {
-        if (item.hasOwnProperty(key)) {
-          storedItem[key] = item[key];
-        }
-      }
-    },
-
-    rm: (state, item) => state.items.splice(state.items.indexOf(item), 1),
-
+    ...common.mutations,
     show(state, filterName) {
       if (filters[filterName]) {
         state.visibility = filterName;
       }
-    }
+    },
   },
 
   actions: {
-
     async fetchAll({
       commit
     }) {
@@ -57,8 +30,7 @@ export default {
     },
 
     async addNew({
-      commit,
-      state
+      commit
     }, value) {
       value.title = value.title && value.title.trim();
       value.content = value.content && value.content.trim();
@@ -79,11 +51,13 @@ export default {
     },
 
     startEdit({
-      commit,
       state
     },
       item) {
-      state.beforeEditCache = item.title;
+      state.beforeEditCache = {
+        title: item.title,
+        content: item.content,
+      };
       state.editingItem = item;
     },
 
@@ -97,11 +71,7 @@ export default {
         return;
       }
 
-      // Does not work; only looks for the title 
-      // if (item.title.trim() === state.beforeEditCache) {
-      //   state.editingItem = null;
-      //   return;
-      // }
+      // TODO: save only when document is dirty -> component
 
       item.title = item.title.trim();
       if (!item.title) {
@@ -116,7 +86,6 @@ export default {
     },
 
     cancelEdit({
-      commit,
       state
     },
       item) {
@@ -137,7 +106,6 @@ export default {
     }, item) {
       console.error('Not implemented');
     },
-
   }
 
 }

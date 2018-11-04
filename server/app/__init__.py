@@ -18,11 +18,11 @@ if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
 
-PRODUCTION = __name__ != "__main__"
-DEBUG = not PRODUCTION
-
-
 from components import MyJsonEncoder
+
+
+PRODUCTION = (os.getenv("NOTES_PRODUCTION") == 'True')
+DEBUG = (os.getenv("NOTES_DEBUG") == 'True')
 
 
 class MyConfig(object):
@@ -57,22 +57,11 @@ api = Api(app)
 import components
 import tasks
 import notes 
+import tags
 
 models = []
 tasks.init(app, api, models)
 notes.init(app, api, models)
+tags.init(app, api, models)
 
 components.database_init(app, models)
-
-# --- start dev server
-
-# if app.debug and __name__ != '__main__':
-#     from werkzeug.debug import DebuggedApplication
-#     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-
-if __name__ == '__main__':
-    logging.debug("PRODUCTION: %s" % PRODUCTION)
-    logging.debug("app.debug: %s" % app.debug)
-    logging.debug("app.testing: %s" % app.testing)
-
-    app.run(host="0.0.0.0", port=5000)

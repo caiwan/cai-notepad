@@ -1,14 +1,15 @@
+
 <template>
   <section class="container-fluid">
 
     <header class="row">
       <div class="col-12">
-        <div :class="{hide : isCreateNew}">
+        <div v-if="!isCreateNew">
           <section class="card bg-light mx-1 my-2">
             <div class="card-body py-2"><button @click="createNewNote()" class="btn btn-primary btn-raised">New note</button></div>
           </section>
         </div>
-        <div :class="{hide : !isCreateNew}">
+        <div v-else>
           <note-editor :note="newNote" v-on:doneEdit="addNewNote()" v-on:cancelEdit="clearNewNote()"></note-editor>
           <!-- todos goez here -->
         </div>
@@ -18,13 +19,16 @@
     <section class="row">
       <div class="col-12">
         <article class="notes form-group" v-for="note in notes" :key="note._id">
-          <div class="view" :class="{editing : editingNote == note}">
-            <note :note="note" v-on:editNote="startEditNote(note)" v-on:pinNote="togglePinNote(note)" v-on:removeNote="removeNote(note)"></note>
-          </div>
-          <div class="editor" :class="{editing : editingNote == note}">
+
+          <div class="editor" v-if="editingNote == note">
             <note-editor :note="note" v-on:doneEdit="doneEditNote(note)" v-on:cancelEdit="cancelEditNote(note)">
             </note-editor>
           </div>
+
+          <div class="view" v-else>
+            <note :note="note" v-on:editNote="startEditNote(note)" v-on:pinNote="togglePinNote(note)" v-on:removeNote="removeNote(note)"></note>
+          </div>
+
           <!-- todos || tasks goez here -->
         </article>
       </div>
@@ -36,8 +40,8 @@
 <script>
 import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 
-import NoteEditor from './note/editor.vue';
-import Note from './note/note.vue'
+import NoteEditor from './editor.vue';
+import Note from './note.vue'
 
 export default {
   name: "notes",
@@ -98,21 +102,21 @@ export default {
 </script>
 
 <style lang="scss">
-.hide {
-  display: none !important;
-}
-.notes {
-  .view {
-    // display: block;
-    &.editing {
-      display: none !important;
-    }
-  }
-  .editor {
-    display: none;
-    &.editing {
-      display: block !important;
-    }
-  }
-}
+// .hide {
+//   display: none !important;
+// }
+// .notes {
+//   .view {
+//     // display: block;
+//     &.editing {
+//       display: none !important;
+//     }
+//   }
+//   .editor {
+//     display: none;
+//     &.editing {
+//       display: block !important;
+//     }
+//   }
+// }
 </style>

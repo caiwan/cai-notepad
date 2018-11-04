@@ -1,0 +1,17 @@
+// @import "colors";
+$border: 1px;
+
+$tag-background: darken($teal, 10);
+$tag-color: $white;
+$tag-margin: 3px;
+$tag-padding: 2px;
+$tag-size: 12px;
+$tag-font: inherit;
+
+$choices-background: $gray-800;
+$choices-odd-background: $gray-700;
+
+$error-color: $white;
+$error-background: $danger;
+
+$choices-tag-padding: 4px;

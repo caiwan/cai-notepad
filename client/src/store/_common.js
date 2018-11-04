@@ -1,12 +1,5 @@
-import io from '@/services/io'
 
 export default {
-  namespaced: true,
-  state: {
-    items: [],
-    tags: []
-  },
-
   mutations: {
     clear: (state) => state.items = [],
 
@@ -28,19 +21,5 @@ export default {
     },
 
     rm: (state, item) => state.items.splice(state.items.indexOf(item), 1),
-
-    show(state, filterName) {
-      if (filters[filterName]) {
-        state.visibility = filterName;
-      }
-    }
-  },
-
-  getters: {
-
-  },
-
-  actions: {
-
   }
-}
+};

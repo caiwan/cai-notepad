@@ -3,3 +3,7 @@ flask-restful>=0.3.6
 Flask-Script
 flask-mongoengine
 mongoengine
+python-slugify
+python-dotenv
+ddt
+mongomock
