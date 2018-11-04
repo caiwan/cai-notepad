@@ -1,11 +1,8 @@
 import mongoengine
-import logging
-import copy
-from slugify import slugify 
 
 class Tag(mongoengine.Document):
-    slug = mongoengine.StringField(primary_key=True, max_length=128)
-    tag = mongoengine.StringField(required=True, max_length=128)
+    tag = mongoengine.StringField(primary_key=True, max_length=128)
 
 class FuzzyTag(mongoengine.Document):
-    pass
+    tag = mongoengine.ReferenceField(Tag, required=True)
+    fuzzy = mongoengine.StringField(required=True, max_length=128)

@@ -2,6 +2,7 @@ import mongoengine
 import components
 
 from tags.model import Tag
+# from categories.model import Category
 
 class Note(components.BaseModel):
     title = mongoengine.StringField(max_length=512)
@@ -9,7 +10,7 @@ class Note(components.BaseModel):
     is_archived = mongoengine.BooleanField(default=False)
     is_pinned = mongoengine.BooleanField(default=False)
     tags = mongoengine.ListField(mongoengine.ReferenceField(Tag), default=[])
-    category = mongoengine.ReferenceField(Tag, default=None)
+    # category = mongoengine.ReferenceField(Category, default=None)
     # tasks = 
     # due_date = ?
     # milestone = ? 

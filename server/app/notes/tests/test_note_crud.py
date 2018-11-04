@@ -22,7 +22,7 @@ class TestNotes(TestCase):
     edited_note = {
         'title': 'edited title',
         'content': 'edited contents',
-        'tags': ['these', 'are', 'the', 'test', 'tags', 'we', 'look', 'for', 'árviz', 'tűrő', 'tükör', 'fúró', 'gép']
+        'tags': ['these', 'are', 'the', 'other', 'tags', 'we', 'have', 'edited', 'so', 'far']
     }
 
     def setUp(self):
@@ -93,7 +93,7 @@ class TestNotes(TestCase):
 
         response_json = json.loads(response.data)
 
-        self._validate_tags(self.new_note, response_json)
+        self._validate_tags(self.edited_note, response_json)
 
 
     def _insert_note(self, note):
@@ -110,6 +110,7 @@ class TestNotes(TestCase):
 
     def _validate_tags(self, expected, actual):
         self.assertEqual(len(expected['tags']), len(actual['tags']))
-        # TODO: order of tags will not be garanteed
-        for pair in zip(expected['tags'], actual['tags']):
-            self.assertEqual(pair[0], pair[1])
+        for tag in expected['tags']:
+            self.assertTrue(tag in actual['tags'])
+        # for pair in zip(expected['tags'], actual['tags']):
+            # self.assertEqual(pair[0], pair[1])

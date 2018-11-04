@@ -1,20 +1,21 @@
 import logging
 from flask import request
-from slugify import slugify 
+# from slugify import slugify 
 import components
+from tags import TagService
 from tags.model import Tag
 
 
 class TagAutocomplete(components.Controller):
-    """ GET /api/tags/autocomplete/?q=<tag> search for tag"""
+    """ 
+    GET /api/tags/autocomplete/?q=<tag> search for tag
+    GET /api/tags/autocomplete/?q=<tag>%l=<n> yields the top n results or less
+    """
 
     path = "/tags/autocomplete/"
-    _model_class = Tag
+    _service = TagService()
 
     def get(self):
         search_query = request.args.get('q')
-        tags = Tag.objects.search_text(slugify(search_query))
-
-        logging.debug("Query: " + search_query + "; Found tags:" + ",".join([tag.tag for tag in tags]))
-
-        return ('not implemented', 500)
+        result_limit = request.args.get('l')
+        return self._fetch_all(search_query, result_limit)

@@ -10,9 +10,8 @@ import mongoengine
 
 from flask_restful import Resource
 
-# -- Controller
 
-BASE_PATH = "/api"
+# -- Service
 
 
 class Service:
@@ -43,15 +42,32 @@ class Service:
         item.changed()
         item.save()
 
-    def serialize_item(item):
+    def serialize_item(self, item):
         return item.to_mongo()
 
-    pass
 
+# -- Controller
+
+BASE_PATH = "/api"
 
 class Controller(Resource):
     path = ""
     _service = None
+
+    def get(self):
+        return({"error": ['Not implemented']}, 501)
+
+    def post(self):
+        return({"error": ['Not implemented']}, 501)
+
+    def put(self):
+        return({"error": ['Invalid method call or not implemented']}, 405)
+
+    def delete(self):
+        return({"error": ['Invalid method call or not implemented']}, 405)
+
+    def patch(self):
+        return({"error": ['Invalid method call or not implemented']}, 405)
 
     def _get_cls(self):
         assert self._service
@@ -62,14 +78,14 @@ class Controller(Resource):
     def _fetch_all(self, *args, **kwargs):
         assert self._service
         try:
-            items_json = [self._service.seitalize_item(item) for item in self._service.fetch_all_items(*args, **kwargs)]
+            items_json = [self._service.serialize_item(item) for item in self._service.fetch_all_items(*args, **kwargs)]
             return(items_json, 200)
         except RuntimeError as e:
             logging.info("Bad request: " + str(e))
             return(items_json, 400)
-        except Exception as e:
-            logging.error("Excpetion: " + str(e))
-            return({"error": [str(e)]}, 500)   
+        # except Exception as e:
+        #     logging.error("Excpetion: " + str(e))
+        #     return({"error": [str(e)]}, 500)   
 
 
     def _create(self, item_json, *args, **kwargs):
@@ -81,9 +97,9 @@ class Controller(Resource):
         except RuntimeError as e:
             logging.info("Bad request: " + str(e))
             return(items_json, 400)
-        except Exception as e:
-            logging.error("Excpetion: " + str(e))
-            return({"error": [str(e)]}, 500)   
+        # except Exception as e:
+        #     logging.error("Excpetion: " + str(e))
+        #     return({"error": [str(e)]}, 500)   
 
     def _read(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
@@ -94,9 +110,9 @@ class Controller(Resource):
         except RuntimeError as e:
             logging.info("Bad request: " + str(e))
             return(items_json, 400)
-        except Exception as e:
-            logging.error("Excpetion: " + str(e))
-            return({"error": [str(e)]}, 500)
+        # except Exception as e:
+        #     logging.error("Excpetion: " + str(e))
+        #     return({"error": [str(e)]}, 500)
 
         return({"error": ["FATAL: you should not be able to see this"]}, 500)
 
@@ -111,9 +127,9 @@ class Controller(Resource):
         except RuntimeError as e:
             logging.info("Bad request: " + str(e))
             return(items_json, 400)
-        except Exception as e:
-            logging.error("Excpetion: " + str(e))
-            return({"error": [str(e)]}, 500)
+        # except Exception as e:
+        #     logging.error("Excpetion: " + str(e))
+        #     return({"error": [str(e)]}, 500)
 
         return({"error": ["FATAL: you should not be able to see this"]}, 500)
 
@@ -126,9 +142,9 @@ class Controller(Resource):
         except RuntimeError as e:
             logging.info("Bad request: " + str(e))
             return(items_json, 400)
-        except Exception as e:
-            logging.error("Excpetion: " + str(e))
-            return({"error": [str(e)]}, 500)
+        # except Exception as e:
+        #     logging.error("Excpetion: " + str(e))
+        #     return({"error": [str(e)]}, 500)
         return ('', 201)
 
 

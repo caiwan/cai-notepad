@@ -4,6 +4,8 @@ Flask-Script
 flask-mongoengine
 mongoengine
 python-slugify
+Fuzzy
+python-Levenshtein
 python-dotenv
 ddt
 mongomock
