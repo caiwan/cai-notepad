@@ -17,5 +17,5 @@ class TagAutocomplete(components.Controller):
 
     def get(self):
         search_query = request.args.get('q')
-        result_limit = request.args.get('l')
+        result_limit = int(request.args.get('l'))
         return self._fetch_all(search_query, result_limit)

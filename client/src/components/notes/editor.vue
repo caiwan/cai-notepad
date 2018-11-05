@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 // TODO: we need to finetune this thing: 
 import autoResize from 'autoresize-textarea';
 import TagInput from '../tag-input.vue'
@@ -40,7 +41,6 @@ export default {
     }
   },
   data() {
-    console.log('holy bananas', { title: this.note.title });
     return {
       pTags: this.note.tags !== undefined ? this.note.tags.slice() : []
     };
@@ -48,15 +48,16 @@ export default {
   mounted() {
     this._contentEditor = autoResize(this.$el.querySelector("#content"));
   },
-  // computed: {
-
-  // },
+  computed: {
+    ...mapState("Notes/Tags", { autocompleteTags: "items" })
+  },
   methods: {
     autocomplete(tag) {
       if (tag.length < 3) {
         return [];
       }
-      return ['these', 'are', 'the', 'tags', 'that', 'you', 'can', 'chose', 'form'];
+      this.$store.dispatch("Notes/Tags/queryAutocomplete", tag);
+      return this.autocompleteTags;
     },
     done() {
       // this._contentEditor.reset();

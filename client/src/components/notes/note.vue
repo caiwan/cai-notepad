@@ -9,7 +9,10 @@
       <vue-markdown :source="note.content"></vue-markdown>
     </section>
     <footer class="card-footer p-2">
-      Cagegory | tags <br />
+      <ul class="tags">
+        <li v-for="tag in note.tags" :key="tag" class="tag">{{tag}}</li>
+      </ul>
+      Cagegory <br />
     </footer>
   </section>
 </template>
@@ -33,5 +36,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" rel="stylesheet/scss">
+@import "../../scss/_tag-input.scss";
 </style>

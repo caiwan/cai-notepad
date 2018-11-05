@@ -1,8 +1,14 @@
 import io from '@/services/io';
 import common from '@/store/_common';
 
+import tags from './notes/tagsStore'
+
 export default {
   namespaced: true,
+
+  modules: {
+    "Tags": tags
+  },
 
   state: {
     items: [],
@@ -41,7 +47,7 @@ export default {
         ...value
       });
 
-      commit("put", item);
+      commit("putFront", item);
     },
 
     async togglePin({

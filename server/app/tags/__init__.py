@@ -26,10 +26,11 @@ class TagService(components.Service):
         result_map = {}
         # this not really gonna work I think
         for word in self._make_fuzzy(terms):
-            fuzzies = FuzzyTag.objects(fuzzy__icontains=word)
-            for fuzzy in fuzzies:
-                if fuzzy.tag not in result_map:
-                    result_map[fuzzy.tag] = Levenshtein.distance(word, fuzzy.fuzzy)
+            if word:
+                fuzzies = FuzzyTag.objects(fuzzy__icontains=word)
+                for fuzzy in fuzzies:
+                    if fuzzy.tag not in result_map:
+                        result_map[fuzzy.tag] = Levenshtein.distance(word, fuzzy.fuzzy)
 
         # order by score
         result_map = dict((k,result_map[k]) for k in sorted(result_map, key=result_map.get, reverse=True))
@@ -41,7 +42,7 @@ class TagService(components.Service):
         )
     
         if result_limit:
-            return [tag for tag in result_map.keys()[:result_limit]]
+            return [tag for tag in result_map.keys()][:result_limit]
         return [tag for tag in result_map.keys()]
 
     def bulk_search_or_insert(self, tags):
@@ -79,7 +80,8 @@ class TagService(components.Service):
         fuzzies = []
         terms = tag_str.split(" ")
         for fuzzy_word in self._make_fuzzy(terms):
-            fuzzies.append(FuzzyTag(tag=tag, fuzzy=fuzzy_word))
+            if fuzzy_word:
+                fuzzies.append(FuzzyTag(tag=tag, fuzzy=fuzzy_word))
   
         return (tag, fuzzies)
 

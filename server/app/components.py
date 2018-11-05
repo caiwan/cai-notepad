@@ -19,7 +19,7 @@ class Service:
     
     def fetch_all_items(self):
         assert self._model_class
-        return _model_class.objects(is_deleted=False).order_by('edited')
+        return self._model_class.objects(is_deleted=False).order_by('-edited')
 
     def read_item(self, item_id):
         return self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)

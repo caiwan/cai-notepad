@@ -4,6 +4,7 @@ export default {
     clear: (state) => state.items = [],
 
     put: (state, item) => state.items.push(item),
+    putFront: (state, item) => state.items.unshift(item),
 
     putAll: (state, items) => state.items = state.items.concat(items),
 
