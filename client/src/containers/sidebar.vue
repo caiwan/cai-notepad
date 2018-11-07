@@ -3,6 +3,7 @@
     <header class="navbar-brand">
       <a>Title</a>
     </header>
+
     <ul class="list-group">
       <li class="list-group-item">
         <a>Link 1</a>
@@ -14,12 +15,27 @@
         <a>Link 3</a>
       </li>
     </ul>
+
+    <!--- -->
+    <header class="navbar-brand">
+      <a>Categories</a>
+      [Edit]
+    </header>
+
+    <categories />
+    <!--- -->
+
   </nav>
 </template>
 
 <script>
-export default {
 
+import Categories from './drawer/categories.vue'
+
+export default {
+  components: {
+    Categories
+  }
 }
 </script>
 

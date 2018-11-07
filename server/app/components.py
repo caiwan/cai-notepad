@@ -22,14 +22,17 @@ class Service:
         return self._model_class.objects(is_deleted=False).order_by('-edited')
 
     def read_item(self, item_id):
+        assert self._model_class
         return self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
 
     def create_item(self, item_json):
+        assert self._model_class        
         item = BaseModel.update_document(self._model_class(), item_json)
         item.save()
         return item
 
     def update_item(self, item_id, item_json):
+        assert self._model_class        
         item = self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
         BaseModel.update_document(item, item_json)
         item.changed()
@@ -37,6 +40,7 @@ class Service:
         return item
 
     def delete_item(self, item_id):
+        assert self._model_class
         item = self._model_class.objects.get(_id=mongoengine.fields.ObjectId(item_id), is_deleted=False)
         item.is_deleted = True
         item.changed()
@@ -196,7 +200,10 @@ class BaseModel(mongoengine.DynamicDocument):
                 mongoengine.fields.ReferenceField,
                 mongoengine.fields.GenericReferenceField
             ):
-                return field.document_type(**value)
+                if value:
+                    return field.document_type(**value)
+                return field.document_type()
+
 
             if field.__class__ in (
                 mongoengine.fields.DateTimeField,

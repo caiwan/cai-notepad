@@ -2,8 +2,6 @@ from unittest import TestCase
 import json
 import logging
 
-print("name:", __name__)
-
 from app import app
 from components import BASE_PATH as API_BASE
 
@@ -112,5 +110,3 @@ class TestNotes(TestCase):
         self.assertEqual(len(expected['tags']), len(actual['tags']))
         for tag in expected['tags']:
             self.assertTrue(tag in actual['tags'])
-        # for pair in zip(expected['tags'], actual['tags']):
-            # self.assertEqual(pair[0], pair[1])

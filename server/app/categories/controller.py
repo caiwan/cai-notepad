@@ -6,7 +6,7 @@ from categories import CategoryService
 
 class CategoryListController(components.Controller):
     """GET /api/categories/?tree=True will returns the categories as tree view"""
-    path = "categories/"
+    path = "/categories/"
     _service = CategoryService()
 
     def get(self):
@@ -17,7 +17,7 @@ class CategoryListController(components.Controller):
 
 
 class CategoryController(components.Controller):
-    path = "categories/{category_id}"
+    path = "/categories/{category_id}"
     _service = CategoryService()
 
     # def get(self, category_id):

@@ -102,21 +102,4 @@ export default {
 </script>
 
 <style lang="scss">
-// .hide {
-//   display: none !important;
-// }
-// .notes {
-//   .view {
-//     // display: block;
-//     &.editing {
-//       display: none !important;
-//     }
-//   }
-//   .editor {
-//     display: none;
-//     &.editing {
-//       display: block !important;
-//     }
-//   }
-// }
 </style>

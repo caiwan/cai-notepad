@@ -1,6 +1,5 @@
 import logging
 from flask import request
-# from slugify import slugify 
 import components
 from tags import TagService
 from tags.model import Tag
@@ -17,5 +16,6 @@ class TagAutocomplete(components.Controller):
 
     def get(self):
         search_query = request.args.get('q')
-        result_limit = int(request.args.get('l'))
+        result_limit = request.args.get('l')
+        result_limit = 0 if not result_limit else int(result_limit)
         return self._fetch_all(search_query, result_limit)

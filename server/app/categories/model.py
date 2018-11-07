@@ -7,6 +7,6 @@ class Category(components.BaseModel):
     children = mongoengine.ListField(mongoengine.ReferenceField('self'), default=[])
     is_archived = mongoengine.BooleanField(default=False)
     is_protected = mongoengine.BooleanField(defalt=False)
+    order = mongoengine.IntField(default=0)
     # ... 
     # decoration = ? like colors, meta etc
-    pass

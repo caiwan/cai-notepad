@@ -1,7 +1,7 @@
 import { Todos } from './todosIO'
 import { Notes } from './notesIO'
 import { Tags } from './tagsIO'
-// import { Categories } from './categoriesIO'
+import { Categories } from './categoriesIO'
 
 class IO {
   constructor() {
@@ -28,6 +28,7 @@ class IO {
     this.todos = new Todos(this);
     this.notes = new Notes(this);
     this.tags = new Tags(this);
+    this.categories = new Categories(this);
 
     // })
   }

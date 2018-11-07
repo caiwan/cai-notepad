@@ -26,7 +26,7 @@
                 <button class="ml-auto btn btn-danger destroy" @click="removeTodo(todo)"><i class="fa fa-trash"></i></button>
               </div>
               <div class="edit">
-                <input class="form-control edit-todo" type="text" v-model="todo.title" v-focus="todo == editingTodo" @blur="doneEditTod(todo)" @keyup.enter="doneEditTodo(todo)" @keyup.esc="cancelEditTodo(todo)">
+                <input class="form-control edit-todo" type="text" v-model="todo.title" v-focus="todo == editingTodo" @blur="doneEditTodo(todo)" @keyup.enter="doneEditTodo(todo)" @keyup.esc="cancelEditTodo(todo)">
               </div>
             </li>
           </ul>
@@ -50,7 +50,6 @@
 import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 
 export default {
-  // -- mounted() {
   created() {
     this.$store.dispatch("todos/fetchAll", this.newTodo);
   },
