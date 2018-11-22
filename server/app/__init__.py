@@ -5,12 +5,19 @@ import sys
 import inspect
 
 
-PRODUCTION = (os.getenv("NOTES_PRODUCTION") == 'True')
-DEBUG = (os.getenv("NOTES_DEBUG") == 'True')
+# coding=utf-8
+import logging
+import os
+import sys
+import inspect
+
+PRODUCTION = (os.getenv("FLASK_ENV") == 'production')
+DEBUG = (os.getenv("FLASK_DEBUG") == 'True')
+TESTING = (os.getenv("FLASK_TESTING") == 'True')
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s') 
-logging.getLogger().setLevel(logging.DEBUG if DEBUG else logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
 logging.disable(logging.NOTSET)
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
@@ -30,9 +37,9 @@ class MyConfig(object):
 
     @staticmethod
     def init_app(app):
-        import settings
-        app.config.from_object(settings)
-        config = "settings.production" if PRODUCTION else "settings.local"
+        # import config
+        # app.config.from_object(config)
+        config = "config.production" if PRODUCTION else "config.local"
         import importlib
         try:
             cfg = importlib.import_module(config)
@@ -42,16 +49,17 @@ class MyConfig(object):
         except ImportError:
             logging.warning("Local settings module not found: %s", config)
 
+# --- Initialize Flask
 
 from flask import Flask
 from flask_restful import Resource, Api
-
+# from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(MyConfig)
 MyConfig.init_app(app)
 api = Api(app)
-
+# CORS(app)
 
 # ---
 

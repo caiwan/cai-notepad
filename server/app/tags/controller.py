@@ -5,7 +5,7 @@ from tags import TagService
 from tags.model import Tag
 
 
-class TagAutocomplete(components.Controller):
+class TagAutoCompleteController(components.Controller):
     """ 
     GET /api/tags/autocomplete/?q=<tag> search for tag
     GET /api/tags/autocomplete/?q=<tag>%l=<n> yields the top n results or less

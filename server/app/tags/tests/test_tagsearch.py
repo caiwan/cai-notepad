@@ -1,11 +1,16 @@
 from unittest import TestCase
 import json
 import ddt
+from chrono import Timer 
 
-print("name:", __name__)
+import logging
 
-from app import app
-from components import BASE_PATH as API_BASE
+import peewee
+
+import app
+import components
+
+API_BASE= components.BASE_PATH
 
 @ddt.ddt
 class TestTagsearch(TestCase):
@@ -15,7 +20,12 @@ class TestTagsearch(TestCase):
     }
     
     def setUp(self):
-        self.app = app.test_client()
+        self._db = peewee.SqliteDatabase(':memory:')
+        components.DB.initialize(self._db)
+        components.DB.connect()
+        components.DB.create_tables(app.models, safe=True)
+        self.app = app.app.test_client()
+
         notes = [
             {
                 'title': 'test_title',
@@ -35,13 +45,16 @@ class TestTagsearch(TestCase):
         
         for note in notes:
             response = self.app.post(API_BASE + '/notes/', data=json.dumps(note), **TestTagsearch.post_args)
-            self.assertIsNotNone(response)
             self.assertEqual(201, response.status_code)
-    
+            
+    def tearDown(self):
+        self._db.close()
+
     @ddt.data(
         ('the', ['these', 'the']),
         ('these', ['these']),
-        ('a', []),
+        ('xoxoxox', []),
+        ('a', ['are', 'árvívz']),
         ('árv', ['árvívz'])
     )
     @ddt.unpack
@@ -50,14 +63,19 @@ class TestTagsearch(TestCase):
         query_string = {'q': query}
 
         # when
-        response = self.app.get(API_BASE + '/tags/autocomplete/', query_string=query_string, **TestTagsearch.post_args)
+        with Timer() as timed:
+            response = self.app.get(API_BASE + '/tags/autocomplete/', query_string=query_string, **TestTagsearch.post_args)
         
         # then
         self.assertIsNotNone(response)
         self.assertEqual(200, response.status_code)
         response_json = json.loads(response.data)
 
-        # for tag in self.expected_result['tags']:
-            # self.assertTrue(tag in response_json['tags'])
+        logging.info("Queryed tag:" + query)
+        logging.info("Fetched tags:" + ", ".join([tag for tag in response_json]))
+        logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
+
+        for tag in expected_result:
+            self.assertTrue(tag in response_json)
 
         pass

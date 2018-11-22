@@ -2,8 +2,12 @@ from unittest import TestCase
 import json
 import logging
 
-from app import app
-from components import BASE_PATH as API_BASE
+import peewee
+
+import app
+import components
+
+API_BASE= components.BASE_PATH
 
 class TestNotes(TestCase):
 
@@ -24,7 +28,15 @@ class TestNotes(TestCase):
     }
 
     def setUp(self):
-        self.app = app.test_client()
+        self._db = peewee.SqliteDatabase(':memory:')
+        components.DB.initialize(self._db)
+        components.DB.connect()
+        components.DB.create_tables(app.models, safe=True)
+        self.app = app.app.test_client()
+        pass
+
+    def tearDown(self):
+        self._db.close()
 
     def  test_create_note(self):
         # given
@@ -39,12 +51,16 @@ class TestNotes(TestCase):
 
         response_json = json.loads(response.data)
 
-        self.assertTrue('_id' in response_json)
-        self.assertTrue('_cls' in response_json)
+        self.assertTrue('id' in response_json)
+        self.assertTrue('title' in response_json)
+        self.assertTrue('content' in response_json)
         self._validate_tags(self.new_note, response_json)
-        # TODO validate content
 
-        
+        response = self.app.get(API_BASE + "/notes/")
+        self.assertEqual(200, response.status_code)
+        response_json = json.loads(response.data)
+
+        self.assertTrue(response_json)
 
     def test_read_note(self):
         # given
@@ -62,7 +78,6 @@ class TestNotes(TestCase):
         self._validate_tags(self.new_note, response_json)
         # TODO validate content
 
-
     def test_delete_note(self):
         # given
         note_id = self._insert_note(self.new_note)
@@ -70,12 +85,13 @@ class TestNotes(TestCase):
         #when
         response = self.app.delete("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
         self.assertIsNotNone(response)
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(200, response.status_code)
 
         #then
         response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
         self.assertIsNotNone(response)
         self.assertEqual(404, response.status_code)
+        
 
     def test_edit_note(self):
         # given 
@@ -93,6 +109,14 @@ class TestNotes(TestCase):
 
         self._validate_tags(self.edited_note, response_json)
 
+        # -- check ID due a previous fuckup
+        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
+        self.assertIsNotNone(response)
+        self.assertEqual(200, response.status_code)
+        response_json = json.loads(response.data)
+
+        self.assertEqual(note_id, response_json['id'])
+        
 
     def _insert_note(self, note):
         response = self.app.post(API_BASE + '/notes/', data=json.dumps(note), **TestNotes.post_args)
@@ -101,7 +125,7 @@ class TestNotes(TestCase):
         self.assertEqual(201, response.status_code)
 
         response_json = json.loads(response.data)
-        note_id = response_json['_id']
+        note_id = response_json['id']
         self.assertIsNotNone(note_id)
         logging.debug('note_id={}'.format(note_id))
         return note_id

@@ -1,19 +1,21 @@
-import mongoengine
+# import mongoengine
+import peewee
 import components
 
 from tags.model import Tag
-# from categories.model import Category
+from categories.model import Category
+# from milestones.model import Milestone
 
-class Note(components.BaseModel):
-    title = mongoengine.StringField(max_length=512)
-    content = mongoengine.StringField()
-    is_archived = mongoengine.BooleanField(default=False)
-    is_pinned = mongoengine.BooleanField(default=False)
-    tags = mongoengine.ListField(mongoengine.ReferenceField(Tag), default=[])
-    # category = mongoengine.ReferenceField(Category, default=None)
-    # tasks = 
-    # due_date = ?
-    # milestone = ? 
+class Note(components.BaseDocumentModel):
+    title = peewee.TextField()
+    content = peewee.TextField()
+    is_archived = peewee.BooleanField(default=False)
+    is_pinned = peewee.BooleanField(default=False)
+    tags = peewee.ManyToManyField(Tag)
+    category = peewee.ForeignKeyField(Category, null=True, default=None)
+    due_date = peewee.DateTimeField(null=True, default=None)
+    # -> Tasks will have milestones, not the notes that were taken
+    # milestone = peewee.ForeignKeyField(Milestone, null=True, default=None)
     # decoration = ? (like colors, etc)
 
-# Other type of notes and its extensions goez here
+TaggedNote = Note.tags.get_through_model()

@@ -21,7 +21,7 @@ export class Notes extends BaseIONode {
   }
 
   edit(item) {
-    return fetch(`${this.root}/notes/${item._id}/`, {
+    return fetch(`${this.root}/notes/${item.id}/`, {
       method: 'PUT',
       credentials: 'same-origin',
       ...this.io.toJson(item)
@@ -30,7 +30,7 @@ export class Notes extends BaseIONode {
   }
 
   remove(item) {
-    return fetch(`${this.root}/notes/${item._id}/`, {
+    return fetch(`${this.root}/notes/${item.id}/`, {
       method: 'DELETE',
       credentials: 'same-origin',
     })

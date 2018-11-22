@@ -20,11 +20,11 @@ class CategoryController(components.Controller):
     path = "/categories/{category_id}"
     _service = CategoryService()
 
-    # def get(self, category_id):
-    #     return self._read(category_id)
+    def get(self, category_id):
+        return self._read(category_id)
 
-    # def put(self, catagory_id):
-    #     return self._update(item_id, request.json)
+    def put(self, catagory_id):
+        return self._update(item_id, request.json)
 
-    # def delete(self, category_id):
-    #     return self._delete(item_id)
+    def delete(self, category_id):
+        return self._delete(item_id)
