@@ -27,12 +27,15 @@ class NoteService(components.Service):
         return item
 
     def update_item(self, item_id, item_json):
+        logging.info("Hellobello")
         (item_json, tags) = self._select_and_sanitize_tags(item_json)
         item = dict_to_model(Note, item_json)
+        myItem = self.read_item(item_id)
+        logging.debug("LOLZ: " + str(myItem.id))
         with components.DB.atomic():
             item.id = int(item_id)
             item.changed()
-            item.update()
+            item.save()
             item.tags.clear()
             item.tags.add(tags)
             return item

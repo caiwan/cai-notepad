@@ -41,7 +41,7 @@ class Service:
     def update_item(self, item_id, item_json):
         assert self._model_class
         my_item = self._model_class.select().where(self._model_class.id == item_id,
-                                                   self._model_class.is_deleted == False)
+                                                   self._model_class.is_deleted == False).get()
         if my_item:
             item = dict_to_model(self._model_class, item_json)
             item.id = my_item.id

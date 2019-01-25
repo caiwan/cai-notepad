@@ -10,6 +10,7 @@ class CategoryService(components.Service):
         return Category.select().where(Category.is_deleted == False).order_by(Category.order)
     pass
 
+categoryService = CategoryService()
 
 def init(app, api, models):
     from categories.controller import CategoryController, CategoryListController

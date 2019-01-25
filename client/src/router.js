@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import Todos from '@/components/tasks'
+import Dashboard from '@/components/dashboard/component'
+import Tasks from '@/components/tasks/component'
 import Notes from '@/components/notes/component'
 
 Vue.use(Router)
@@ -10,13 +11,18 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    // {
-    //   path: '/tasks',
-    //   name: 'Todos',
-    //   component: Todos
-    // },
     {
       path: '/',
+      name: 'Dashboard',
+      component: Dashboard
+    },
+    {
+      path: '/tasks',
+      name: 'Tasks',
+      component: Tasks
+    },
+    {
+      path: '/notes',
       name: 'Notes',
       component: Notes
     }

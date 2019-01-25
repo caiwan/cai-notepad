@@ -1,6 +1,6 @@
 import { BaseIONode } from './_BaseIONode'
 
-export class Todos extends BaseIONode {
+export class Tasks extends BaseIONode {
 
   constructor(io) {
     super(io)
@@ -9,32 +9,32 @@ export class Todos extends BaseIONode {
   fetchAll() {
     return fetch(`${this.root}/tasks/`, {
       credentials: 'same-origin'
-    })
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
-  add(todo) {
+  add(task) {
     return fetch(`${this.root}/tasks/`, {
       method: 'POST',
       credentials: 'same-origin',
-      ...this.io.toJson(todo)
-    })
+      ...this.io.toJson(task)
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
-  edit(todo) {
-    return fetch(`${this.root}/tasks/${todo._id}/`, {
+  edit(task) {
+    return fetch(`${this.root}/tasks/${task.id}/`, {
       method: 'PUT',
       credentials: 'same-origin',
-      ...this.io.toJson(todo)
-    })
+      ...this.io.toJson(task)
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
-  remove(todo) {
-    return fetch(`${this.root}/tasks/${todo._id}/`, {
+  remove(task) {
+    return fetch(`${this.root}/tasks/${task.id}/`, {
       method: 'DELETE',
       credentials: 'same-origin',
-    })
+    }).then(this.handleFault)
   }
 }

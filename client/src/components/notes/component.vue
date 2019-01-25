@@ -1,39 +1,68 @@
-
 <template>
-  <section class="container-fluid">
-
-    <header class="row">
-      <div class="col-12">
+  <section class="main container-flex">
+    <!-- <div class="row"> -->
+    <div class="col-md-12">
+      <header>
         <div v-if="!isCreateNew">
           <section class="card bg-light mx-1 my-2">
-            <div class="card-body py-2"><button @click="createNewNote()" class="btn btn-primary btn-raised">New note</button></div>
+            <div class="card-body py-2">
+              <button
+                @click="createNewNote()"
+                class="btn btn-primary btn-raised"
+              >New note</button></div>
           </section>
         </div>
         <div v-else>
-          <note-editor :note="newNote" v-on:doneEdit="addNewNote()" v-on:cancelEdit="clearNewNote()"></note-editor>
+          <note-editor
+            :note="newNote"
+            :isCreating="true"
+            v-on:doneEdit="addNewNote()"
+            v-on:cancelEdit="clearNewNote()"
+          ></note-editor>
           <!-- todos goez here -->
         </div>
-      </div>
-    </header>
+      </header>
+      <!-- </div> -->
+    </div>
 
-    <section class="row">
+    <!-- PINNED NOTES -->
+    <!-- class = "row" -->
+    <section
+      class=""
+      v-show="hasPinned"
+    >
       <div class="col-12">
-        <article class="notes form-group" v-for="note in notes" :key="note._id">
-
-          <div class="editor" v-if="editingNote == note">
-            <note-editor :note="note" v-on:doneEdit="doneEditNote(note)" v-on:cancelEdit="cancelEditNote(note)">
-            </note-editor>
-          </div>
-
-          <div class="view" v-else>
-            <note :note="note" v-on:editNote="startEditNote(note)" v-on:pinNote="togglePinNote(note)" v-on:removeNote="removeNote(note)"></note>
-          </div>
-
-          <!-- todos || tasks goez here -->
-        </article>
+        <header>Pinned</header>
+        <note-container
+          v-for="note in pinnedNotes"
+          :key="note.id"
+          :note="note"
+        />
       </div>
     </section>
+    <!-- DEFAULT -->
 
+    <!-- <section class="row"> -->
+    <section class="col-12">
+      <header v-show="hasOthers && (hasArchived || hasPinned)">Others</header>
+      <note-container
+        v-for="note in notes"
+        :key="note.id"
+        :note="note"
+      />
+    </section>
+    <!-- </section> -->
+    <!-- ARCHIVED -->
+    <!-- <section class="row"> -->
+    <section class="col-12">
+      <header v-show="hasArchived">Archived</header>
+      <note-container
+        v-for="note in archivedNotes"
+        :key="note.id"
+        :note="note"
+      />
+    </section>
+    <!-- </section> -->
   </section>
 </template>
 
@@ -41,43 +70,51 @@
 import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 
 import NoteEditor from './editor.vue';
-import Note from './note.vue'
+import NoteContainer from './note-container.vue'
 
 export default {
   name: "notes",
+
   components: {
-    Note, NoteEditor
+    NoteContainer, NoteEditor
   },
+
   created() {
-    this.$store.dispatch("Notes/fetchAll");
+    this._fetchAndUpdate();
   },
+
   data() {
     return {
       isCreateNew: false,
       newNote: {
         title: '',
-        content: ''
-      }
+        content: '',
+        is_pinned: false,
+        category: null
+      },
     };
   },
-  computed: {
-    ...mapState("Notes", { notes: "items", editingNote: "editingItem" }),
-  },
-  methods: {
-    ...mapActions("Notes", {
-      startEditNote: "startEdit",
-      doneEditNote: "doneEdit",
-      cancelEditNote: "cancelEdit",
-      removeNote: "remove",
-      togglePinNote: "togglePin"
-    }),
 
-    startEditNote(note) {
-      if (this.isCreateNew) {
-        alert('Save new note first // add confirm dialog plz');
-        return;
-      }
-      this.$store.dispatch("Notes/startEdit", note);
+  computed: {
+    ...mapGetters("Notes", { notes: "defaultItems", pinnedNotes: "pinnedItems", archivedNotes: "archivedItems" }),
+    ...mapState("Notes", { categoryId: "categoryFilter", milestoneId: "milestoneFilter" }),
+    ...mapGetters("Categories", { getCategory: "getCategory" }),
+    hasPinned: () => this.pinnedNotes && this.pinnedNotes.length,
+    hasOthers: () => this.notes && this.notes.length,
+    hasArchived: () => this.archivedItems && this.archivedItems.length,
+
+    selectedCategory() {
+      return this.getCategory(this.categoryId);
+    },
+  },
+
+  methods: {
+    async _fetchAndUpdate() {
+      await this.$store.dispatch("Notes/fetchAll");
+      this.$store.dispatch("Notes/updateFilters", {
+        categoryId: this.$route.query.category ? this.$route.query.category : "all",
+        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : "all"
+      });
     },
 
     createNewNote() {
@@ -85,21 +122,31 @@ export default {
         alert('Save editing note first // add confirm dialog plz');
         return;
       }
+      this.newNote.category = this.selectedCategory;
       this.isCreateNew = true;
     },
+
     clearNewNote() {
       this.newNote = {
-        title: '', content: ''
+        title: '', content: '', category: this.selectedCategory
       };
       this.isCreateNew = false;
     },
-    addNewNote() {
+
+    async addNewNote() {
       this.$store.dispatch("Notes/addNew", this.newNote);
       this.clearNewNote();
     }
-  }
+  },
+
+  watch: {
+    $route(to, from) {
+      this._fetchAndUpdate(this);
+    }
+  },
+
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 </style>

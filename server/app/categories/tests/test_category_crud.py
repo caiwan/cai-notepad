@@ -49,7 +49,7 @@ class TestCategoryCrud(TestCase):
 
         child_categories = [{
             'title' : 'Child Category ' + str(i),
-            'parent' : root_id
+            'parent' : {'id' : root_id}
         } for i in range (3)]
 
         # when
@@ -61,10 +61,9 @@ class TestCategoryCrud(TestCase):
 
         # - check parent-child relationship
         # Children?
-        response = self.app.get(API_BASE+'/categories/'+str(root_id), **self.post_args)
+        response = self.app.get(API_BASE+'/categories/'+str(root_id)+'/', **self.post_args)
         self.assertEquals(200, response.status_code)
         root_category_json = json.loads(response.data)
-
 
         # self.assertTrue('children' in root_category_json)
         # for child in child_categories_json:

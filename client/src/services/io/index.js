@@ -1,4 +1,4 @@
-import { Todos } from './todosIO'
+import { Tasks } from './tasksIO'
 import { Notes } from './notesIO'
 import { Tags } from './tagsIO'
 import { Categories } from './categoriesIO'
@@ -8,29 +8,33 @@ class IO {
     this.headers = null;
     this.root = './api';
 
-    this.todos = null;
+    this.tasks = null;
     this.notes = null;
     this.tags = null;
 
-    const data = { csrftoken: "nope" }
-
     // this.initialized = fetch('./api/settings/', {
-    // credentials: 'same-origin'
+    // credentials: 'same-origin' 
     // })
-    // .then(v => v.json())
-    // .then(data =>{
-    // this.root = `${data.root}/api`;
+    const dummyFetch = async function () {
+      return {
+        json() {
+          return { csrftoken: "nope" };
+        }
+      }
+    };
 
-    this.headers = new Headers({
-      'X-CSRFToken': data.csrftoken
-    });
+    this.initialized = dummyFetch()
+      .then(v => v.json())
+      .then(data => {
+        this.headers = new Headers({
+          'X-CSRFToken': data.csrftoken
+        });
 
-    this.todos = new Todos(this);
-    this.notes = new Notes(this);
-    this.tags = new Tags(this);
-    this.categories = new Categories(this);
-
-    // })
+        this.tasks = new Tasks(this);
+        this.notes = new Notes(this);
+        this.tags = new Tags(this);
+        this.categories = new Categories(this);
+      });
   }
   toJson(data) {
     return {

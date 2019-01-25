@@ -1,11 +1,18 @@
 <template>
-  <nav class="navbar navbar-dark bg-primary p-0">
-    <button class="navbar-toggler" type="button" @click="toggleSidebar()">
-      <span class="sr-only">Toggle drawer</span>
+  <nav class="navbar navbar-dark">
+    <a
+      class="btn navbar-toggler"
+      @click="toggleSidebar()"
+    >
+      <!-- <span>Toggle drawer</span> -->
       <i class="fa fa-bars"></i>
-    </button>
-    <ul class="nav navbar-nav">
-      <li class="nav-item navbar-brand">Title</li>
+    </a>
+    <input
+      class="form-control"
+      placeholder="Search"
+    />
+    <ul class="nav navbar-nav px-3">
+      <li class="nav-item navbar-brand">Notes</li>
     </ul>
   </nav>
 </template>
@@ -21,5 +28,26 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import "../scss/_colors.scss";
+
+nav {
+  padding: 0px 6px !important;
+  background-color: $primary !important;
+  display: flex;
+  flex-wrap: nowrap;
+  word-break: keep-all;
+  input {
+    margin-left: 3px;
+    padding-left: 3px;
+    background-color: lighten($primary, 10) !important;
+    color: $white !important;
+    &::placeholder {
+      color: $white !important;
+      opacity: 0.5;
+    }
+    display: inline !important;
+    flex-grow: 1;
+  }
+}
 </style>

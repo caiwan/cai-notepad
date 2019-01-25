@@ -1,13 +1,12 @@
 from flask import request
 import components
 
-from categories import CategoryService
+from categories import categoryService
 
 
 class CategoryListController(components.Controller):
-    """GET /api/categories/?tree=True will returns the categories as tree view"""
     path = "/categories/"
-    _service = CategoryService()
+    _service = categoryService
 
     def get(self):
         return self._fetch_all()
@@ -17,14 +16,14 @@ class CategoryListController(components.Controller):
 
 
 class CategoryController(components.Controller):
-    path = "/categories/{category_id}"
-    _service = CategoryService()
+    path = "/categories/<int:category_id>/"
+    _service = categoryService
 
     def get(self, category_id):
         return self._read(category_id)
 
-    def put(self, catagory_id):
-        return self._update(item_id, request.json)
+    def put(self, category_id):
+        return self._update(category_id, request.json)
 
     def delete(self, category_id):
-        return self._delete(item_id)
+        return self._delete(category_id)

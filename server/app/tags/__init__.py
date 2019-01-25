@@ -6,6 +6,7 @@ import fuzzy
 import Levenshtein
 from slugify import slugify 
 
+
 import components
 from tags.model import Tag, FuzzyTag
 

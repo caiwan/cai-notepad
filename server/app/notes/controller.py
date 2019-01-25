@@ -20,7 +20,7 @@ class NoteListController(components.Controller):
 
 
 class NoteController(components.Controller):
-    path = "/notes/<string:note_id>/"
+    path = "/notes/<int:note_id>/"
     _service = NoteService()
 
     def get(self, note_id):

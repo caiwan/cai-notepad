@@ -1,97 +1,94 @@
 import io from '@/services/io';
-import common from '@/store/_common';
 
 export default {
   namespaced: true,
 
   state: {
     items: [],
-    editingItem: null,
-    beforeEditCache: "",
+    itemMap: [],
+    itemTree: [],
   },
 
   getters: {
-    // ... 
+    getCategory: (state) => (id) => id in state.items ? state.items[id] : null,
   },
 
   mutations: {
-    ...common.mutations,
+    clear: (state) => { state.items = [], state.itemMap = [], state.itemTree = [] },
+    put: (state, item) => {
+      if (!item.hasOwnProperty('children'))
+        item['children'] = [];
+      state.itemMap[item.id] = item;
+      if (item.parent) {
+        const pid = item.parent.id;
+        state.itemMap[pid].children.push(state.itemMap[item.id]);
+      } else {
+        state.itemTree.push(state.itemMap[item.id]);
+      }
+      state.items.push(item)
+    },
+
+    edit: (state, item) => {
+      var storedItem = state.itemMap[item.id];
+      for (var key in item) {
+        if (item.hasOwnProperty(key)) {
+          storedItem[key] = item[key];
+        }
+      }
+    },
+
+    rm: (state, item) => {
+      state.items.splice(state.items.indexOf(item), 1)
+      state.itemMap.splice(state.items.indexOf(item), 1)
+      state.itemTree.splice(state.itemTree.indexOf(item), 1) // ? is it worksfor real?
+    },
+
   },
 
   actions: {
 
-    async fetchAll({
-      commit
-    }) {
-      const items = await io.categories.fetchAll();
-      commit("clear");
-      commit("putAll", items);
+    async fetchAll({ commit, dispatch }) {
+      const items = await io.categories.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
+      if (items) {
+        commit("clear");
+        items.forEach(item => {
+          commit("put", item);
+        });
+      }
     },
 
-    async addNew({
-      commit,
-      state
-    }, { parent, value }) {
-      console.log('hello', { parent, value });
+    async addNew({ commit, state, dispatch }, { parent, value }) {
       value = value && value.trim();
       if (!value) {
         return;
       }
+
       const item = await io.categories.add({
         title: value,
         parent: parent
-      });
+      }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
+      if (!item)
+        return;
+
       commit("put", item);
     },
 
-    startEdit({
-      commit,
-      state
-    },
-      item) {
-      state.beforeEditCache = item.title;
-      state.editingItem = item;
-    },
-
-    async doneEdit({
-      commit,
-      state
-    },
-      item) {
-      if (!state.editingItem) {
-        return;
-      }
-
-      if (item.title.trim() == state.beforeEditCache) {
-        state.editingItem = null;
-        return;
-      }
-
+    async edit({ commit, dispatch }, item) {
+      console.log('Edit', item);
       item.title = item.title.trim();
       if (!item.title) {
-        await io.todos.remove(item);
+        await io.categories.remove(item);
         commit("remove", item);
       } else {
-        const edited = await io.todos.edit(item);
+        const edited = await io.categories.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
+        if (!edited)
+          return;
         commit("edit", edited);
       }
-      state.editingItem = null;
     },
 
-    cancelEdit({
-      commit,
-      state
-    },
-      item) {
-      item.title = this.beforeEditCache;
-      state.editingItem = null;
-      this.beforeEditCache = "";
-    },
-
-    async remove({
-      commit
-    }, item) {
-      await io.categories.remove(item);
+    async remove({ commit, dispatch }, item) {
+      await io.categories.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       commit("rm", item);
     },
 

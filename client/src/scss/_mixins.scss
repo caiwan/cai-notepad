@@ -1,0 +1,20 @@
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px
+) !default;
+
+@mixin respond-to($breakpoint) { 
+    @if map-has-key($grid-breakpoints, $breakpoint) {
+      @media (min-width: #{map-get($grid-breakpoints, $breakpoint)}) {
+        @content;
+      }
+    }
+    @else {
+      @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+          + "Please make sure it is defined in `$breakpoints` map.";
+    }
+  }
+

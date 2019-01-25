@@ -1,0 +1,74 @@
+@import "../scss/_colors.scss";
+
+// Common style sheet, Used by editor for category selection and by 
+// it's child tree-selector component
+
+$zebra-color-amount: 2;
+$zebra-even-color: lighten($secondary, $zebra-color-amount);
+$zebra-odd-color: darken($secondary, $zebra-color-amount);
+
+.category {
+  overflow: hidden;
+  display: inline-block;
+
+  button {
+    white-space: nowrap;
+  }
+
+  .selector {
+    display: block !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    float: left;
+    z-index: 65536;
+    min-width: 160px;
+    padding: 0px 8px;
+    margin: 0px;
+    text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
+    background-color: darken($gray-800, 10);
+    border: 1px solid $gray-500;
+    border-radius: 4px;
+    overflow: hidden;
+
+    .selector-group {
+      list-style: none outside none;
+      padding: 0px;
+      white-space: nowrap;
+      margin: 0px;
+      margin-left: -12px;
+      padding-left: 18pt;
+    }
+
+    .selector-item {
+      padding: 0px;
+      padding-top: 6px;
+      position: relative;
+      z-index: 2;
+
+      &.zebra::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0px;
+        right: -100vw;
+        bottom: 0px;
+        left: -100vw;
+        z-index: -1;
+        user-select: none;
+      }
+      &.zebra {
+        &.even::after {
+          background-color: $zebra-even-color;
+        }
+
+        &.odd::after {
+          background-color: $zebra-odd-color;
+        }
+      }
+      /* selector-item */
+    }
+  }
+  /* selector */
+}
+/* category */

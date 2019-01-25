@@ -1,5 +1,6 @@
 @import "bootsrap_overrides.scss";
 @import "variables.scss";
+@import "mixins.scss";
 
 body {
   margin: 0;
@@ -11,3 +12,6 @@ body {
   text-align: left;
   background-color: $body-bg;
 }
+
+[v-cloak] > * { display:none; }
+[v-cloak]::before { content: "loading..."; }

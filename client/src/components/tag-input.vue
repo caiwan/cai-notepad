@@ -1,13 +1,41 @@
 <template>
-  <ul class="tags" :class="{conflict: conflict, empty: pTags.length, disabled: disabled}" @click="focusInput">
-    <li class="tag" v-for="tag of pTags" :key="tag" @click="remove($event, tag)">
+  <ul
+    class="tags"
+    :class="{conflict: conflict, empty: pTags.length, disabled: disabled}"
+    @click="focusInput"
+  >
+    <li
+      class="tag"
+      v-for="tag of pTags"
+      :key="tag"
+      @click="remove($event, tag)"
+    >
       {{ tag }}
     </li>
 
     <li class="tag-input">
-      <input ref="tagInput" v-model="currentTag" @keydown="keydown" @input="input" @blur="add" :disabled="disabled">
-      <ul v-if="choiceListVisible" ref="choiceList" :class="{dropup: dropup}">
-        <li ref="choices" v-for="(tag, index) of pChoices" :key="index" :class="{'tag-choice-selected': index === selectedIndex}" @mousedown="deferBlur = true" @mouseup="add($event, tag)" @mouseover="selectedIndex = index">
+      <input
+        ref="tagInput"
+        v-model="currentTag"
+        @keydown="keydown"
+        @input="input"
+        @blur="add"
+        :disabled="disabled"
+      >
+      <ul
+        v-if="choiceListVisible"
+        ref="choiceList"
+        :class="{dropup: dropup}"
+      >
+        <li
+          ref="choices"
+          v-for="(tag, index) of pChoices"
+          :key="index"
+          :class="{'tag-choice-selected': index === selectedIndex}"
+          @mousedown="deferBlur = true"
+          @mouseup="add($event, tag)"
+          @mouseover="selectedIndex = index"
+        >
           {{ tag }}
         </li>
       </ul>
@@ -216,7 +244,7 @@ export default {
     },
     focusInput() {
       let tagInput = this.$refs.tagInput;
-
+      console.log('loller, focus', { tagInput });
       if (tagInput) {
         tagInput.focus();
       }

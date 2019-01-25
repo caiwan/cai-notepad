@@ -1,100 +1,282 @@
 <template>
+  <section class="container-flex">
+    <!-- <div class="row"> -->
+    <div class="col-md-12">
 
-  <section class="todoapp container">
-    <div class="row">
-      <div class="col-md-12">
-        <!-- -->
-        <header>
-          <h1>Todos</h1>
+      <!-- Header / Add new task -->
+      <header class="card card bg-light mx-1 my-2">
+        <div class="card-body py-2">
           <div class="input-group">
-            <div class="input-group-prepend"><button class="btn btn-warning" type="button" @click="setAllDone()"><i class="fa fa-clipboard"></i></button></div>
-            <input class="form-control add-todo" autofocus autocomplete="off" v-model="newTodo" @keyup.enter="addNewTodo()" placeholder="What needs to be done?" />
-            <div class="input-group-append"> <button class="btn btn-success" type="button" @click="addNewTodo()"><i class="fa fa-plus"></i></button></div>
-          </div>
-        </header>
-        <!-- -->
-        <section class="main" v-show="todos.length" v-cloak>
-          <ul class="todo-list list-unstyled">
-            <li v-for="todo in filteredTodos" :key="todo._id" class="todo ui-state-default" :class="{completed: todo.completed, editing: todo == editingTodo}">
-              <div class="view justify-content-between align-items-center" v-show="todos.length" v-cloak>
-                <input class="toggle" :id="'check_'+todo._id" type="checkbox" v-model="todo.completed" @click="toggleTodo(todo)">
-                <label class="toggle btn btn-success" :for="'check_'+todo._id">
-                  <i class="checkmark fa fa-check"></i>
-                  <span class="placeholder">&nbsp;</span>
-                </label>
-                <label class="todo-title" @dblclick="startEditTodo(todo)" :for="'check_'+todo._id">{{ todo.title }} </label>
-                <button class="ml-auto btn btn-danger destroy" @click="removeTodo(todo)"><i class="fa fa-trash"></i></button>
-              </div>
-              <div class="edit">
-                <input class="form-control edit-todo" type="text" v-model="todo.title" v-focus="todo == editingTodo" @blur="doneEditTodo(todo)" @keyup.enter="doneEditTodo(todo)" @keyup.esc="cancelEditTodo(todo)">
-              </div>
-            </li>
-          </ul>
-        </section>
-        <!-- -->
-        <footer class="justify-content-between align-items-center" v-show="todos.length" v-cloak>
-          <span class="mr-auto todo-count badge badge-secondary" v-show="remainingTodos"><strong>{{ remainingTodos }}</strong>{{ remainingTodos | pluralize }} left</span>
-          <a href="#" class="btn btn-outline-primary" @click="setFilterTodos('all')">All</a>
-          <a href="#" class="btn btn-outline-primary" @click="setFilterTodos('active')">Active</a>
-          <a href="#" class="btn btn-outline-primary" @click="setFilterTodos('completed')">Completed</a>
-          <a href="#" class="btn btn-danger" @click="removeCompleted()">Clear completed</a>
-        </footer>
-        <!-- -->
-      </div>
-    </div>
-  </section>
 
+            <div class="input-group-prepend">
+              <category-selector
+                :category="newTask.category"
+                v-on:selected="categorySelected(newTask, $event)"
+              />
+            </div>
+
+            <input
+              class="form-control add-task"
+              autofocus
+              autocomplete="off"
+              v-model="newTask.title"
+              v-cloak
+              @keyup.enter="addNewTask()"
+              placeholder="What needs to be done?"
+              id="new-task-input"
+            />
+            <div class="input-group-append"> <button
+                class="btn btn-success"
+                type="button"
+                @click="addNewTask()"
+              ><i class="fa fa-plus"></i></button></div>
+          </div>
+        </div>
+      </header>
+      <!-- -->
+
+      <section
+        class="main"
+        v-show="tasks.length"
+      >
+        <ul
+          class="task-list"
+          v-cloak
+        >
+          <li
+            v-for="task in filteredTasks"
+            :key="task.id"
+            class="task ui-state-default"
+            :class="{completed: task.is_completed}"
+            v-cloak
+          >
+
+            <div v-show="task != editingTask">
+              <input
+                class="toggle"
+                :id="'check_'+task.id"
+                type="checkbox"
+                v-model="task.is_completed"
+                @click="toggleTask(task)"
+              >
+              <label
+                class="toggle btn btn-success"
+                :for="'check_'+task.id"
+              >
+                <i class="checkmark fa fa-check"></i>
+                <span class="placeholder">&nbsp;</span>
+              </label>
+            </div>
+
+            <!--VIEW -->
+
+            <span
+              @dblclick="startEditTask(task)"
+              @click="toggleTask(task)"
+              class="task-title"
+              v-show="task != editingTask"
+            >
+              {{ task.title }}
+            </span>
+            <span
+              class="badge badge-secondary"
+              v-show="task != editingTask"
+            >
+              {{task.category ? task.category.title : "Unassigned"}}
+            </span>
+
+            <!-- EDIT -->
+            <div
+              class="input-group"
+              v-show="task == editingTask"
+            >
+              <category-selector
+                class="input-group-prepend"
+                :category="task.category"
+                v-on:selected="categorySelected(task, $event)"
+                v-show="task == editingTask"
+              />
+              <input
+                class="form-control edit-task input-group-append"
+                type="text"
+                v-model="task.title"
+                v-focus="task == editingTask"
+                v-show="task == editingTask"
+                @blur="doneEditTask(task)"
+                @keyup.enter="doneEditTask(task)"
+                @keyup.esc="cancelEditTask(task)"
+              >
+
+            </div>
+            <!-- DELETE -->
+
+            <button
+              class="btn btn-danger"
+              @click="removeTask(task)"
+            ><i class="fa fa-trash"></i></button>
+
+          </li>
+        </ul>
+      </section>
+
+      <footer
+        class="justify-content-between align-items-center"
+        v-show="tasks.length"
+        v-cloak
+      >
+        <span
+          class="mr-auto task-count badge badge-secondary"
+          v-show="remainingTasks"
+        ><strong>{{ remainingTasks }}</strong>{{ remainingTasks | pluralize }} left</span>
+        <span class="gap" />
+
+        <button
+          href="#"
+          class="btn btn-outline-primary"
+          @click="setFilterTasks('all')"
+        >All</button>
+        <button
+          href="#"
+          class="btn btn-outline-primary"
+          @click="setFilterTasks('active')"
+        >Active</button>
+        <button
+          href="#"
+          class="btn btn-outline-primary"
+          @click="setFilterTasks('completed')"
+        >Completed</button>
+        <button
+          class="btn btn-warning"
+          type="button"
+          @click="setAllDone()"
+        ><i class="fa fa-check-double"></i></button>
+        <button
+          href="#"
+          class="btn btn-danger"
+          @click="archiveCompleted()"
+        ><i class="fa fa-archive"></i></button>
+      </footer>
+      <!-- -->
+
+      <!-- Archived tasks -->
+      <hr />
+      <section class="archived">
+        <header>Archived</header>
+        <ul class="task-list">
+          <li
+            class="task"
+            v-for="task in archivedTaks"
+            :key="task.id"
+          ><span class="task-title">
+              {{task.title}}</span>
+            <span class="badge badge-secondary">
+              {{task.category ? task.category.title : "Unassigned"}}
+            </span>
+            <!-- Some button -->
+            <button
+              class="btn btn-primary"
+              @click="toggleArchive(task)"
+            > <i class="fa fa-level-up-alt"></i></button>
+            <!-- DELETE -->
+            <button
+              class="btn btn-danger"
+              @click="removeTask(task)"
+            ><i class="fa fa-trash"></i></button>
+          </li>
+        </ul>
+      </section>
+    </div>
+    <!-- </div> -->
+  </section>
 </template>
 
 <script>
 import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
+import CategorySelector from '../category-selector.vue'
 
 export default {
+  components: {
+    CategorySelector
+  },
+
   created() {
-    this.$store.dispatch("todos/fetchAll", this.newTodo);
+    this._fetchAndUpdate();
+    this.newTask.category = this.selectedCategory;
+
   },
 
   data() {
     return {
-      newTodo: ""
+      newTask: {
+        title: "",
+        category: null
+      }
     };
   },
 
   computed: {
-    ...mapState("todos", { todos: "items", editingTodo: "editingItem" }),
-    ...mapGetters("todos", {
-      filteredTodos: "filtered",
-      remainingTodos: "remaining"
+    ...mapState("Tasks", {
+      tasks: "items",
+      editingTask: "editingItem",
+      categoryId: "categoryFilter",
+      milestoneId: "milestoneFilter"
     }),
+    ...mapGetters("Tasks", {
+      filteredTasks: "filtered",
+      remainingTasks: "remaining",
+      archivedTaks: "archived"
+    }),
+    ...mapGetters("Categories", { getCategory: "getCategory" }),
 
     allDone: {
       get: function () {
         return this.remaining === 0;
       },
       set: function (value) {
-        this.$store.dispatch("todos/setAllDone");
+        this.$store.dispatch("Tasks/setAllDone");
       }
-    }
+    },
+
+    selectedCategory() {
+      return this.getCategory(this.categoryId);
+    },
   },
 
   methods: {
-    ...mapActions("todos", {
-      toggleTodo: "toggleCompleted",
-      startEditTodo: "startEdit",
-      doneEditTodo: "doneEdit",
-      cancelEditTodo: "cancelEdit",
-      removeTodo: "remove",
-      removeCompleted: "removeCompleted",
-      setAllDone: "setAllDone"
+    ...mapActions("Tasks", {
+      toggleTask: "toggleCompleted",
+      startEditTask: "startEdit",
+      doneEditTask: "doneEdit",
+      cancelEditTask: "cancelEdit",
+      removeTask: "remove",
+      archiveCompleted: "archiveCompleted",
+      setAllDone: "setAllDone",
+      toggleArchive: "toggleArchive"
     }),
 
-    ...mapMutations("todos", {
-      setFilterTodos: "show"
+    ...mapMutations("Tasks", {
+      setFilterTasks: "show"
     }),
 
-    addNewTodo() {
-      this.$store.dispatch("todos/addNew", this.newTodo);
-      this.newTodo = "";
+    async _fetchAndUpdate() {
+      await this.$store.dispatch("Tasks/fetchAll");
+      this.$store.dispatch("Tasks/updateFilters", {
+        categoryId: this.$route.query.category ? this.$route.query.category : "all",
+        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : "all"
+      });
+    },
+
+    addNewTask() {
+      this.$store.dispatch("Tasks/addNew", this.newTask);
+      this.newTask = {
+        title: "",
+        // category: this.selectedCategory
+      };
+    },
+
+    categorySelected(task, category) {
+      task.category = category;
+      console.log('select category', { task, category });
     }
   },
 
@@ -110,85 +292,95 @@ export default {
         el.focus();
       }
     }
+  },
+
+  updated() {
+  },
+
+  watch: {
+    $route(to, from) {
+      this._fetchAndUpdate();
+      this.newTask.category = this.selectedCategory;
+      console.log('selected cat', this.selectedCategory, this.categoryId);
+    }
   }
 };
 </script>
 
-<style lang="scss">
-.todoapp {
-  // header {
-  // }
-  section {
-    &.main {
-      .todo-list {
-        .todo {
-          margin-top: 4px;
-          &.completed {
-            .view {
-              .todo-title {
-                text-decoration: line-through;
-              }
-            }
-          }
-          &.editing {
-            .view {
-              display: none !important;
-            }
-            .edit {
-              display: flex !important;
-            }
-          }
-          .edit {
-            display: none;
-          }
-          .view {
-            display: flex;
-            .todo-title {
-              padding-left: 5px;
-            }
-          }
-        }
-        // --- custom toggle / checkmark stuff
-        .toggle {
-          margin: 0px;
-          @at-root input {
-            display: none;
-            & + label {
-              .checkmark {
-                display: none;
-              }
-              .placeholder {
-                display: inline-block;
-                width: 16px;
-              }
-            }
-            &:checked + label {
-              .checkmark {
-                display: inline-block !important;
-              }
-              .placeholder {
-                display: none !important;
-              }
-            }
-          }
-        }
-        // ---
+<style lang="scss" scoped>
+@import "../../scss/_colors.scss";
+ul {
+  &.task-list {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    .task {
+      margin-top: 4px;
+      display: flex;
+      align-items: baseline;
+      .task-title {
+        padding-left: 5px;
+        flex-grow: 1;
+        overflow: hidden;
       }
-    }
-  }
-  footer {
-    display: flex;
-    a {
-      &.btn {
-        // background-color: indianred;
-        margin-left: 4px !important;
+      &.completed {
+        .task-title {
+          text-decoration: line-through;
+        }
       }
     }
   }
 }
 
-[v-cloak] {
-  display: none;
+hr {
+  // color: white;
+  border: 1px solid $gray-700;
 }
+
+.archived {
+  header {
+    margin: 8px;
+  }
+}
+
+// --- custom toggle / checkmark stuff
+.toggle {
+  margin: 0px;
+  @at-root input {
+    &.toggle {
+      display: none !important;
+      & + label {
+        .checkmark {
+          display: none;
+        }
+        .placeholder {
+          display: inline-block;
+          width: 16px;
+        }
+      }
+      &:checked + label {
+        .checkmark {
+          display: inline-block !important;
+        }
+        .placeholder {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
+// --- toggle
+
+footer {
+  margin: 8px;
+  display: flex;
+  .gap {
+    flex-grow: 1;
+  }
+  button {
+    margin-left: 4px !important;
+  }
+}
+// }
 </style>
 

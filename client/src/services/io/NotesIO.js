@@ -7,7 +7,7 @@ export class Notes extends BaseIONode {
   fetchAll() {
     return fetch(`${this.root}/notes/`, {
       credentials: 'same-origin'
-    })
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
@@ -16,7 +16,7 @@ export class Notes extends BaseIONode {
       method: 'POST',
       credentials: 'same-origin',
       ...this.io.toJson(item)
-    })
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
@@ -25,7 +25,7 @@ export class Notes extends BaseIONode {
       method: 'PUT',
       credentials: 'same-origin',
       ...this.io.toJson(item)
-    })
+    }).then(this.handleFault)
       .then(v => v.json());
   }
 
@@ -33,6 +33,6 @@ export class Notes extends BaseIONode {
     return fetch(`${this.root}/notes/${item.id}/`, {
       method: 'DELETE',
       credentials: 'same-origin',
-    })
+    }).then(this.handleFault)
   }
 }
