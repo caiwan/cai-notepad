@@ -2,6 +2,7 @@ Flask>=0.10.1
 flask-restful>=0.3.6
 Flask-Script
 peewee==3.6.0
+Peewee-Migrate>=1.1.5
 Flask-Cors==3.0.3
 Fuzzy
 python-slugify

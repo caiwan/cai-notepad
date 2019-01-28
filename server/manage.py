@@ -22,6 +22,20 @@ class CreateDb(Command):
         components.create_tables(app.APP, app.MODELS)
 
 
+class DevCrateMigrate(Command):
+    def run(self):
+        # from peewee_migrate import Router
+        # from peewee import SqliteDatabase
+        pass
+
+
+class MigrateDb(Command):
+    def run(self):
+        # from peewee_migrate import Router
+        # from peewee import SqliteDatabase
+        pass
+
+
 class Runserver(Server):
     def run(self):
         self.__call__(app.APP,
