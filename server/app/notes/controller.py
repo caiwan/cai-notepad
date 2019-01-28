@@ -1,10 +1,12 @@
-import logging
+# coding=utf-8
+
 from flask import request
 
-import components
-from notes import NoteService
-from tags.model import Tag
-from notes.model import Note
+from app import components
+from app.notes import NoteService
+# from app.tags.model import Tag
+# from app.notes.model import Note
+
 
 class NoteListController(components.Controller):
     path = "/notes/"

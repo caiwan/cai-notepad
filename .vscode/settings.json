@@ -1,0 +1,65 @@
+{
+  "python.pythonPath": "~/.pyenv/versions/3.7.0/bin/python",
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/server/",
+    "${workspaceFolder}/server/app"
+  ],
+  "editor.formatOnSave": false,
+  "files.insertFinalNewline": true,
+  "files.eol": "\r\n",
+  "csv-preview.separator": ",",
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+  },
+  "[vue]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+  },
+  "[vue-html]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+  },
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+  },
+  "[python]": {
+    "editor.formatOnSave": false,
+    "editor.tabSize": 4,
+    "editor.autoIndent": true
+  },
+  "eslint.validate": [
+    {
+      "language": "vue",
+      "autoFix": true
+    },
+    {
+      "language": "html",
+      "autoFix": true
+    },
+    {
+      "language": "javascript",
+      "autoFix": true
+    }
+  ],
+  "editor.insertSpaces": true,
+  "editor.autoIndent": true,
+  "python.unitTest.unittestArgs": [
+    "-v",
+    "-s",
+    "${workspaceFolder}/server/",
+    "-p",
+    "test_*.py"
+  ],
+  "python.unitTest.unittestEnabled": true,
+  "pythonTestExplorer.testFramework": "unittest",
+  "python.unitTest.cwd": "${workspaceFolder}/server",
+  // "python.linting.flake8Args": [
+  // ""
+  // ],
+  "python.envFile": "${workspaceFolder}/server/dev.env",
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+}

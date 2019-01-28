@@ -1,6 +1,6 @@
-from milestones.model import Milestone, TaggedMilestone
+from app.milestones.model import Milestone, TaggedMilestone
+
 
 def init(app, api, models):
-    # TBD 
+    # TBD
     models.extend([Milestone, TaggedMilestone])
-

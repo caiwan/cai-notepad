@@ -1,16 +1,21 @@
 # coding=utf-8
 
-import components
-from tasks.model import Task
+from app import components
+from app.tasks.model import Task
 
 
 class TaskService(components.Service):
     _model_class = Task
-    pass
+
+    def __init__(self):
+        super().__init__()
+
+
 
 taskService = TaskService()
 
+
 def init(app, api, models):
-    from tasks.controller import TaskListController, TaskController
+    from app.tasks.controller import TaskListController, TaskController
     components.register_controllers(api, [TaskController, TaskListController])
     models.extend([Task])

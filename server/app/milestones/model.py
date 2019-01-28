@@ -1,9 +1,10 @@
-# 
+# coding=utf-8
 import peewee
-import components
+from app import components
 
-from tags.model import Tag
-from categories.model import Category
+from app.tags.model import Tag
+from app.categories.model import Category
+
 
 class Milestone(components.BaseDocumentModel):
     title = peewee.TextField()
@@ -12,5 +13,6 @@ class Milestone(components.BaseDocumentModel):
     tags = peewee.ManyToManyField(Tag)
     category = peewee.ForeignKeyField(Category, null=True, default=None)
     pass
+
 
 TaggedMilestone = Milestone.tags.get_through_model()

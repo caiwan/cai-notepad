@@ -1,8 +1,9 @@
 import peewee
-import components
 
-from notes.model import Note
-from categories.model import Category
+from app import components
+from app.notes.model import Note
+from app.categories.model import Category
+
 
 class Task(components.BaseDocumentModel):
     title = peewee.TextField()

@@ -1,6 +1,5 @@
 # coding=utf-8
 
-import logging
 import os
 
 SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -10,7 +9,7 @@ SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 #  http://flask.pocoo.org/docs/config/#configuring-from-files
 # ============================================================================
 
-SECRET_KEY = '47e585de7f22984d5ee291c2f31412384bfc32d0'
+SECRET_KEY = "47e585de7f22984d5ee291c2f31412384bfc32d0"
 FLASH_MESSAGES = True
 
 # Flask-SQLAlchemy
@@ -43,7 +42,7 @@ SECURITY_REMEMBER_SALT = "de154140385c591ea771dcb3b33f374383e6ea47"
 SECURITY_DEFAULT_REMEMBER_ME = True
 
 # Set secret keys for CSRF protection
-CSRF_SESSION_KEY = '8a7474974efcf76896aa84eea9cbe016bbc08828'
+CSRF_SESSION_KEY = "8a7474974efcf76896aa84eea9cbe016bbc08828"
 CSRF_ENABLED = True
 
 # Flask-Babel
@@ -53,7 +52,7 @@ BABEL_DEFAULT_TIMEZONE = "UTC"
 
 # Flask-Mail
 # http://pythonhosted.org/Flask-Mail/
-SERVER_EMAIL = 'Flask-SocialBlueprint <support@example.com>'
+SERVER_EMAIL = "Flask-SocialBlueprint <support@example.com>"
 
 # Flask-SocialBlueprint
 # https://github.com/wooyek/flask-social-blueprint
@@ -61,30 +60,29 @@ SOCIAL_BLUEPRINT = {
     # https://developers.facebook.com/apps/
     "flask_social_blueprint.providers.Facebook": {
         # App ID
-        'consumer_key': '197…',
+        "consumer_key": "197…",
         # App Secret
-        'consumer_secret': 'c956c1…'
+        "consumer_secret": "c956c1…"
     },
     # https://apps.twitter.com/app/new
     "flask_social_blueprint.providers.Twitter": {
         # Your access token from API Keys tab
-        'consumer_key': 'bkp…',
+        "consumer_key": "bkp…",
         # access token secret
-        'consumer_secret': 'pHUx…'
+        "consumer_secret": "pHUx…"
     },
     # https://console.developers.google.com/project
     "flask_social_blueprint.providers.Google": {
         # Client ID
-        'consumer_key': '797….apps.googleusercontent.com',
+        "consumer_key": "797….apps.googleusercontent.com",
         # Client secret
-        'consumer_secret': 'bDG…'
+        "consumer_secret": "bDG…"
     },
     # https://github.com/settings/applications/new
     "flask_social_blueprint.providers.Github": {
         # Client ID
-        'consumer_key': '6f6…',
+        "consumer_key": "6f6…",
         # Client Secret
-        'consumer_secret': '1a9…'
+        "consumer_secret": "1a9…"
     },
 }
-

@@ -1,10 +1,12 @@
-# import mongoengine
-import peewee
-import components
+# coding=utf-8
 
-from tags.model import Tag
-from categories.model import Category
+import peewee
+from app import components
+
+from app.tags.model import Tag
+from app.categories.model import Category
 # from milestones.model import Milestone
+
 
 class Note(components.BaseDocumentModel):
     title = peewee.TextField()
@@ -17,5 +19,6 @@ class Note(components.BaseDocumentModel):
     # -> Tasks will have milestones, not the notes that were taken
     # milestone = peewee.ForeignKeyField(Milestone, null=True, default=None)
     # decoration = ? (like colors, etc)
+
 
 TaggedNote = Note.tags.get_through_model()

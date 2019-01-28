@@ -1,0 +1,11 @@
+[flake8]
+exclude = .git,*migrations*
+max-line-length = 150
+ignore =
+  # Bare exept
+  E722,
+  # Comparision w/o if - for Peewee query builder
+  E712,
+  E401
+inline-quotes = double
+docstring-quotes = double

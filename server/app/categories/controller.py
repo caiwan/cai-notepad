@@ -1,7 +1,7 @@
 from flask import request
-import components
 
-from categories import categoryService
+from app import components
+from app.categories import categoryService
 
 
 class CategoryListController(components.Controller):
@@ -10,7 +10,7 @@ class CategoryListController(components.Controller):
 
     def get(self):
         return self._fetch_all()
-    
+
     def post(self):
         return self._create(request.json)
 

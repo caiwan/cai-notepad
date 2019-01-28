@@ -1,78 +1,76 @@
 # coding=utf-8
+
 import logging
 import os
-import sys
-import inspect
+
+from flask import Flask
+from flask_restful import Api
+from flask_cors import CORS
+
+import app.components
+
+# modules
+import app.tasks
+import app.notes
+import app.tags
+import app.milestones
 
 
-# coding=utf-8
-import logging
-import os
-import sys
-import inspect
-
-PRODUCTION = (os.getenv("FLASK_ENV") == 'production')
-DEBUG = (os.getenv("FLASK_DEBUG") == 'True')
-TESTING = (os.getenv("FLASK_TESTING") == 'True')
+PRODUCTION = (os.getenv("FLASK_ENV") == "production")
+DEBUG = (os.getenv("FLASK_DEBUG") == "True")
+TESTING = (os.getenv("FLASK_TESTING") == "True")
 
 logging.basicConfig(
-    format='%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s') 
+    format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
 logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
+# logging.getLogger().setLevel(logging.DEBUG if DEBUG else logging.INFO)
 logging.disable(logging.NOTSET)
-logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
-
+logging.info("Loading %s, app version = %s", __name__,
+             os.getenv("CURRENT_VERSION_ID"))
 
 # ---
 # fix import paths for internal imports
-cmd_folder = os.path.dirname(__file__)
-if cmd_folder not in sys.path:
-    sys.path.insert(0, cmd_folder)
-
-
-from components import MyJsonEncoder
+APP_ROOT = os.path.dirname(__file__)
+# if APP_ROOT not in sys.path:
+#     sys.path.insert(0, APP_ROOT)
 
 
 class MyConfig(object):
-    RESTFUL_JSON = {'cls': MyJsonEncoder}
+    RESTFUL_JSON = {
+        "cls": app.components.MyJsonEncoder,
+        "indent": 0 if PRODUCTION else 2
+    }
 
     @staticmethod
-    def init_app(app):
-        # import config
-        # app.config.from_object(config)
+    def init_app(flask_app):
+        import app.config
+        flask_app.config.from_object(app.config)
         config = "config.production" if PRODUCTION else "config.local"
         import importlib
         try:
             cfg = importlib.import_module(config)
             logging.info("Loaded %s" % config)
-            app.config.from_object(cfg)
-            # app.config['DEBUG'] = DEBUG
+            flask_app.config.from_object(cfg)
         except ImportError:
             logging.warning("Local settings module not found: %s", config)
 
+
 # --- Initialize Flask
+APP = Flask(__name__)
+APP.config.from_object(MyConfig)
+MyConfig.init_app(APP)
+API = Api(APP)
+CORS(APP)
 
-from flask import Flask
-from flask_restful import Resource, Api
-# from flask_cors import CORS
+# --- Initialize Application
 
-app = Flask(__name__)
-app.config.from_object(MyConfig)
-MyConfig.init_app(app)
-api = Api(app)
-# CORS(app)
+MODELS = []
 
-# ---
+app.notes.init(APP, API, MODELS)
+app.tags.init(APP, API, MODELS)
+app.categories.init(APP, API, MODELS)
+app.tasks.init(APP, API, MODELS)
 
-import components
-import tasks
-import notes 
-import tags
-import categories
-
-models = []
-tasks.init(app, api, models)
-notes.init(app, api, models)
-tags.init(app, api, models)
-categories.init(app, api, models)
-
-components.database_init(app, models)
+if not TESTING:
+    app.components.database_init(APP, MODELS)
+    app.components.database_connect()

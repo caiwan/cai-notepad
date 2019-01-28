@@ -1,8 +1,9 @@
 
 from flask import request
-import components
+from app import components
 
-from tasks import taskService
+from app.tasks import taskService
+
 
 class TaskListController(components.Controller):
     path = "/tasks/"

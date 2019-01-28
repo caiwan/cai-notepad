@@ -1,10 +1,12 @@
 # coding=utf-8
 
-import components
+from app import components
 import peewee
+
 
 class Tag(components.BaseModel):
     tag = peewee.TextField(null=False, unique=True)
+
 
 class FuzzyTag(components.BaseModel):
     tag = peewee.ForeignKeyField(Tag)
