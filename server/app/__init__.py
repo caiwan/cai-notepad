@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import logging
-import os
+import os, sys
 
 from flask import Flask
 from flask_restful import Api
@@ -45,6 +45,8 @@ class MyConfig(object):
     def init_app(flask_app):
         import app.config
         flask_app.config.from_object(app.config)
+        if APP_ROOT not in sys.path:
+            sys.path.insert(0, APP_ROOT)
         config = "config.production" if PRODUCTION else "config.local"
         import importlib
         try:
