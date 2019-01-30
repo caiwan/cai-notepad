@@ -29,51 +29,51 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 
 import NoteEditor from './editor.vue';
 import Note from './note.vue';
 
 export default {
-  name: "note-container",
+  name: 'note-container',
   components: {
     Note, NoteEditor
   },
   props: ['note'],
   computed: {
-    ...mapState("Notes", { editingNote: "editingItem" }),
+    ...mapState('Notes', { editingNote: 'editingItem' })
   },
 
   methods: {
-    ...mapActions("Notes", {
-      startEditNote: "startEdit",
-      doneEditNote: "doneEdit",
-      cancelEditNote: "cancelEdit",
-      toggleArchiveNote: "toggleArchive"
+    ...mapActions('Notes', {
+      startEditNote: 'startEdit',
+      doneEditNote: 'doneEdit',
+      cancelEditNote: 'cancelEdit',
+      toggleArchiveNote: 'toggleArchive'
     }),
 
-    removeNote(note) {
-      if (confirm("Are you sure?")) {
+    removeNote (note) {
+      if (confirm('Are you sure?')) {
         if (this.editingNote === note) {
           this.cancelEditNote(note);
         }
-        this.$store.dispatch("Notes/remove", note);
+        this.$store.dispatch('Notes/remove', note);
       }
     },
 
-    togglePinNote(note) {
-      this.$store.dispatch("Notes/togglePin", note);
+    togglePinNote (note) {
+      this.$store.dispatch('Notes/togglePin', note);
     },
 
-    startEditNote(note) {
+    startEditNote (note) {
       if (this.isCreateNew) {
         alert('Save new note first // add confirm dialog plz');
         return;
       }
-      this.$store.dispatch("Notes/startEdit", note);
-    },
+      this.$store.dispatch('Notes/startEdit', note);
+    }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

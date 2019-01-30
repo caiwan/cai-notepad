@@ -48,35 +48,35 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 
-import NavBar from './containers/navbar.vue'
-import Drawer from './containers/drawer.vue'
+import NavBar from './containers/navbar.vue';
+import Drawer from './containers/drawer.vue';
 
-import io from './services/io'
+import io from './services/io';
 
 export default {
   name: 'App',
   components: {
     NavBar, Drawer
   },
-  async created() {
+  async created () {
     await io.initialized;
     this.initialized();
   },
   computed: {
     ...mapState('UI', ['showSidebar', 'showSnackbar', 'snackbarMessages']),
-    ...mapGetters('UI', ['isLoading',]),
+    ...mapGetters('UI', ['isLoading']),
     ...mapState('App', ['isInitializing'])
   },
   methods: {
     ...mapActions('App', ['initialized']),
-    dismissSnackbar() {
-      this.$store.commit("UI/pullSnackbar");
+    dismissSnackbar () {
+      this.$store.commit('UI/pullSnackbar');
       console.log('dismiss');
     }
   }
-}
+};
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

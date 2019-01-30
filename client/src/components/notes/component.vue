@@ -67,23 +67,23 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 
 import NoteEditor from './editor.vue';
-import NoteContainer from './note-container.vue'
+import NoteContainer from './note-container.vue';
 
 export default {
-  name: "notes",
+  name: 'notes',
 
   components: {
     NoteContainer, NoteEditor
   },
 
-  created() {
+  created () {
     this._fetchAndUpdate();
   },
 
-  data() {
+  data () {
     return {
       isCreateNew: false,
       newNote: {
@@ -91,33 +91,33 @@ export default {
         content: '',
         is_pinned: false,
         category: null
-      },
+      }
     };
   },
 
   computed: {
-    ...mapGetters("Notes", { notes: "defaultItems", pinnedNotes: "pinnedItems", archivedNotes: "archivedItems" }),
-    ...mapState("Notes", { categoryId: "categoryFilter", milestoneId: "milestoneFilter" }),
-    ...mapGetters("Categories", { getCategory: "getCategory" }),
+    ...mapGetters('Notes', { notes: 'defaultItems', pinnedNotes: 'pinnedItems', archivedNotes: 'archivedItems' }),
+    ...mapState('Notes', { categoryId: 'categoryFilter', milestoneId: 'milestoneFilter' }),
+    ...mapGetters('Categories', { getCategory: 'getCategory' }),
     hasPinned: () => this.pinnedNotes && this.pinnedNotes.length,
     hasOthers: () => this.notes && this.notes.length,
     hasArchived: () => this.archivedItems && this.archivedItems.length,
 
-    selectedCategory() {
+    selectedCategory () {
       return this.getCategory(this.categoryId);
-    },
+    }
   },
 
   methods: {
-    async _fetchAndUpdate() {
-      await this.$store.dispatch("Notes/fetchAll");
-      this.$store.dispatch("Notes/updateFilters", {
-        categoryId: this.$route.query.category ? this.$route.query.category : "all",
-        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : "all"
+    async _fetchAndUpdate () {
+      await this.$store.dispatch('Notes/fetchAll');
+      this.$store.dispatch('Notes/updateFilters', {
+        categoryId: this.$route.query.category ? this.$route.query.category : 'all',
+        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : 'all'
       });
     },
 
-    createNewNote() {
+    createNewNote () {
       if (this.editingNote) {
         alert('Save editing note first // add confirm dialog plz');
         return;
@@ -126,24 +126,24 @@ export default {
       this.isCreateNew = true;
     },
 
-    clearNewNote() {
+    clearNewNote () {
       this.newNote = {
         title: '', content: '', category: this.selectedCategory
       };
       this.isCreateNew = false;
     },
 
-    async addNewNote() {
-      this.$store.dispatch("Notes/addNew", this.newNote);
+    async addNewNote () {
+      this.$store.dispatch('Notes/addNew', this.newNote);
       this.clearNewNote();
     }
   },
 
   watch: {
-    $route(to, from) {
+    $route (to, from) {
       this._fetchAndUpdate(this);
     }
-  },
+  }
 
 };
 </script>

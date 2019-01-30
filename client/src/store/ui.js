@@ -8,30 +8,30 @@ export default {
   },
 
   getters: {
-    isLoading(state, gaetters, rootState, rootGetters) {
-      return rootState.App.isInitializing
-        || rootState.Notes.isLoading
-        || rootState.Tasks.isLoading
-        ;
-    },
+    isLoading (rootState) {
+      return rootState.App.isInitializing ||
+        rootState.Notes.isLoading ||
+        rootState.Tasks.isLoading
+      ;
+    }
   },
 
   mutations: {
-    toggle: (state, property) => state[property] = !state[property],
-    pushSnackbar(state, message) {
+    toggle: (state, property) => { state[property] = !state[property]; },
+    pushSnackbar (state, message) {
       state.snackbarMessages.push(message);
       state.showSnackbar = true;
     },
-    pullSnackbar(state) {
+    pullSnackbar (state) {
       state.snackbarMessages = [];
       state.showSnackbar = false;
     }
   },
 
   actions: {
-    pushIOError({ commit }, error) {
-      commit('pushSnackbar', `IO error ${error.status}: ${error.statusText}`);
+    pushIOError ({ commit }, error) {
+      commit('pushSnackbar', `IO error ${error.message.status}: ${error.message.statusText}`);
     }
   }
 
-}
+};

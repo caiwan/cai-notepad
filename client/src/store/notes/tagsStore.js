@@ -7,30 +7,24 @@ export default {
   namespaced: true,
 
   state: {
-    items: [],
+    items: []
   },
 
   mutations: {
-    ...common.mutations,
-    show(state, filterName) {
-      if (filters[filterName]) {
-        state.visibility = filterName;
-      }
-    },
+    ...common.mutations
   },
 
   actions: {
-    async queryAutocomplete({
+    async queryAutocomplete ({
       commit
     }, query) {
-      if (query.length < 3)
-        return;
+      if (query.length < 3) { return; }
       const items = await io.tags.queryAutocomplete(query, TAGS_MAX);
       if (items) {
-        commit("clear");
-        commit("putAll", items);
+        commit('clear');
+        commit('putAll', items);
       }
     }
   }
 
-}
+};

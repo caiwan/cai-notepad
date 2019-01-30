@@ -30,11 +30,11 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategoryItem from './category-item.vue';
 
 export default {
-  name: "CategorySelector",
+  name: 'CategorySelector',
 
   props: {
     category: { type: Object, default: null }
@@ -44,51 +44,50 @@ export default {
     CategoryItem
   },
 
-  created() {
-    this.$store.dispatch("Categories/fetchAll");
+  created () {
+    this.$store.dispatch('Categories/fetchAll');
   },
 
-  data() {
+  data () {
     return {
       showCategorySelector: false
     };
   },
 
   computed: {
-    ...mapState("Categories", { categories: "itemTree" }),
+    ...mapState('Categories', { categories: 'itemTree' })
   },
 
   methods: {
-    dropdown() {
+    dropdown () {
       this.showCategorySelector = !this.showCategorySelector;
     },
 
-    close() {
+    close () {
       this.showCategorySelector = false;
-
     },
-    selected(category) {
-      this.$emit("selected", category);
+    selected (category) {
+      this.$emit('selected', category);
       this.showCategorySelector = false;
     }
   },
 
-  updated() {
+  updated () {
     // console.log('category', this.category, this.categories);
     // QnD hack for zebra stripes
     const zebraElements = [].slice.call(document.getElementsByClassName('zebra'));
     var counter = 0;
     zebraElements.forEach(element => {
-      if (counter % 2 == 0) {
-        element.className = element.className + " even";
+      if (counter % 2 === 0) {
+        element.className = element.className + ' even';
       } else {
-        element.className = element.className + " odd";
+        element.className = element.className + ' odd';
       }
       counter++;
     });
   }
 
-}
+};
 </script>
 
 <style lang="scss" scoped>

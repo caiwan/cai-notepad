@@ -191,90 +191,89 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
-import CategorySelector from '../category-selector.vue'
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+import CategorySelector from '../category-selector.vue';
 
 export default {
   components: {
     CategorySelector
   },
 
-  created() {
+  created () {
     this._fetchAndUpdate();
     this.newTask.category = this.selectedCategory;
-
   },
 
-  data() {
+  data () {
     return {
       newTask: {
-        title: "",
+        title: '',
         category: null
       }
     };
   },
 
   computed: {
-    ...mapState("Tasks", {
-      tasks: "items",
-      editingTask: "editingItem",
-      categoryId: "categoryFilter",
-      milestoneId: "milestoneFilter"
+    ...mapState('Tasks', {
+      tasks: 'items',
+      editingTask: 'editingItem',
+      categoryId: 'categoryFilter',
+      milestoneId: 'milestoneFilter'
     }),
-    ...mapGetters("Tasks", {
-      filteredTasks: "filtered",
-      remainingTasks: "remaining",
-      archivedTaks: "archived"
+    ...mapGetters('Tasks', {
+      filteredTasks: 'filtered',
+      remainingTasks: 'remaining',
+      archivedTaks: 'archived'
     }),
-    ...mapGetters("Categories", { getCategory: "getCategory" }),
+    ...mapGetters('Categories', { getCategory: 'getCategory' }),
 
     allDone: {
       get: function () {
         return this.remaining === 0;
       },
       set: function (value) {
-        this.$store.dispatch("Tasks/setAllDone");
+        this.$store.dispatch('Tasks/setAllDone');
       }
     },
 
-    selectedCategory() {
+    selectedCategory () {
       return this.getCategory(this.categoryId);
-    },
+    }
   },
 
   methods: {
-    ...mapActions("Tasks", {
-      toggleTask: "toggleCompleted",
-      startEditTask: "startEdit",
-      doneEditTask: "doneEdit",
-      cancelEditTask: "cancelEdit",
-      removeTask: "remove",
-      archiveCompleted: "archiveCompleted",
-      setAllDone: "setAllDone",
-      toggleArchive: "toggleArchive"
+    ...mapActions('Tasks', {
+      toggleTask: 'toggleCompleted',
+      startEditTask: 'startEdit',
+      doneEditTask: 'doneEdit',
+      cancelEditTask: 'cancelEdit',
+      removeTask: 'remove',
+      archiveCompleted: 'archiveCompleted',
+      setAllDone: 'setAllDone',
+      toggleArchive: 'toggleArchive'
     }),
 
-    ...mapMutations("Tasks", {
-      setFilterTasks: "show"
+    ...mapMutations('Tasks', {
+      setFilterTasks: 'show'
     }),
 
-    async _fetchAndUpdate() {
-      await this.$store.dispatch("Tasks/fetchAll");
-      this.$store.dispatch("Tasks/updateFilters", {
-        categoryId: this.$route.query.category ? this.$route.query.category : "all",
-        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : "all"
+    async _fetchAndUpdate () {
+      await this.$store.dispatch('Tasks/fetchAll');
+      this.$store.dispatch('Tasks/updateFilters', {
+        categoryId: this.$route.query.category ? this.$route.query.category : 'all',
+        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : 'all'
       });
     },
 
-    addNewTask() {
-      this.$store.dispatch("Tasks/addNew", this.newTask);
+    addNewTask () {
+      this.$store.dispatch('Tasks/addNew', this.newTask);
       this.newTask = {
-        title: "",
+        title: ''
         // category: this.selectedCategory
       };
     },
 
-    categorySelected(task, category) {
+    categorySelected (task, category) {
       task.category = category;
       console.log('select category', { task, category });
     }
@@ -282,7 +281,7 @@ export default {
 
   filters: {
     pluralize: function (n) {
-      return n === 1 ? "item" : "itmes";
+      return n === 1 ? 'item' : 'itmes';
     }
   },
 
@@ -294,11 +293,11 @@ export default {
     }
   },
 
-  updated() {
+  updated () {
   },
 
   watch: {
-    $route(to, from) {
+    $route (to, from) {
       this._fetchAndUpdate();
       this.newTask.category = this.selectedCategory;
       console.log('selected cat', this.selectedCategory, this.categoryId);
@@ -383,4 +382,3 @@ footer {
 }
 // }
 </style>
-

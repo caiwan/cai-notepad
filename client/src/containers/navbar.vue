@@ -21,11 +21,11 @@
 
 export default {
   methods: {
-    toggleSidebar() {
-      this.$store.commit("UI/toggle", 'showSidebar');
+    toggleSidebar () {
+      this.$store.commit('UI/toggle', 'showSidebar');
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

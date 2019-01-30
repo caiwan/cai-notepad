@@ -46,20 +46,20 @@ export default {
   computed: {
   },
   methods: {
-    edit() {
+    edit () {
       this.$emit('editNote');
     },
-    remove() {
+    remove () {
       this.$emit('removeNote');
     },
-    pin() {
+    pin () {
       this.$emit('pinNote');
     },
-    archive() {
+    archive () {
       this.$emit('archiveNote');
     }
   }
-}
+};
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

@@ -91,7 +91,7 @@ export default {
     };
   },
   methods: {
-    keydown(e) {
+    keydown (e) {
       this.pressedKey = e.key;
 
       if (e.key === 'Backspace') {
@@ -100,8 +100,7 @@ export default {
           this.currentTag = this.pTags.pop();
           this.conflict = false;
         }
-      }
-      else if (this.pDelimiters.has(e.key)) {
+      } else if (this.pDelimiters.has(e.key)) {
         e.preventDefault();
 
         this.choiceListVisible = false;
@@ -109,8 +108,7 @@ export default {
         if (this.currentTag && this.currentTag.length > 0) {
           this.add();
           this.focusInput();
-        }
-        else {
+        } else {
           this.$emit('blur');
         }
       }
@@ -120,8 +118,7 @@ export default {
         if (this.dropup) {
           if (key === 'ArrowDown') {
             key = 'ArrowUp';
-          }
-          else if (key === 'ArrowUp') {
+          } else if (key === 'ArrowUp') {
             key = 'ArrowDown';
           }
         }
@@ -146,21 +143,18 @@ export default {
               if (!(scrollTop > choiceList.scrollTop && scrollTop < choiceList.scrollTop + visibleHeight)) {
                 choiceList.scrollTop = scrollTop;
               }
-            }
-            else {
+            } else {
               let targetHeight = target.getBoundingClientRect().height;
               scrollTop = target.offsetTop + targetHeight;
 
               if (scrollTop < choiceList.scrollTop) {
                 choiceList.scrollTop = scrollTop - targetHeight;
-              }
-              else if (scrollTop > choiceList.scrollTop + visibleHeight) {
+              } else if (scrollTop > choiceList.scrollTop + visibleHeight) {
                 choiceList.scrollTop = scrollTop - visibleHeight + 2;
               }
             }
           });
-        }
-        else if (key === 'ArrowUp') {
+        } else if (key === 'ArrowUp') {
           e.preventDefault();
 
           let n = this.pChoices.length;
@@ -181,12 +175,10 @@ export default {
 
               if (scrollTop < choiceList.scrollTop) {
                 choiceList.scrollTop = scrollTop - targetHeight;
-              }
-              else if (scrollTop > choiceList.scrollTop + visibleHeight) {
+              } else if (scrollTop > choiceList.scrollTop + visibleHeight) {
                 choiceList.scrollTop = scrollTop - visibleHeight + 5;
               }
-            }
-            else {
+            } else {
               scrollTop = target.offsetTop;
 
               if (!(scrollTop > choiceList.scrollTop && scrollTop < choiceList.scrollTop + visibleHeight)) {
@@ -194,19 +186,17 @@ export default {
               }
             }
           });
-        }
-        else if (e.key.length === 1 || CHOICE_WHITELIST.has(e.key)) {
+        } else if (e.key.length === 1 || CHOICE_WHITELIST.has(e.key)) {
           this.resolveRequired = true;
         }
-      }
-      else {
+      } else {
         this.resolveRequired = true;
       }
     },
-    input(e) {
+    input (e) {
       this.resolveRequired = true;
     },
-    add(e, tag) {
+    add (e, tag) {
       if (tag) {
         this.currentTag = tag;
         this.deferBlur = false;
@@ -222,8 +212,7 @@ export default {
               this.pTags.push(tag);
               this.currentTag = '';
               this.focusInput();
-            }
-            else {
+            } else {
               this.conflict = true;
             }
           }
@@ -232,7 +221,7 @@ export default {
 
       this.deferBlur = false;
     },
-    remove(e, tag) {
+    remove (e, tag) {
       if (this.disabled) {
         return;
       }
@@ -242,20 +231,19 @@ export default {
       this.pTags.splice(this.pTags.indexOf(tag), 1);
       this.conflict = false;
     },
-    focusInput() {
+    focusInput () {
       let tagInput = this.$refs.tagInput;
       console.log('loller, focus', { tagInput });
       if (tagInput) {
         tagInput.focus();
       }
     },
-    resolveChoices() {
+    resolveChoices () {
       let choices;
 
       try {
         choices = this.choices(this.currentTag);
-      }
-      catch (e) {
+      } catch (e) {
         return;
       }
 
@@ -271,20 +259,20 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.resolveRequired = false;
     this.$nextTick(() => {
       let tagInput = this.$refs.tagInput;
       tagInput.style.width = '2px';
-      tagInput.style.width = `${tagInput.scrollWidth + 2}px`
+      tagInput.style.width = `${tagInput.scrollWidth + 2}px`;
     });
   },
-  updated() {
+  updated () {
     let tagInput = this.$refs.tagInput;
 
     if (tagInput) {
       tagInput.style.width = '2px';
-      tagInput.style.width = `${tagInput.scrollWidth + 2}px`
+      tagInput.style.width = `${tagInput.scrollWidth + 2}px`;
     }
 
     if (this.resolveRequired) {
@@ -292,7 +280,7 @@ export default {
       this.resolveRequired = false;
     }
   }
-}
+};
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

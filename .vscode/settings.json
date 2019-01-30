@@ -4,7 +4,7 @@
     "${workspaceFolder}/server/",
     "${workspaceFolder}/server/app"
   ],
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "files.insertFinalNewline": true,
   "files.eol": "\r\n",
   "csv-preview.separator": ",",
@@ -13,10 +13,6 @@
     "editor.tabSize": 2,
   },
   "[vue]": {
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-  },
-  "[vue-html]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
   },

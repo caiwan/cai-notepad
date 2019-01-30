@@ -1,10 +1,14 @@
-import { Tasks } from './tasksIO'
-import { Notes } from './notesIO'
-import { Tags } from './tagsIO'
-import { Categories } from './categoriesIO'
+import { Tasks } from './tasksIO';
+import { Notes } from './notesIO';
+import { Tags } from './tagsIO';
+import { Categories } from './categoriesIO';
+
+// Eslint no-undef exceptions
+/* global Headers */
+/* global Blob */
 
 class IO {
-  constructor() {
+  constructor () {
     this.headers = null;
     this.root = './api';
 
@@ -13,14 +17,14 @@ class IO {
     this.tags = null;
 
     // this.initialized = fetch('./api/settings/', {
-    // credentials: 'same-origin' 
+    // credentials: 'same-origin'
     // })
     const dummyFetch = async function () {
       return {
-        json() {
-          return { csrftoken: "nope" };
+        json () {
+          return { csrftoken: '' };
         }
-      }
+      };
     };
 
     this.initialized = dummyFetch()
@@ -36,7 +40,7 @@ class IO {
         this.categories = new Categories(this);
       });
   }
-  toJson(data) {
+  toJson (data) {
     return {
       body: new Blob([JSON.stringify(data)], { type: 'application/json' }),
       headers: this.headers

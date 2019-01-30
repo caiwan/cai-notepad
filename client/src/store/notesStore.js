@@ -3,23 +3,21 @@ import common, { copyObject } from '@/store/_common';
 import tags from './notes/tagsStore';
 
 class Filter {
-  constructor() { }
-
-  category(items, categoryId) {
+  category (items, categoryId) {
     if (categoryId === 'all') {
       return items;
     } else if (categoryId === 'unassigned') {
       return items.filter(item => !item.category);
     } else {
-      return items.filter(item => item.category && item.category.id == categoryId);
+      return items.filter(item => item.category && item.category.id === categoryId);
     }
   };
 
-  milestone(items, milestoneId) {
+  milestone (items, milestoneId) {
     return items;
   };
 
-  all(items, milestoneId, categoryId) { return this.category(this.milestone(items, milestoneId), categoryId); }
+  all (items, milestoneId, categoryId) { return this.category(this.milestone(items, milestoneId), categoryId); }
 };
 
 const filters = new Filter();
@@ -28,7 +26,7 @@ export default {
   namespaced: true,
 
   modules: {
-    "Tags": tags
+    'Tags': tags
   },
 
   state: {
@@ -38,44 +36,44 @@ export default {
     isDirty: false,
     filteredItems: [],
     categoryFilter: 'all',
-    milesonteFilter: 'all',
+    milestoneFilter: 'all',
     isLoading: false
   },
 
   getters: {
-    pinnedItems: state => state.filteredItems.filter(item => item.is_archived == false && item.is_pinned == true),
-    defaultItems: state => state.filteredItems.filter(item => item.is_archived == false && item.is_pinned == false),
-    archivedItems: state => state.filteredItems.filter(item => item.is_archived == true),
+    pinnedItems: state => state.filteredItems.filter(item => item.is_archived === false && item.is_pinned === true),
+    defaultItems: state => state.filteredItems.filter(item => item.is_archived === false && item.is_pinned === false),
+    archivedItems: state => state.filteredItems.filter(item => item.is_archived === true)
   },
 
   mutations: {
     ...common.mutations,
-    bump: (state, item) => state.items.sort((a, b) => a == item ? -1 : b == item ? 1 : 0),
-    updateFilteredItems(state) {
+    bump: (state, item) => state.items.sort((a, b) => a === item ? -1 : b === item ? 1 : 0),
+    updateFilteredItems (state) {
       state.filteredItems = filters.all(
-        state.items, state.milesonteFilter, state.categoryFilter
-      )
+        state.items, state.milestoneFilter, state.categoryFilter
+      );
     }
   },
 
   actions: {
-    async fetchAll({ commit, dispatch }) {
-      commit("fetchStart");
+    async fetchAll ({ commit, dispatch }) {
+      commit('fetchStart');
       const items = await io.notes.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (items) {
-        commit("clear");
-        commit("putAll", items);
+        commit('clear');
+        commit('putAll', items);
       }
-      commit("fetchEnd");
+      commit('fetchEnd');
     },
 
-    updateFilters({ commit, state }, { categoryId, milestoneId }) {
-      commit("set", { property: "categoryFilter", value: categoryId });
-      commit("set", { property: "milesonteFilter", value: milestoneId });
-      commit("updateFilteredItems");
+    updateFilters ({ commit, state }, { categoryId, milestoneId }) {
+      commit('set', { property: 'categoryFilter', value: categoryId });
+      commit('set', { property: 'milestoneFilter', value: milestoneId });
+      commit('updateFilteredItems');
     },
 
-    async addNew({ commit, dispatch }, value) {
+    async addNew ({ commit, dispatch }, value) {
       value.title = value.title && value.title.trim();
       value.content = value.content && value.content.trim();
       if (!value.title && !value.content) {
@@ -86,17 +84,16 @@ export default {
       }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!item) return;
 
-      commit("putFront", item);
-      commit("updateFilteredItems");
-
+      commit('putFront', item);
+      commit('updateFilteredItems');
     },
 
-    startEdit({ dispatch, state }, item) {
+    startEdit ({ dispatch, state }, item) {
       state.beforeEditCache = copyObject(item, {});
       state.editingItem = item;
     },
 
-    async doneEdit({ commit, dispatch, state }, item) {
+    async doneEdit ({ commit, dispatch, state }, item) {
       if (!state.editingItem) {
         return;
       }
@@ -104,45 +101,44 @@ export default {
       item.title = item.title.trim();
       const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!edited) return;
-      commit("edit", edited);
+      commit('edit', edited);
 
       state.editingItem = null;
 
       // bring my post up
-      commit("bump", item)
-      commit("updateFilteredItems");
+      commit('bump', item);
+      commit('updateFilteredItems');
     },
 
-    cancelEdit({ dispatch, state }, item) {
-      item = copyObject(state.beforeEditCache, item)
+    cancelEdit ({ dispatch, state }, item) {
+      item = copyObject(state.beforeEditCache, item);
       state.editingItem = null;
       this.beforeEditCache = null;
     },
 
-    async remove({ dispatch, commit }, item) {
+    async remove ({ dispatch, commit }, item) {
       await io.notes.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      commit("rm", item);
-      commit("updateFilteredItems");
+      commit('rm', item);
+      commit('updateFilteredItems');
     },
 
-    async togglePin({ commit, dispatch, state }, item) {
+    async togglePin ({ commit, dispatch, state }, item) {
       item.is_pinned = !item.is_pinned;
       if (state.editingItem !== item) {
         const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
         if (!edited) return;
-        commit("edit", edited);
+        commit('edit', edited);
       }
     },
 
-    async toggleArchive({ commit, dispatch, state }, item) {
+    async toggleArchive ({ commit, dispatch, state }, item) {
       item.is_archived = !item.is_archived;
       if (state.editingItem !== item) {
         const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
         if (!edited) return;
-        commit("edit", edited);
+        commit('edit', edited);
       }
-
-    },
+    }
   }
 
-}
+};

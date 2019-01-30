@@ -1,17 +1,16 @@
-import { BaseIONode } from './_BaseIONode'
+import { BaseIONode } from './_BaseIONode';
+
+/* global fetch */
 
 export class Notes extends BaseIONode {
-  constructor(io) {
-    super(io)
-  }
-  fetchAll() {
+  fetchAll () {
     return fetch(`${this.root}/notes/`, {
       credentials: 'same-origin'
     }).then(this.handleFault)
       .then(v => v.json());
   }
 
-  add(item) {
+  add (item) {
     return fetch(`${this.root}/notes/`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -20,7 +19,7 @@ export class Notes extends BaseIONode {
       .then(v => v.json());
   }
 
-  edit(item) {
+  edit (item) {
     return fetch(`${this.root}/notes/${item.id}/`, {
       method: 'PUT',
       credentials: 'same-origin',
@@ -29,10 +28,10 @@ export class Notes extends BaseIONode {
       .then(v => v.json());
   }
 
-  remove(item) {
+  remove (item) {
     return fetch(`${this.root}/notes/${item.id}/`, {
       method: 'DELETE',
-      credentials: 'same-origin',
-    }).then(this.handleFault)
+      credentials: 'same-origin'
+    }).then(this.handleFault);
   }
 }

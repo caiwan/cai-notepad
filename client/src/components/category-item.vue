@@ -29,31 +29,31 @@
 <script>
 // import CategoryItem from "./category-item.vue"
 export default {
-  name: "CategoryItem",
+  name: 'CategoryItem',
   // components: {
   // CategoryItem
   // },
   props: {
     model: Object,
     maxDepth: Number,
-    lod: { default: 0, type: Number },
+    lod: { default: 0, type: Number }
   },
-  data() {
+  data () {
     return {
       open: false,
       isEditing: false,
       beforeEditCache: null,
       isAddingChild: false,
-      newChild: '',
-    }
+      newChild: ''
+    };
   },
   computed: {
-    hasChildren() {
+    hasChildren () {
       return this.model.children && this.model.children.length;
     }
   },
   methods: {
-    select(item) {
+    select (item) {
       this.$emit('itemSelected', item);
     }
   }

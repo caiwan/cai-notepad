@@ -1,14 +1,14 @@
-# Note: Please only put global ignore rules here, 
-# e.g. OS releated or editor-specific stuff 
+# Note: Please only put global ignore rules here,
+# e.g. OS releated or editor-specific stuff
 
-# Linux / unix 
+# Linux / unix
 *~
 .fuse_hidden*
 .directory
 .Trash-*
 .nfs*
 
-# Windows 
+# Windows
 # - Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db

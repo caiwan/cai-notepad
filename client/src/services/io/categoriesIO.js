@@ -1,11 +1,10 @@
-import { BaseIONode } from './_BaseIONode'
+import { BaseIONode } from './_BaseIONode';
+
+// Eslint no-indef exception
+/* global fetch  */
 
 export class Categories extends BaseIONode {
-  constructor(io) {
-    super(io)
-  }
-
-  fetchAll() {
+  fetchAll () {
     return fetch(`${this.root}/categories/`, {
       credentials: 'same-origin'
     })
@@ -13,7 +12,7 @@ export class Categories extends BaseIONode {
       .then(v => v.json());
   }
 
-  add(item) {
+  add (item) {
     return fetch(`${this.root}/categories/`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -23,7 +22,7 @@ export class Categories extends BaseIONode {
       .then(v => v.json());
   }
 
-  edit(item) {
+  edit (item) {
     return fetch(`${this.root}/categories/${item.id}/`, {
       method: 'PUT',
       credentials: 'same-origin',
@@ -33,12 +32,11 @@ export class Categories extends BaseIONode {
       .then(v => v.json());
   }
 
-  remove(item) {
+  remove (item) {
     return fetch(`${this.root}/categories/${item.id}/`, {
       method: 'DELETE',
-      credentials: 'same-origin',
+      credentials: 'same-origin'
     })
       .then(this.handleFault);
-
   }
 }

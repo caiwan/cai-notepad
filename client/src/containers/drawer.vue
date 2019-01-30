@@ -91,32 +91,32 @@
 
 <script>
 
-import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
-import CategoryItem from './category-drawer-item.vue'
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+import CategoryItem from './category-drawer-item.vue';
 
 export default {
   components: {
     CategoryItem
   },
 
-  data() {
+  data () {
     return {
       isAddingChild: false,
       routerName: this.$router.name,
       newChild: ''
-    }
+    };
   },
 
   computed: {
-    ...mapState("Categories", { categories: "itemTree" }),
+    ...mapState('Categories', { categories: 'itemTree' })
   },
 
-  created() {
-    this.$store.dispatch("Categories/fetchAll");
+  created () {
+    this.$store.dispatch('Categories/fetchAll');
   },
 
   methods: {
-    ...mapActions("Categories", {
+    ...mapActions('Categories', {
       addCategory: 'addNew',
       removeCategory: 'remove',
       editCategory: 'edit'
@@ -125,28 +125,27 @@ export default {
       toggleUI: 'toggle'
     }),
 
-    toggleSidebar() {
+    toggleSidebar () {
       this.toggleUI('showSidebar');
     },
 
-    startAddChild() {
+    startAddChild () {
       this.isAddingChild = true;
       this.newChild = '';
     },
 
-    doneAddChild() {
-      if (!this.isAddingChild)
-        return;
+    doneAddChild () {
+      if (!this.isAddingChild) { return; }
       console.log({ parent: null, value: this.newChild });
       this.addCategory({ parent: null, value: this.newChild });
       this.isAddingChild = false;
       this.newChild = '';
     },
 
-    cancelAddChild() {
+    cancelAddChild () {
       this.isAddingChild = false;
       this.newChild = '';
-    },
+    }
   },
 
   directives: {
@@ -157,7 +156,7 @@ export default {
     }
   }
 
-}
+};
 
 </script>
 

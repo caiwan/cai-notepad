@@ -1,24 +1,25 @@
+
+/* global Error */
+
 export class BaseIONode {
-  constructor(io) {
+  constructor (io) {
     this.io = io;
   }
 
-  get root() {
+  get root () {
     return this.io.root;
   }
 
-  get headers() {
+  get headers () {
     return this.io.headers;
   }
 
-  handleFault(v) {
-    if (v.ok)
-      return v;
+  handleFault (v) {
+    if (v.ok) { return v; }
     console.error('Error', v);
-    throw {
+    throw Error({
       status: v.status,
       statusText: v.statusText
-    }
+    });
   }
-
 }

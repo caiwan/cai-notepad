@@ -170,6 +170,7 @@ class Controller(Resource):
 class MyJsonEncoder(json.JSONEncoder):
     """ Custom JSON enoder for certatin type of objects
     """
+
     def default(self, obj):
         # if isinstance(obj, mongoengine.fields.ObjectId):
             # return str(obj)

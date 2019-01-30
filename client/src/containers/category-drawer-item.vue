@@ -68,63 +68,61 @@
 
 <script>
 export default {
-  name: "CategoryItem",
+  name: 'CategoryItem',
   props: {
     model: Object,
     maxDepth: Number,
     lod: { default: 0, type: Number }
   },
-  data() {
+  data () {
     return {
       open: false,
       isEditing: false,
       beforeEditCache: null,
       isAddingChild: false,
       newChild: '',
-      routerName: this.$router.name,
-    }
+      routerName: this.$router.name
+    };
   },
   computed: {
   },
   methods: {
-    toggleOpen() {
-      this.open = !this.open
+    toggleOpen () {
+      this.open = !this.open;
     },
-    startEdit() {
+    startEdit () {
       this.isEditing = true;
       this.beforeEditCache = this.model.title;
     },
-    doneEdit() {
-      if (!this.isEditing)
-        return;
+    doneEdit () {
+      if (!this.isEditing) { return; }
       this.$emit('itemEdited', this.model);
       console.log('lolz1');
       this.isEditing = false;
       this.beforeEditCache = null;
     },
-    cancelEdit() {
-      if (!this.isEditing)
-        return;
+    cancelEdit () {
+      if (!this.isEditing) { return; }
       this.isEditing = false;
       this.model.title = this.beforeEditCache;
     },
 
-    startAddChild() {
+    startAddChild () {
       this.isAddingChild = true;
     },
-    doneAddChild() {
+    doneAddChild () {
       this.$emit('itemAdded', { parent: this.model, value: this.newChild });
       this.isAddingChild = false;
       this.newChild = '';
     },
-    cancelAddChild() {
+    cancelAddChild () {
       this.isAddingChild = false;
       this.newChild = '';
     },
-    itemAdded(parent, newChild) {
+    itemAdded (parent, newChild) {
       this.$emit('itemAdded', { parent: parent, value: newChild });
     },
-    itemEdited(model) {
+    itemEdited (model) {
       this.$emit('itemEdited', model);
     }
   },
