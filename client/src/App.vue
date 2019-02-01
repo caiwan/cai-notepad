@@ -70,7 +70,7 @@ export default {
     ...mapState('App', ['isInitializing'])
   },
   methods: {
-    ...mapActions('App', ['initialized']),
+    ...mapMutations('App', ['initialized']),
     dismissSnackbar () {
       this.$store.commit('UI/pullSnackbar');
       console.log('dismiss');

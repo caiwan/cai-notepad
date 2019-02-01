@@ -1,7 +1,7 @@
-import 'bootstrap';
-import 'bootstrap/js/dist/util';
-import 'bootstrap/js/dist/dropdown';
-import 'bootstrap-material-design';
+// import 'bootstrap';
+// import 'bootstrap/js/dist/util';
+// import 'bootstrap/js/dist/dropdown';
+// import 'bootstrap-material-design';
 import 'node-snackbar';
 
 import Vue from 'vue';

@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-// import createPersistedState from 'vuex-persistedstate';
-
 import Tasks from './tasksStore';
 import Notes from './notesStore';
 import Categories from './categoryStore';
@@ -14,9 +12,5 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules: {
     Tasks, Notes, Categories, UI, App
-  },
-
-  plugins: [
-    // none
-  ]
+  }
 });

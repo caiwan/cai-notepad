@@ -8,7 +8,7 @@ export default {
   },
 
   getters: {
-    isLoading (rootState) {
+    isLoading (state, getters, rootState) {
       return rootState.App.isInitializing ||
         rootState.Notes.isLoading ||
         rootState.Tasks.isLoading
@@ -30,7 +30,8 @@ export default {
 
   actions: {
     pushIOError ({ commit }, error) {
-      commit('pushSnackbar', `IO error ${error.message.status}: ${error.message.statusText}`);
+      console.log('Error:', error);
+      commit('pushSnackbar', `${error}`);
     }
   }
 

@@ -17,9 +17,6 @@ export class BaseIONode {
   handleFault (v) {
     if (v.ok) { return v; }
     console.error('Error', v);
-    throw Error({
-      status: v.status,
-      statusText: v.statusText
-    });
+    throw Error(`${v.status} ${v.statusText}`);
   }
 }

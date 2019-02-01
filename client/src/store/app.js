@@ -4,9 +4,6 @@ export default {
     isInitializing: true
   },
   mutations: {
-    initialized: (state, initializing) => { state.isInitializing = !initializing; }
-  },
-  actions: {
-    initialized: ({ commit }) => commit('initialized', true)
+    initialized: (state) => { state.isInitializing = false; }
   }
 };
