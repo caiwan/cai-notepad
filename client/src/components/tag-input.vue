@@ -233,7 +233,6 @@ export default {
     },
     focusInput () {
       let tagInput = this.$refs.tagInput;
-      console.log('loller, focus', { tagInput });
       if (tagInput) {
         tagInput.focus();
       }

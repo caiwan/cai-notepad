@@ -57,7 +57,7 @@ class RunTests(Command):
 
 
 # override the default 127.0.0.1 binding ddress
-manager.add_command("runserver", Server(host="0.0.0.0", port=8000))
+manager.add_command("runserver", Server(host="0.0.0.0", port=5000))
 manager.add_command("test", RunTests)
 manager.add_command("createdb", CreateDb)
 
