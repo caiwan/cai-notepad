@@ -12,6 +12,11 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
+      path: '/settings',
+      name: 'Settings',
+      component: Dashboard
+    },
+    {
       path: '/',
       name: 'Dashboard',
       component: Dashboard
@@ -24,6 +29,12 @@ export default new Router({
     {
       path: '/notes',
       name: 'Notes',
+      component: Notes
+    },
+
+    {
+      path: '/categories',
+      name: 'Categories',
       component: Notes
     }
   ]

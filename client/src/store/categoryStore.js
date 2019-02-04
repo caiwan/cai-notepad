@@ -57,7 +57,9 @@ export default {
     },
 
     async addNew ({ commit, state, dispatch }, { parent, value }) {
+      console.log('Lol', value);
       value = value && value.trim();
+
       if (!value) {
         return;
       }
@@ -72,7 +74,7 @@ export default {
     },
 
     async edit ({ commit, dispatch }, item) {
-      console.log('Edit', item);
+      // console.log('Edit', item);
       item.title = item.title.trim();
       if (!item.title) {
         await io.categories.remove(item);
