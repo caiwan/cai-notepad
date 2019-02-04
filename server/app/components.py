@@ -277,11 +277,23 @@ class Module:
 
     __is_initialized = False
 
+    def pre_register(self, app, api, models, settings):
+        """ A custom callback before register module
+        """
+        pass
+
+    def post_register(self, app, api, models, settings):
+        """ A custom callback after register a module
+        """
+        pass
+
     def register(self, app, api, models, settings):
         if settings is None:
             settings = {}
         if models is None:
             models = []
+
+        self.pre_register(app, api, models, settings)
 
         if not self.__is_initialized:
             logging.info("=== Register module: {}".format(self.name))
@@ -302,9 +314,11 @@ class Module:
                 api.add_resource(controller, path)
                 pass
 
-            logging.info("\n")
+            # logging.info("\n")
 
             self.__is_initialized = True
             pass
+
+        self.post_register(app, api, models, settings)
 
         pass

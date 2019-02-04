@@ -9,3 +9,17 @@ class UserSettingsService(components.Service):
     model_class = UserProperty
 
     pass
+
+
+userSettingsService = UserSettingsService()
+
+
+class Module(components.Module):
+    name = "user-settings"
+    services = [userSettingsService]
+    models = [UserProperty]
+    controls = []
+    pass
+
+
+module = Module()

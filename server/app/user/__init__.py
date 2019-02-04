@@ -2,11 +2,9 @@
 
 from app import components
 from app.user.service import UserService
-from app.user.settings import SettingsService
 
 
 userService = UserService()
-userSettingsService = SettingsService()
 
 
 class Module(components.Module):
@@ -14,7 +12,7 @@ class Module(components.Module):
     from app.user.controller import UserController, UserListController
 
     name = "users"
-    services = [userService, userSettingsService]
+    services = [userService]
     models = [User, Role, Permission, UserAuthenticator]
     controls = [UserController, UserListController]
     pass

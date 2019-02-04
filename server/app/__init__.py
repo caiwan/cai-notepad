@@ -2,6 +2,8 @@
 
 import logging
 import os, sys
+import importlib
+
 
 from flask import Flask
 from flask_restful import Api
@@ -10,13 +12,16 @@ from flask_cors import CORS
 import app.components
 
 # modules
-import app.user
-import app.user.settings
-import app.notes
-import app.tags
-import app.tasks
-import app.categories
-import app.milestones
+MODULES = [
+    "user",
+    # "user.settings",
+    # "user.admin"
+    "notes",
+    "tags",
+    "tasks",
+    "categories",
+    "milestones",
+]
 
 
 PRODUCTION = (os.getenv("FLASK_ENV") == "production")
@@ -49,7 +54,6 @@ class MyConfig(object):
         if APP_ROOT not in sys.path:
             sys.path.insert(0, APP_ROOT)
         config = "config.production" if PRODUCTION else "config.local"
-        import importlib
         try:
             cfg = importlib.import_module(config)
             logging.info("Loaded %s" % config)
@@ -70,12 +74,13 @@ CORS(APP)
 MODELS = []
 SETTINGS = {}
 
-app.user.module.register(APP, API, MODELS, SETTINGS)
-app.user.settings.module.register(APP, API, MODELS, SETTINGS)
-app.notes.module.register(APP, API, MODELS, SETTINGS)
-app.tasks.module.register(APP, API, MODELS, SETTINGS)
-app.categories.module.register(APP, API, MODELS, SETTINGS)
-app.tags.module.register(APP, API, MODELS, SETTINGS)
+for module in MODULES:
+    try:
+        module = importlib.import_module("app." + module)
+        logging.info("Loaded %s" % module)
+        module.module.register(APP, API, MODELS, SETTINGS)
+    except ImportError:
+        logging.error("Module not found  %s", module)
 
 
 if not TESTING:

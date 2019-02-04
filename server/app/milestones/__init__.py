@@ -1,6 +1,24 @@
-from app.milestones.model import Milestone, TaggedMilestone
+# coding=utf-8
+
+from app import components
+from app.milestones.model import Milestone
 
 
-def init(app, api, models):
-    # TBD
-    models.extend([Milestone, TaggedMilestone])
+class MilestoneService(components.Service):
+    name = "milestones"
+    model_class = Milestone
+
+    pass
+
+
+milestoneService = MilestoneService()
+
+
+class Module(components.Module):
+    name = "milestones"
+    services = [milestoneService]
+    models = [Milestone]
+    components = []
+
+
+module = Module()
