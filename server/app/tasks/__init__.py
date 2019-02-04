@@ -5,7 +5,8 @@ from app.tasks.model import Task
 
 
 class TaskService(components.Service):
-    _model_class = Task
+    name = "tasks"
+    model_class = Task
 
     def __init__(self):
         super().__init__()
@@ -19,7 +20,7 @@ class Module(components.Module):
     name = "tasks"
     services = [taskService]
     models = [Task]
-    controller = [TaskController, TaskController]
+    controllers = [TaskController, TaskController]
 
 
 module = Module()

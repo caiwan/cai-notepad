@@ -11,7 +11,8 @@ from app.tags import TagService
 
 
 class NoteService(components.Service):
-    _model_class = Note
+    name = "notes"
+    model_class = Note
     _tagService = TagService()
 
     def __init__(self):
@@ -63,11 +64,9 @@ noteService = NoteService()
 
 class Module(components.Module):
     from app.notes.controller import NoteListController, NoteController
-    # components.register_controllers(api, [NoteListController, NoteController])
-    # models += [Note, TaggedNote]
     name = "notes"
     services = [noteService]
-    models = [Note]
+    models = [Note, TaggedNote]
     controls = [NoteListController, NoteController]
 
 

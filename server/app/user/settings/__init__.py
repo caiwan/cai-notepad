@@ -1,24 +1,11 @@
 # coding=utf-8
 from app import components
 
-from app.user.settings.model import SettingProperty
+from app.user.settings.model import UserProperty
 
 
-class SettingsService(components.Service):
+class UserSettingsService(components.Service):
     name = "user-settings"
-    _model_class = SettingProperty
+    model_class = UserProperty
 
     pass
-
-
-settingsService = SettingsService()
-
-
-class Module(components.Module):
-    name = "settings"
-    services = [settingsService]
-    models = [SettingProperty]
-    controls = []
-
-
-module = Module()

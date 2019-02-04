@@ -10,8 +10,8 @@ from app.tags.model import Tag, FuzzyTag
 
 
 class TagService(components.Service):
-    _model_class = Tag
     name = "tags"
+    model_class = Tag
     settings = {
         "max-result": 10,
         "min-length": 3

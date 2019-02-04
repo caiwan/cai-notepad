@@ -4,7 +4,7 @@ import peewee
 from app import components
 
 
-class SettingProperty(components.BaseModel):
+class UserProperty(components.BaseModel):
     user = peewee.ForeignKeyField(components.BaseUser)
     module = peewee.TextField(null=False)
     key = peewee.TextField(null=False)

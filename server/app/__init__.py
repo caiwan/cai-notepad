@@ -34,8 +34,6 @@ logging.info("Loading %s, app version = %s", __name__,
 # ---
 # fix import paths for internal imports
 APP_ROOT = os.path.dirname(__file__)
-# if APP_ROOT not in sys.path:
-#     sys.path.insert(0, APP_ROOT)
 
 
 class MyConfig(object):

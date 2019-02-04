@@ -1,8 +1,6 @@
 # coding=utf-8
 import sys
 
-import peewee
-
 from playhouse.shortcuts import dict_to_model, model_to_dict
 from playhouse.shortcuts import Value
 
@@ -13,7 +11,8 @@ import logging
 
 
 class CategoryService(components.Service):
-    _model_class = Category
+    name = "categories"
+    model_class = Category
 
     def fetch_all_items(self):
         return Category.select().where(Category.is_deleted == False).order_by(Category.flatten_order)

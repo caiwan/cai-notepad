@@ -15,43 +15,43 @@ BASE_PATH = "/api"
 class Service:
     """ Base service class
     """
-    _name = ""
-    _model_class = None
-    _settings = {}
+    name = ""
+    model_class = None
+    settings = {}
 
     def fetch_all_items(self):
-        assert self._model_class
-        return self._model_class.select().where(self._model_class.is_deleted == False).objects()
+        assert self.model_class
+        return self.model_class.select().where(self.model_class.is_deleted == False).objects()
 
     def read_item(self, item_id):
-        assert self._model_class
-        item = self._model_class.get(self._model_class.id == item_id, self._model_class.is_deleted == False)
+        assert self.model_class
+        item = self.model_class.get(self.model_class.id == item_id, self.model_class.is_deleted == False)
         if not item:
             raise peewee.DoesNotExist()
         return item
 
     def create_item(self, item_json):
-        assert self._model_class
-        item = dict_to_model(self._model_class, item_json)
+        assert self.model_class
+        item = dict_to_model(self.model_class, item_json)
         item.save()
         return item
 
     def update_item(self, item_id, item_json):
-        assert self._model_class
-        my_item = self._model_class.select().where(self._model_class.id == item_id,
-                                                   self._model_class.is_deleted == False).get()
+        assert self.model_class
+        my_item = self.model_class.select().where(self.model_class.id == item_id,
+                                                  self.model_class.is_deleted == False).get()
         if my_item:
-            item = dict_to_model(self._model_class, item_json)
+            item = dict_to_model(self.model_class, item_json)
             item.id = my_item.id
             item.changed()
             item.save()
             return item
-        raise self._model_class.DoesNotExist()
+        raise self.model_class.DoesNotExist()
 
     def delete_item(self, item_id):
-        assert self._model_class
-        my_item = self._model_class.select().where(self._model_class.id == item_id,
-                                                   self._model_class.is_deleted == False).get()
+        assert self.model_class
+        my_item = self.model_class.select().where(self.model_class.id == item_id,
+                                                  self.model_class.is_deleted == False).get()
         if my_item:
             my_item.is_deleted = True
             my_item.changed()
@@ -284,20 +284,25 @@ class Module:
             models = []
 
         if not self.__is_initialized:
-
-            for service in self.services:
-                if service._name and service._settings:
-                    settings[service._name] = service._settings.copy()
-
-            for controllers in self.controls:
-                path = BASE_PATH + controllers.path
-                logging.info("Register endpoint {} {}".format(path, controllers.__name__))
-                api.add_resource(controllers, path)
-                pass
+            logging.info("=== Register module: {}".format(self.name))
 
             for model in self.models:
+                logging.info("Register model {}".format(model.__name__))
                 models.append(model)
                 pass
+
+            for service in self.services:
+                logging.info("Register service {}".format(service.name))
+                if service.name and service.settings:
+                    settings[service.name] = service.settings.copy()
+
+            for controller in self.controls:
+                path = BASE_PATH + controller.path
+                logging.info("Register endpoint {} {}".format(path, controller.__name__))
+                api.add_resource(controller, path)
+                pass
+
+            logging.info("\n")
 
             self.__is_initialized = True
             pass
