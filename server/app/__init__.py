@@ -10,11 +10,13 @@ from flask_cors import CORS
 import app.components
 
 # modules
-import app.tasks
+import app.user
+import app.user.settings
 import app.notes
 import app.tags
+import app.tasks
+import app.categories
 import app.milestones
-import app.user
 
 
 PRODUCTION = (os.getenv("FLASK_ENV") == "production")
@@ -71,9 +73,10 @@ MODELS = []
 SETTINGS = {}
 
 app.user.module.register(APP, API, MODELS, SETTINGS)
-app.categories.module.register(APP, API, MODELS, SETTINGS)
+app.user.settings.module.register(APP, API, MODELS, SETTINGS)
 app.notes.module.register(APP, API, MODELS, SETTINGS)
 app.tasks.module.register(APP, API, MODELS, SETTINGS)
+app.categories.module.register(APP, API, MODELS, SETTINGS)
 app.tags.module.register(APP, API, MODELS, SETTINGS)
 
 
