@@ -220,10 +220,12 @@ class CategoryService(components.Service):
 categoryService = CategoryService()
 
 
-def init(app, api, models):
+class Module(components.Module):
     from app.categories.controller import CategoryController, CategoryListController
-    from app.categories.controller import CategoryImportExportController
-    components.register_controllers(
-        api, [CategoryController, CategoryListController, CategoryImportExportController])
-    models.extend([Category])
-    pass
+    name = "categories"
+    services = [categoryService]
+    models = [Category]
+    controls = [CategoryController, CategoryListController]
+
+
+module = Module()

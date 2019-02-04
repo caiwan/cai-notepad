@@ -14,7 +14,12 @@ class TaskService(components.Service):
 taskService = TaskService()
 
 
-def init(app, api, models):
+class Module(components.Module):
     from app.tasks.controller import TaskListController, TaskController
-    components.register_controllers(api, [TaskController, TaskListController])
-    models.extend([Task])
+    name = "tasks"
+    services = [taskService]
+    models = [Task]
+    controller = [TaskController, TaskController]
+
+
+module = Module()

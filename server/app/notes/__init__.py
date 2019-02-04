@@ -56,9 +56,19 @@ class NoteService(components.Service):
         return (item_json, tags)
 
 
+noteService = NoteService()
+
 # ----------------------------------------
 
-def init(app, api, models):
+
+class Module(components.Module):
     from app.notes.controller import NoteListController, NoteController
-    components.register_controllers(api, [NoteListController, NoteController])
-    models += [Note, TaggedNote]
+    # components.register_controllers(api, [NoteListController, NoteController])
+    # models += [Note, TaggedNote]
+    name = "notes"
+    services = [noteService]
+    models = [Note]
+    controls = [NoteListController, NoteController]
+
+
+module = Module()

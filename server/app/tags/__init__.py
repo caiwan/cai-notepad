@@ -11,6 +11,11 @@ from app.tags.model import Tag, FuzzyTag
 
 class TagService(components.Service):
     _model_class = Tag
+    name = "tags"
+    settings = {
+        "max-result": 10,
+        "min-length": 3
+    }
 
     def __init__(self):
         super().__init__()
@@ -100,8 +105,12 @@ class TagService(components.Service):
 tagService = TagService()
 
 
-def init(app, api, models):
+class Module(components.Module):
     from app.tags.controller import TagAutoCompleteController
-    components.register_controllers(api, [TagAutoCompleteController])
-    models.extend([Tag, FuzzyTag])
-    pass
+    name = "tags"
+    services = [tagService]
+    models = [Tag, FuzzyTag]
+    controls = [TagAutoCompleteController]
+
+
+module = Module()

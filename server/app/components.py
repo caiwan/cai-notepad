@@ -187,10 +187,32 @@ DB = Proxy()
 
 
 class BaseModel(peewee.Model):
-    """ Peewee"s Base model
+    """ Peewee's Base model
     """
     class Meta:
         database = DB
+
+
+class BaseUser(BaseModel):
+    """ Base model for user permissions
+    """
+    name = peewee.TextField()
+    pass
+
+
+class BaseRole(BaseModel):
+    """ Base model for user roles
+    """
+    name = peewee.TextField()
+    pass
+
+
+class BaseDocumentRole(BaseModel):
+    """ Access level management for each accessed role
+    Such as read, write, manage, etc...
+    """
+    role = peewee.ForeignKeyField(BaseRole)
+    access = peewee.TextField()
 
 
 class BaseDocumentModel(BaseModel):
@@ -200,6 +222,9 @@ class BaseDocumentModel(BaseModel):
     created = peewee.DateTimeField(null=False, default=datetime.now)
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
     is_deleted = peewee.BooleanField(null=False, default=False)
+
+    owner = peewee.ForeignKeyField(BaseUser)
+    role = peewee.ForeignKeyField(BaseDocumentRole)
 
     def changed(self):
         self.edited = datetime.now()
@@ -240,24 +265,41 @@ def create_tables(app, models):
     DB.create_tables(models, safe=True)
 
 
-# Module
+# Module descriptor
 
 class Module:
     """ Base module class
     """
-    _services = []
-    _models = []
-    _controls = []
-    _is_initialized = False
+    name = ""
+    services = []
+    models = []
+    controls = []
+
+    __is_initialized = False
 
     def register(self, app, api, models, settings):
-        if not self._is_initialized:
-            for service in self._services:
+        if settings is None:
+            settings = {}
+        if models is None:
+            models = []
+
+        if not self.__is_initialized:
+
+            for service in self.services:
+                if service._name and service._settings:
+                    settings[service._name] = service._settings.copy()
+
+            for controllers in self.controls:
+                path = BASE_PATH + controllers.path
+                logging.info("Register endpoint {} {}".format(path, controllers.__name__))
+                api.add_resource(controllers, path)
                 pass
-            for control in self._controls:
+
+            for model in self.models:
+                models.append(model)
                 pass
-            for model in self._models:
-                pass
-            self._is_initialized = True
+
+            self.__is_initialized = True
             pass
+
         pass

@@ -14,6 +14,7 @@ import app.tasks
 import app.notes
 import app.tags
 import app.milestones
+import app.user
 
 
 PRODUCTION = (os.getenv("FLASK_ENV") == "production")
@@ -67,11 +68,14 @@ CORS(APP)
 # --- Initialize Application
 
 MODELS = []
+SETTINGS = {}
 
-app.notes.init(APP, API, MODELS)
-app.tags.init(APP, API, MODELS)
-app.categories.init(APP, API, MODELS)
-app.tasks.init(APP, API, MODELS)
+app.user.module.register(APP, API, MODELS, SETTINGS)
+app.categories.module.register(APP, API, MODELS, SETTINGS)
+app.notes.module.register(APP, API, MODELS, SETTINGS)
+app.tasks.module.register(APP, API, MODELS, SETTINGS)
+app.tags.module.register(APP, API, MODELS, SETTINGS)
+
 
 if not TESTING:
     app.components.database_init(APP, MODELS)
