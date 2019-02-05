@@ -17,6 +17,7 @@ MODULES = [
     "user.settings",
     # "user.admin"
     "notes",
+    "notes.attachments"
     "tags",
     "tasks",
     "categories",
