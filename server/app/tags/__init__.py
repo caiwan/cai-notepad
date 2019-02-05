@@ -110,7 +110,7 @@ class Module(components.Module):
     name = "tags"
     services = [tagService]
     models = [Tag, FuzzyTag]
-    controls = [TagAutoCompleteController]
+    controllers = [TagAutoCompleteController]
 
 
 module = Module()

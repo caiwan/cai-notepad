@@ -29,7 +29,7 @@ class TestCategoryCrud(TestCase):
     def test_add_category_wo_parent(self):
         # given
         category = {
-            "title": "Category",
+            "name": "Category",
             "parent": None
         }
         # when
@@ -41,14 +41,14 @@ class TestCategoryCrud(TestCase):
     def test_add_category_w_parent(self):
         # given
         root_category = {
-            "title": "Root Category",
+            "name": "Root Category",
             "parent": None
         }
         root_category_json = self._insert_category(root_category)
         root_id = root_category_json["id"]
 
         child_categories = [{
-            "title": "Child Category " + str(i),
+            "name": "Child Category " + str(i),
             "parent": {"id": root_id}
         } for i in range(3)]
 
@@ -77,6 +77,6 @@ class TestCategoryCrud(TestCase):
         return category_json
 
     def _validate_category(self, expected, actual):
-        # self.assertEqual(expected["title"], actual["title"])
+        # self.assertEqual(expected["name"], actual["name"])
         # self.assertEqual(expected["parent"], actual["parent"]["id"])
         pass

@@ -67,7 +67,7 @@ class Module(components.Module):
     name = "notes"
     services = [noteService]
     models = [Note, TaggedNote]
-    controls = [NoteListController, NoteController]
+    controllers = [NoteListController, NoteController]
 
 
 module = Module()

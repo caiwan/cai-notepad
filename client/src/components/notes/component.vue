@@ -19,14 +19,12 @@
             v-on:doneEdit="addNewNote()"
             v-on:cancelEdit="clearNewNote()"
           ></note-editor>
-          <!-- todos goez here -->
         </div>
       </header>
       <!-- </div> -->
     </div>
 
     <!-- PINNED NOTES -->
-    <!-- class = "row" -->
     <section
       class=""
       v-show="hasPinned"
@@ -42,7 +40,6 @@
     </section>
     <!-- DEFAULT -->
 
-    <!-- <section class="row"> -->
     <section class="col-12">
       <header v-show="hasOthers && (hasArchived || hasPinned)">Others</header>
       <note-container
@@ -51,9 +48,7 @@
         :note="note"
       />
     </section>
-    <!-- </section> -->
     <!-- ARCHIVED -->
-    <!-- <section class="row"> -->
     <section class="col-12">
       <header v-show="hasArchived">Archived</header>
       <note-container
@@ -62,7 +57,6 @@
         :note="note"
       />
     </section>
-    <!-- </section> -->
   </section>
 </template>
 

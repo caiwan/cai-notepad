@@ -18,7 +18,7 @@ class Module(components.Module):
     name = "user-settings"
     services = [userSettingsService]
     models = [UserProperty]
-    controls = []
+    controllers = []
     pass
 
 

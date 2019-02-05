@@ -224,7 +224,7 @@ class Module(components.Module):
     name = "categories"
     services = [categoryService]
     models = [Category]
-    controls = [CategoryController, CategoryListController]
+    controllers = [CategoryController, CategoryListController]
 
 
 module = Module()

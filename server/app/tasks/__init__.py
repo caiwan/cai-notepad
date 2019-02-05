@@ -20,7 +20,7 @@ class Module(components.Module):
     name = "tasks"
     services = [taskService]
     models = [Task]
-    controllers = [TaskController, TaskController]
+    controllers = [TaskController, TaskListController]
 
 
 module = Module()

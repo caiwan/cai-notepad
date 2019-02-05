@@ -160,7 +160,10 @@
 
       <!-- Archived tasks -->
       <hr />
-      <section class="archived">
+      <section
+        class="archived"
+        v-if="archivedTaks.length"
+      >
         <header>Archived</header>
         <ul class="task-list">
           <li

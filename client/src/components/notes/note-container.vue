@@ -23,6 +23,13 @@
       ></note>
     </div>
 
+    <ul>
+      <li>Task</li>
+      <li>Task</li>
+      <li>Task</li>
+      <li>Task</li>
+    </ul>
+
     <!-- todos || tasks goez here -->
 
   </article>

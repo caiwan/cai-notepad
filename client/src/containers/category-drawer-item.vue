@@ -16,13 +16,13 @@
         @dblclick="startEdit"
       >
         <router-link :to="{name: routerName, query:{category:model.id}}">
-          {{ model.title }}
+          {{ model.name }}
         </router-link>
       </span>
       <input
         class="edit form-control"
         v-if="isEditing"
-        v-model="model.title"
+        v-model="model.name"
         v-focus="isEditing"
         @blur="cancelEdit"
         @keyup.enter="doneEdit"
@@ -92,7 +92,7 @@ export default {
     },
     startEdit () {
       this.isEditing = true;
-      this.beforeEditCache = this.model.title;
+      this.beforeEditCache = this.model.name;
     },
     doneEdit () {
       if (!this.isEditing) { return; }
@@ -104,14 +104,14 @@ export default {
     cancelEdit () {
       if (!this.isEditing) { return; }
       this.isEditing = false;
-      this.model.title = this.beforeEditCache;
+      this.model.name = this.beforeEditCache;
     },
 
     startAddChild () {
       this.isAddingChild = true;
     },
     doneAddChild () {
-      this.$emit('itemAdded', { parent: this.model, value: this.newChild });
+      this.$emit('itemAdded', { parent: this.model, name: this.newChild });
       this.isAddingChild = false;
       this.newChild = '';
     },
@@ -120,7 +120,7 @@ export default {
       this.newChild = '';
     },
     itemAdded (parent, newChild) {
-      this.$emit('itemAdded', { parent: parent, value: newChild });
+      this.$emit('itemAdded', { parent: parent, name: newChild });
     },
     itemEdited (model) {
       this.$emit('itemEdited', model);

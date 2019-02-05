@@ -7,7 +7,7 @@ from app.categories.model import Category
 
 
 class Milestone(components.BaseDocumentModel):
-    title = peewee.TextField()
+    name = peewee.TextField()
     description = peewee.TextField()
     due_date = peewee.DateTimeField(null=True, default=None)
     tags = peewee.ManyToManyField(Tag)

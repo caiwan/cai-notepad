@@ -5,7 +5,7 @@
       type="button"
       @click="dropdown()"
     >
-      <i class="fa fa-folder"></i> {{category ? category.title : "Unassigned"}}
+      <i class="fa fa-folder"></i> {{category ? category.name : "Unassigned"}}
     </button>
     <nav
       v-if="showCategorySelector"
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { zebrafy } from '@/utils';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategoryItem from './category-item.vue';
 
@@ -73,20 +74,8 @@ export default {
   },
 
   updated () {
-    // console.log('category', this.category, this.categories);
-    // QnD hack for zebra stripes
-    const zebraElements = [].slice.call(document.getElementsByClassName('zebra'));
-    var counter = 0;
-    zebraElements.forEach(element => {
-      if (counter % 2 === 0) {
-        element.className = element.className + ' even';
-      } else {
-        element.className = element.className + ' odd';
-      }
-      counter++;
-    });
+    zebrafy(this.el);
   }
-
 };
 </script>
 

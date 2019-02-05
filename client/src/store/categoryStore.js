@@ -56,17 +56,15 @@ export default {
       }
     },
 
-    async addNew ({ commit, state, dispatch }, { parent, value }) {
-      console.log('Lol', value);
-      value = value && value.trim();
+    async addNew ({ commit, state, dispatch }, { parent, name }) {
+      name = name && name.trim();
 
-      if (!value) {
+      if (!name) {
         return;
       }
 
       const item = await io.categories.add({
-        title: value,
-        parent: parent
+        name, parent
       }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!item) { return; }
 
@@ -75,11 +73,12 @@ export default {
 
     async edit ({ commit, dispatch }, item) {
       // console.log('Edit', item);
-      item.title = item.title.trim();
-      if (!item.title) {
+      item.name = item.name.trim();
+      if (!item.name) {
         await io.categories.remove(item);
         commit('remove', item);
       } else {
+        // TODO: Sup bro, you sure?
         const edited = await io.categories.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
         if (!edited) { return; }
         commit('edit', edited);

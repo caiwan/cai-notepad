@@ -7,7 +7,7 @@
       :class="{folder: hasChildren}"
       @click="select(model)"
     >
-      {{ model.title }}
+      {{ model.name }}
     </span>
     <ul
       class="selector-group"

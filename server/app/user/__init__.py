@@ -14,7 +14,7 @@ class Module(components.Module):
     name = "users"
     services = [userService]
     models = [User, Role, Permission, UserAuthenticator]
-    controls = [UserController, UserListController]
+    controllers = [UserController, UserListController]
     pass
 
 

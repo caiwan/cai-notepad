@@ -100,8 +100,8 @@ class Controller(Resource):
 
     def _get_cls(self):
         assert self._service
-        assert self._service._model_class
-        return self._service._model_class
+        assert self._service.model_class
+        return self._service.model_class
 
     # -- BASIC CRUD implementations for rapid prototyping
     def _fetch_all(self, *args, **kwargs):
@@ -172,8 +172,6 @@ class MyJsonEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        # if isinstance(obj, mongoengine.fields.ObjectId):
-            # return str(obj)
         if isinstance(obj, date):
             return int(obj.strftime("%s"))
         if isinstance(obj, datetime):
@@ -223,8 +221,8 @@ class BaseDocumentModel(BaseModel):
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
     is_deleted = peewee.BooleanField(null=False, default=False)
 
-    owner = peewee.ForeignKeyField(BaseUser)
-    role = peewee.ForeignKeyField(BaseDocumentRole)
+    owner = peewee.ForeignKeyField(BaseUser, null=True)
+    role = peewee.ForeignKeyField(BaseDocumentRole, null=True)
 
     def changed(self):
         self.edited = datetime.now()
@@ -273,7 +271,7 @@ class Module:
     name = ""
     services = []
     models = []
-    controls = []
+    controllers = []
 
     __is_initialized = False
 
@@ -308,7 +306,7 @@ class Module:
                 if service.name and service.settings:
                     settings[service.name] = service.settings.copy()
 
-            for controller in self.controls:
+            for controller in self.controllers:
                 path = BASE_PATH + controller.path
                 logging.info("Register endpoint {} {}".format(path, controller.__name__))
                 api.add_resource(controller, path)
