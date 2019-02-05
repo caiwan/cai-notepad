@@ -82,7 +82,7 @@
               class="badge badge-secondary"
               v-show="task != editingTask"
             >
-              {{task.category ? task.category.title : "Unassigned"}}
+              {{task.category ? task.category.name : "Unassigned"}}
             </span>
 
             <!-- EDIT -->
@@ -173,7 +173,7 @@
           ><span class="task-title">
               {{task.title}}</span>
             <span class="badge badge-secondary">
-              {{task.category ? task.category.title : "Unassigned"}}
+              {{task.category ? task.category.name : "Unassigned"}}
             </span>
             <!-- Some button -->
             <button

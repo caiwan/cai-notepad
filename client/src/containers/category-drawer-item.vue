@@ -119,8 +119,9 @@ export default {
       this.isAddingChild = false;
       this.newChild = '';
     },
-    itemAdded (parent, newChild) {
-      this.$emit('itemAdded', { parent: parent, name: newChild });
+    itemAdded (parent, name) {
+      console.log('Hello', { parent, name });
+      this.$emit('itemAdded', { parent, name });
     },
     itemEdited (model) {
       this.$emit('itemEdited', model);

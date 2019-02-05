@@ -74,7 +74,7 @@ export default {
   },
 
   updated () {
-    zebrafy(this.el);
+    zebrafy(this.$el);
   }
 };
 </script>

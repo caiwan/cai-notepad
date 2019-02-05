@@ -52,7 +52,7 @@
           :key="index"
           class="item list-group-item"
           :model="category"
-          :maxDepth="2"
+          :maxDepth="0"
           v-on:itemAdded="addCategory"
           v-on:itemEdited="editCategory"
         />
@@ -136,8 +136,8 @@ export default {
 
     doneAddChild () {
       if (!this.isAddingChild) { return; }
-      console.log({ parent: null, value: this.newChild });
-      this.addCategory({ parent: null, value: this.newChild });
+      console.log({ parent: null, name: this.newChild });
+      this.addCategory({ parent: null, name: this.newChild });
       this.isAddingChild = false;
       this.newChild = '';
     },

@@ -118,7 +118,7 @@ export default {
     },
 
     categorySelected (category) {
-      console.log('Category:', [category.title, category.id]);
+      console.log('Category:', [category.name, category.id]);
       this.note.category = category;
     },
 
