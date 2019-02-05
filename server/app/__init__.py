@@ -14,13 +14,14 @@ import app.components
 # modules
 MODULES = [
     "user",
-    # "user.settings",
+    "user.settings",
     # "user.admin"
     "notes",
     "tags",
     "tasks",
     "categories",
     "milestones",
+    "worklog"
 ]
 
 
