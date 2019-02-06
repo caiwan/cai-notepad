@@ -1,4 +1,4 @@
-<template>
+        <template>
   <div class="card bg-light mx-1 my-2">
     <header class="card-header">
       <input
@@ -7,7 +7,7 @@
         autocomplete="off"
         placeholder="Title"
         v-model="note.title"
-      />
+      >
     </header>
     <div class="card-body">
       <textarea
@@ -28,7 +28,6 @@
         />
       </div>
       <div class="footer-bottom-line">
-
         <!-- CATEGORY SELECTOR  -->
         <category-selector
           :category="note.category"
@@ -45,16 +44,12 @@
         <button
           @click="pin()"
           class="btn-small btn-primary btn-raised"
-        >
-          {{note.is_pinned ? "Unpin" : "Pin"}}
-        </button>
+        >{{note.is_pinned ? "Unpin" : "Pin"}}</button>
         <button
           v-if="!isCreating"
           @click="archive()"
           class="btn-small btn-primary btn-raised"
-        >
-          {{note.is_archived ? "Restore" : "Archive"}}
-        </button>
+        >{{note.is_archived ? "Restore" : "Archive"}}</button>
         <button
           v-if="!isCreating"
           @click="remove()"
@@ -69,7 +64,6 @@
           @click="cancel()"
           class="btn-small btn-secondary btn-raised"
         >Cancel</button>
-
       </div>
     </footer>
   </div>
@@ -87,8 +81,8 @@ import Datepicker from 'vuejs-datepicker';
 export default {
   components: {
     TagInput,
-    CategorySelector,
-    Datepicker
+    Datepicker,
+    CategorySelector
   },
 
   props: {
@@ -97,7 +91,10 @@ export default {
       required: true,
       default: () => {
         return {
-          title: '', content: '', tags: [], category: ''
+          title: '',
+          content: '',
+          tags: [],
+          category: ''
         };
       }
     },
@@ -163,7 +160,8 @@ export default {
         const start = element.selectionStart;
         const end = element.selectionEnd;
 
-        element.value = element.value.substring(0, start) +
+        element.value =
+          element.value.substring(0, start) +
           tab +
           element.value.substring(end);
 
@@ -171,14 +169,14 @@ export default {
       }
 
       // Save for ctrl + enter
-      if (keyCode === 13 && (
-        event.getModifierState('Control') || // Win
-        event.getModifierState('Meta') // Mac, 'command' key
-      )) {
+      if (
+        keyCode === 13 &&
+        (event.getModifierState('Control') || // Win
+          event.getModifierState('Meta')) // Mac, 'command' key
+      ) {
         this.done();
       }
     }
-
   },
 
   mounted () {

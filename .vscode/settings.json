@@ -1,13 +1,24 @@
 {
-  "python.pythonPath": "~/.pyenv/versions/3.7.0/bin/python",
   "python.autoComplete.extraPaths": [
     "${workspaceFolder}/server/",
     "${workspaceFolder}/server/app"
   ],
   "editor.formatOnSave": true,
   "files.insertFinalNewline": true,
-  "files.eol": "\r\n",
+  "files.eol": "\n",
   "csv-preview.separator": ",",
+  "eslint.enable": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.nodePath": "$NODE_PATH",
+  "vetur.format.defaultFormatter.ts": "vscode-typescript",
+  "vetur.format.defaultFormatter.js": "vscode-typescript",
+  "vetur.format.defaultFormatter.html": "js-beautify-html",
+  "files.exclude": {
+    "**/__pycache__/": true,
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/*.py[cod]": true,
+  },
   "[javascript]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
@@ -39,6 +50,9 @@
       "autoFix": true
     }
   ],
+  "eslint._legacyModuleResolve": true,
+  "eslint.alwaysShowStatus": true,
+  "eslint.run": "onSave",
   "editor.insertSpaces": true,
   "editor.autoIndent": true,
   "python.unitTest.unittestArgs": [
@@ -51,9 +65,6 @@
   "python.unitTest.unittestEnabled": true,
   "pythonTestExplorer.testFramework": "unittest",
   "python.unitTest.cwd": "${workspaceFolder}/server",
-  // "python.linting.flake8Args": [
-  // ""
-  // ],
   "python.envFile": "${workspaceFolder}/server/dev.env",
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
