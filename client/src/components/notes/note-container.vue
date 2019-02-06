@@ -23,12 +23,12 @@
       ></note>
     </div>
 
-    <ul>
+    <!-- <ul>
       <li>Task</li>
       <li>Task</li>
       <li>Task</li>
       <li>Task</li>
-    </ul>
+    </ul> -->
 
     <!-- todos || tasks goez here -->
 

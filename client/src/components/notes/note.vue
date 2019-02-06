@@ -34,8 +34,12 @@
           >{{tag}}</li>
         </ul>
       </div>
-      <i class="fa fa-folder"></i> {{note.category ? note.category.name : "Unassigned"}}
-      <!-- <i class="fa fa-folder"></i>  -->
+      <i class="fa fa-folder"></i>
+      &nbsp;
+      {{note.category ? note.category.name : "Unassigned"}}
+      &nbsp;
+      <i class="fa fa-calendar"></i>
+      &nbsp;
       {{note.due_date ? note.due_date : "No date set"}}
     </footer>
   </section>

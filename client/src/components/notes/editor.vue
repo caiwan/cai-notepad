@@ -35,6 +35,12 @@
           v-on:selected="categorySelected"
         />
 
+        <!-- DATE PICKER  -->
+        <datepicker
+          :value="pDate"
+          @selected="dateSelected"
+        />
+
         <!-- FOOTER BUTTONS -->
         <button
           @click="pin()"
@@ -70,17 +76,19 @@
 </template>
 
 <script>
+import autoResize from '@/utils/autoresize-textarea';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-
-// TODO: This lib is obsolete, please consider replace it some time
-import autoResize from 'autoresize-textarea';
 
 import TagInput from '../tag-input.vue';
 import CategorySelector from '../category-selector.vue';
 
+import Datepicker from 'vuejs-datepicker';
+
 export default {
   components: {
-    TagInput, CategorySelector
+    TagInput,
+    CategorySelector,
+    Datepicker
   },
 
   props: {
@@ -98,6 +106,7 @@ export default {
 
   data () {
     return {
+      pDate: new Date(),
       pTags: this.note.tags !== undefined ? this.note.tags.slice() : [],
       _tab: '    ',
       __textarea: null
@@ -120,6 +129,10 @@ export default {
     categorySelected (category) {
       console.log('Category:', [category.name, category.id]);
       this.note.category = category;
+    },
+
+    dateSelected () {
+      console.log('Sup bro');
     },
 
     done () {

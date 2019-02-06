@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { zebrafy } from '@/utils';
+import zebrafy from '@/utils/zebrafy';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategoryItem from './category-item.vue';
 
