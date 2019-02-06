@@ -5,8 +5,8 @@ export function isHidden (element) {
     style.visibility.toLowerCase() === 'hidden';
 }
 
-export function zebrafy (element) {
-  // QnD hack for zebra stripes
+// QnD hack for zebra stripes
+export default function (element) {
   const zebraElements = ([].slice.call(element.getElementsByClassName('zebra')))
     .filter(element => !isHidden(element));
   var counter = 0;
