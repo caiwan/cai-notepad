@@ -72,4 +72,4 @@ RUN chmod +x /app/entrypoint.sh \
   /app/prestart.sh
 
 ENTRYPOINT ["sh", "/app/entrypoint.sh"]
-CMD ["/app/start.sh]
+CMD ["/app/start.sh"]
