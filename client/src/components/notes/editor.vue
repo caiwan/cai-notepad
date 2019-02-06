@@ -38,6 +38,8 @@
         <datepicker
           :value="pDate"
           @selected="dateSelected"
+          :placeholder="'Due date'"
+          :format="yyyy-MM-dd"
         />
 
         <!-- FOOTER BUTTONS -->

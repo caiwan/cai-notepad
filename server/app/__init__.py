@@ -17,7 +17,7 @@ MODULES = [
     "user.settings",
     # "user.admin"
     "notes",
-    "notes.attachments"
+    "notes.attachments",
     "tags",
     "tasks",
     "categories",
@@ -51,8 +51,8 @@ class MyConfig(object):
 
     @staticmethod
     def init_app(flask_app):
-        import app.config
-        flask_app.config.from_object(app.config)
+        import config
+        flask_app.config.from_object(config)
         if APP_ROOT not in sys.path:
             sys.path.insert(0, APP_ROOT)
         config = "config.production" if PRODUCTION else "config.local"
