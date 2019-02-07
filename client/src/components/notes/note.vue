@@ -73,7 +73,6 @@ export default {
   },
   filters: {
     formatDate (date) {
-      // return (new Date(date)).toDateString('yyyy-MM-dd');
       return moment(new Date(date)).format('YYYY-MM-DD');
     }
   }

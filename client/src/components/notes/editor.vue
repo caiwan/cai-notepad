@@ -186,6 +186,7 @@ export default {
         this.done();
       }
     }
+
   },
 
   watch: {
@@ -197,6 +198,7 @@ export default {
       }
       console.log('Sup bro', this.note.due_date);
     }
+
   },
 
   mounted () {
