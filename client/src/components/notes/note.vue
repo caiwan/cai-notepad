@@ -24,7 +24,10 @@
     </section>
     <footer class="card-footer p-2">
 
-      <div class="footer-tagline">
+      <div
+        class="footer-tagline"
+        v-if="note.tags.length"
+      >
         <i class="fa fa-tags"></i>
         <ul class="tags">
           <li
@@ -38,15 +41,18 @@
       &nbsp;
       {{note.category ? note.category.name : "Unassigned"}}
       &nbsp;
-      <i class="fa fa-calendar"></i>
-      &nbsp;
-      {{note.due_date ? note.due_date : "No date set"}}
+      <template v-if="note.due_date">
+        <i class="fa fa-calendar"></i>
+        &nbsp;
+        {{note.due_date | formatDate}}
+      </template>
     </footer>
   </section>
 
 </template>
 
 <script>
+import moment from 'moment';
 export default {
   props: ['note'],
   computed: {
@@ -63,6 +69,12 @@ export default {
     },
     archive () {
       this.$emit('archiveNote');
+    }
+  },
+  filters: {
+    formatDate (date) {
+      // return (new Date(date)).toDateString('yyyy-MM-dd');
+      return moment(new Date(date)).format('YYYY-MM-DD');
     }
   }
 };

@@ -36,8 +36,7 @@
 
         <!-- DATE PICKER  -->
         <datepicker
-          :value="pDate"
-          @selected="dateSelected"
+          v-model="pDate"
           :placeholder="'Due date'"
           :format="'yyyy-MM-dd'"
           :bootstrapStyling="true"
@@ -113,7 +112,7 @@ export default {
 
   data () {
     return {
-      pDate: '',
+      pDate: this.note.due_date ? new Date(this.note.due_date) : '',
       pTags: this.note.tags !== undefined ? this.note.tags.slice() : [],
       _tab: '    ',
       __textarea: null
@@ -138,9 +137,9 @@ export default {
       this.note.category = category;
     },
 
-    dateSelected () {
-      console.log('Sup bro');
-    },
+    // dateSelected () {
+    //   console.log('Sup bro', { date: this.pDate });
+    // },
 
     done () {
       this.note.tags = this.pTags.slice();
@@ -186,6 +185,17 @@ export default {
       ) {
         this.done();
       }
+    }
+  },
+
+  watch: {
+    pDate () {
+      if (this.pDate !== null) {
+        this.note.due_date = this.pDate.getTime();
+      } else {
+        this.note.due_date = null;
+      }
+      console.log('Sup bro', this.note.due_date);
     }
   },
 

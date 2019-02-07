@@ -17,6 +17,7 @@
     "@fortawesome/fontawesome-free": "^5.3.1",
     "bootstrap": "^4.2.1",
     "bootstrap-material-design": "^4.1.1",
+    "moment": "^2.24.0",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
     "vuejs-datepicker": "^1.5.4",
