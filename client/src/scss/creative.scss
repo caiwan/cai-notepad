@@ -20,3 +20,20 @@ body {
 [v-cloak]::before {
   content: "loading...";
 }
+
+// Calendar
+
+.calendar-input{
+  background-color: teal;
+
+}
+
+// .calendar-wrapper {
+  // background-color: yellow;
+// }
+
+.calendar {
+  &.vdp-datepicker__calendar{
+    background-color: $primary;
+  }
+}

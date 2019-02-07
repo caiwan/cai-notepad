@@ -39,7 +39,15 @@
           :value="pDate"
           @selected="dateSelected"
           :placeholder="'Due date'"
-          :format="yyyy-MM-dd"
+          :format="'yyyy-MM-dd'"
+          :bootstrapStyling="true"
+          :imput-class="'calendar-input'"
+          :clear-button="true"
+          :clear-button-icon="'fa fa-times'"
+          :calendar-button="true"
+          :calendar-button-icon="'fa fa-calendar'"
+          :calendar-class="'calendar'"
+          :wrapper-class="'calendar-wrapper'"
         />
 
         <!-- FOOTER BUTTONS -->
@@ -105,7 +113,7 @@ export default {
 
   data () {
     return {
-      pDate: new Date(),
+      pDate: '',
       pTags: this.note.tags !== undefined ? this.note.tags.slice() : [],
       _tab: '    ',
       __textarea: null
