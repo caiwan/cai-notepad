@@ -90,12 +90,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('Notes', { notes: 'defaultItems', pinnedNotes: 'pinnedItems', archivedNotes: 'archivedItems' }),
+    ...mapGetters('Notes', {
+      notes: 'defaultItems',
+      pinnedNotes: 'pinnedItems',
+      archivedNotes: 'archivedItems'
+    }),
     ...mapState('Notes', { categoryId: 'categoryFilter', milestoneId: 'milestoneFilter' }),
     ...mapGetters('Categories', { getCategory: 'getCategory' }),
-    hasPinned: () => this.pinnedNotes && this.pinnedNotes.length,
-    hasOthers: () => this.notes && this.notes.length,
-    hasArchived: () => this.archivedItems && this.archivedItems.length,
+    hasPinned () { return this.pinnedNotes !== null && this.pinnedNotes.length > 0; },
+    hasOthers () { return this.notes !== null && this.notes.length > 0; },
+    hasArchived () { return this.archivedNotes !== null && this.archivedNotes.length > 0; },
 
     selectedCategory () {
       return this.getCategory(this.categoryId);
