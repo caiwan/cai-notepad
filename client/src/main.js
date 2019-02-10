@@ -1,12 +1,8 @@
-// import 'bootstrap';
-// import 'bootstrap/js/dist/util';
-// import 'bootstrap/js/dist/dropdown';
-// import 'bootstrap-material-design';
 import 'node-snackbar';
 
 import Vue from 'vue';
 import App from './App';
-import router from './router';
+import { router } from './router';
 import store from './store';
 
 import VueMarkdown from 'vue-markdown';

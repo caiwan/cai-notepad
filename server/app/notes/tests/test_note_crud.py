@@ -2,19 +2,13 @@ from unittest import TestCase
 import json
 import logging
 
-import peewee
-
-import app
+from app.tests import TestUtils
 from app import components
 
 API_BASE = components.BASE_PATH
 
 
-class TestNotes(TestCase):
-
-    post_args = {
-        "content_type": "application/json"
-    }
+class TestNotes(TestCase, TestUtils):
 
     new_note = {
         "title": "test_title",
@@ -28,13 +22,12 @@ class TestNotes(TestCase):
         "tags": ["these", "are", "the", "other", "tags", "we", "have", "edited", "so", "far"]
     }
 
+    def __init__(self, methodName):
+        TestCase.__init__(self, methodName)
+        TestUtils.__init__(self)
+
     def setUp(self):
-        self._db = peewee.SqliteDatabase(":memory:")
-        components.DB.initialize(self._db)
-        components.DB.connect()
-        components.DB.create_tables(app.MODELS, safe=True)
-        self.app = app.APP.test_client()
-        pass
+        self._setup_app()
 
     def tearDown(self):
         self._db.close()
@@ -44,7 +37,7 @@ class TestNotes(TestCase):
         # - fixture
 
         # when
-        response = self.app.post(API_BASE + "/notes/", data=json.dumps(self.new_note), **TestNotes.post_args)
+        response = self.app.post(API_BASE + "/notes/", data=json.dumps(self.new_note), **self.post_args)
 
         # then
         self.assertIsNotNone(response)
@@ -68,7 +61,7 @@ class TestNotes(TestCase):
         note_id = self._insert_note(self.new_note)
 
         # when
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
+        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
 
         # then
         self.assertIsNotNone(response)
@@ -84,12 +77,12 @@ class TestNotes(TestCase):
         note_id = self._insert_note(self.new_note)
 
         # when
-        response = self.app.delete("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
+        response = self.app.delete("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
         self.assertIsNotNone(response)
         self.assertEqual(200, response.status_code)
 
         # then
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
+        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
         self.assertIsNotNone(response)
         self.assertEqual(404, response.status_code)
 
@@ -99,7 +92,7 @@ class TestNotes(TestCase):
         note_id = self._insert_note(self.new_note)
 
         # when
-        response = self.app.put("{}/notes/{}/".format(API_BASE, note_id), data=json.dumps(self.edited_note), **TestNotes.post_args)
+        response = self.app.put("{}/notes/{}/".format(API_BASE, note_id), data=json.dumps(self.edited_note), **self.post_args)
 
         # then
         self.assertIsNotNone(response)
@@ -110,7 +103,7 @@ class TestNotes(TestCase):
         self._validate_tags(self.edited_note, response_json)
 
         # -- check ID due a previous fuckup
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **TestNotes.post_args)
+        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
         self.assertIsNotNone(response)
         self.assertEqual(200, response.status_code)
         response_json = json.loads(response.data)
@@ -118,7 +111,7 @@ class TestNotes(TestCase):
         self.assertEqual(note_id, response_json["id"])
 
     def _insert_note(self, note):
-        response = self.app.post(API_BASE + "/notes/", data=json.dumps(note), **TestNotes.post_args)
+        response = self.app.post(API_BASE + "/notes/", data=json.dumps(note), **self.post_args)
 
         self.assertIsNotNone(response)
         self.assertEqual(201, response.status_code)

@@ -3,6 +3,7 @@
 import logging
 # import copy
 
+import markupsafe
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from app import components
@@ -25,6 +26,7 @@ class NoteService(components.Service):
         (item_json, tags) = self._select_and_sanitize_tags(item_json)
         # Category ?
         item = dict_to_model(Note, item_json)
+        item.content = markupsafe.escape(markupsafe.Markup(item.content))
         item.save(force_insert=True)
         item.tags.add(tags)
         return item

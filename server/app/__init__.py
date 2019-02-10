@@ -3,13 +3,14 @@
 import logging
 import os, sys
 import importlib
-
+import base64
 
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 
 import app.components
+from app.user import loginService
 
 # modules
 MODULES = [
@@ -69,7 +70,7 @@ APP = Flask(__name__)
 APP.config.from_object(MyConfig)
 MyConfig.init_app(APP)
 API = Api(APP)
-CORS(APP)
+CORS = CORS(APP)
 
 # --- Initialize Application
 
@@ -79,8 +80,14 @@ SETTINGS = {}
 for module in MODULES:
     try:
         module = importlib.import_module("app." + module)
-        logging.info("Loaded %s" % module)
-        module.module.register(APP, API, MODELS, SETTINGS)
+        logging.info("Loaded %s" % module.__name__)
+        module.module.register(
+            app=APP,
+            api=API,
+            models=MODELS,
+            settings=SETTINGS,
+            cors=CORS,
+        )
     except ImportError:
         logging.error("Module not found  %s", module)
 

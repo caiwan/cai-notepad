@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Dashboard from '@/components/dashboard/component';
+import Login from '@/components/user/login';
 import Tasks from '@/components/tasks/component';
 import Notes from '@/components/notes/component';
 
@@ -9,18 +10,24 @@ Vue.use(Router);
 // We'll need to put this into /router/*
 // and slpit to separate files as we grow
 
-export default new Router({
+export const router = new Router({
   routes: [
-    {
-      path: '/settings',
-      name: 'Settings',
-      component: Dashboard
-    },
     {
       path: '/',
       name: 'Dashboard',
       component: Dashboard
     },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: Dashboard
+    },
+
     {
       path: '/tasks',
       name: 'Tasks',
@@ -38,4 +45,17 @@ export default new Router({
       component: Notes
     }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  // redirect to login page if not logged in and trying to access a restricted page
+  const publicPages = ['/login'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem('user');
+
+  if (authRequired && !loggedIn) {
+    return next('/login');
+  }
+
+  next();
 });

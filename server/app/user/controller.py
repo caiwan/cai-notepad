@@ -2,7 +2,48 @@
 from flask import request
 from app import components
 
-from app.user import userService
+from app.user import userService, loginService
+
+
+class RegisterController(components.Controller):
+    path = "/auth/register"
+    service = loginService
+
+    def post(self):
+        return ("Hello", 200)
+
+
+class LoginController(components.Controller):
+    path = "/auth/login"
+    service = loginService
+
+    def post(self):
+        return self.service.login(request.json)
+
+
+class LogoutController(components.Controller):
+    path = "/auth/logout"
+    service = userService
+
+    def post(self):
+        return self.service.logout()
+
+
+class RefreshController(components.Controller):
+    path = "/auth/logout"
+    service = loginService
+
+    def post(self):
+        return ("Hello", 200)
+
+
+class PasswordResetController(components.Controller):
+    path = "/auth/password_reset"
+    service = loginService
+
+    def post(self):
+        # TBD
+        return({"error": ["Not implemented"]}, 501)
 
 
 class UserListController(components.Controller):

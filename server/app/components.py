@@ -25,9 +25,8 @@ class Service:
 
     def read_item(self, item_id):
         assert self.model_class
+        # This will raise not exist exception when not found anyways
         item = self.model_class.get(self.model_class.id == item_id, self.model_class.is_deleted == False)
-        if not item:
-            raise peewee.DoesNotExist()
         return item
 
     def create_item(self, item_json):
@@ -194,23 +193,16 @@ class BaseModel(peewee.Model):
 class BaseUser(BaseModel):
     """ Base model for user permissions
     """
-    name = peewee.TextField()
+    name = peewee.TextField(null=False, unique=True)
+    password = peewee.TextField(null=False)
     pass
 
 
 class BaseRole(BaseModel):
     """ Base model for user roles
     """
-    name = peewee.TextField()
+    name = peewee.TextField(null=False, unique=True)
     pass
-
-
-class BaseDocumentRole(BaseModel):
-    """ Access level management for each accessed role
-    Such as read, write, manage, etc...
-    """
-    role = peewee.ForeignKeyField(BaseRole)
-    access = peewee.TextField()
 
 
 class BaseDocumentModel(BaseModel):
@@ -222,7 +214,6 @@ class BaseDocumentModel(BaseModel):
     is_deleted = peewee.BooleanField(null=False, default=False)
 
     owner = peewee.ForeignKeyField(BaseUser, null=True)
-    role = peewee.ForeignKeyField(BaseDocumentRole, null=True)
 
     def changed(self):
         self.edited = datetime.now()
@@ -275,23 +266,25 @@ class Module:
 
     __is_initialized = False
 
-    def pre_register(self, app, api, models, settings):
+    def pre_register(self, *args, **kwargs):
         """ A custom callback before register module
         """
         pass
 
-    def post_register(self, app, api, models, settings):
+    def post_register(self, *args, **kwargs):
         """ A custom callback after register a module
         """
         pass
 
-    def register(self, app, api, models, settings):
+    def register(self, *args, **kwargs):
+        (api, models, settings) = (kwargs["api"], kwargs["models"], kwargs["settings"])
+
         if settings is None:
             settings = {}
         if models is None:
             models = []
 
-        self.pre_register(app, api, models, settings)
+        self.pre_register(*args, **kwargs)
 
         if not self.__is_initialized:
             logging.info("=== Register module: {}".format(self.name))
@@ -312,11 +305,9 @@ class Module:
                 api.add_resource(controller, path)
                 pass
 
-            # logging.info("\n")
-
             self.__is_initialized = True
             pass
 
-        self.post_register(app, api, models, settings)
+        self.post_register(*args, **kwargs)
 
         pass

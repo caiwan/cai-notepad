@@ -11,6 +11,10 @@ if cmd_folder not in sys.path:
 load_dotenv("dev.env")
 
 
-if __name__ == "__main__":
+def runAll():
     all = unittest.TestLoader().discover(cmd_folder)
     unittest.TextTestRunner(verbosity=2).run(all)
+
+
+if __name__ == "__main__":
+    runAll()

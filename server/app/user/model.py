@@ -1,43 +1,38 @@
 # coding=utf-8
 
 import peewee
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.components import BaseModel, BaseUser, BaseRole
 
 
-class Role(BaseRole):
-    created = peewee.DateTimeField(null=False, default=datetime.now)
-    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+TOKEN_EXPIRATION = 30 * 24 * 60 * 60
 
-    is_deleted = peewee.BooleanField(null=False, default=False)
-    is_active = peewee.BooleanField(null=False, default=False)
+
+class Role(BaseRole):
     pass
 
 
 class User(BaseUser):
-    handle = peewee.TextField()
     display_name = peewee.TextField()
-    password = peewee.TextField()
-    permissions = peewee.ManyToManyField(Role)
-
     created = peewee.DateTimeField(null=False, default=datetime.now)
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
 
+    user_id = peewee.TextField(null=False, unique=True)
     is_deleted = peewee.BooleanField(null=False, default=False)
     is_active = peewee.BooleanField(null=False, default=False)
 
+    permissions = peewee.ManyToManyField(Role, backref="users")
 
-class UserAuthenticator(BaseModel):
+
+Permission = User.permissions.through_model
+
+
+def token_expiration_time():
+    return datetime.datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
+
+
+class Token(BaseModel):
+    token_id = peewee.CharField(unique=True)
     user = peewee.ForeignKeyField(User)
-    authenticator = peewee.TextField()
-    token = peewee.TextField()
-
-    is_deleted = peewee.BooleanField(null=False, default=False)
-    is_active = peewee.BooleanField(null=False, default=False)
-    pass
-
-
-# +OAuth tokens?
-
-
-Permission = User.permissions.get_through_model()
+    expiration = peewee.DateTimeField(null=True, default=token_expiration_time)
+    payload = peewee.TextField(null=False)
