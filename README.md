@@ -4,21 +4,23 @@ Yet another self-hosted note taking app and TODO list manager.
 
 **This version is at pre-alpha version at the moment**
 
-## Setup
+## Setup for hosting
+
+For development instuctions see below.
 
 ### Using Docker
 
 1. Prerequisites
 
     Install `docker` and `docker-compose`.
-    See official instructions for
+    See official instructions for installation of
     [Docker](https://www.docker.com/get-started) and
     [Compose](https://docs.docker.com/compose/install/).
 
 2. Create docker image
 
     - run `docker-compose up`
-    - or to detach it right away to run in background `docker-compose up -d`
+    - or to detach it right away to run it in the background `docker-compose up -d`
 
     For further configuration see `docker-compose.yaml` and
     `Dockerimage` files in the source root, and other configuration
@@ -30,7 +32,7 @@ Yet another self-hosted note taking app and TODO list manager.
 
     To build manually you'll need the following packages installed:
 
-    - **Python 3.7* and **pip 18.1** (optionally within a virtual environment) for backend
+    - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
     - **Node 11.7** and **NPM 6.5** for client (frontend)
     - **uWSGI** via pip for hosting the backend code
     - **nginx** for delegate it to be accessible via http
@@ -46,7 +48,7 @@ Yet another self-hosted note taking app and TODO list manager.
 2. Install server dependencies
     ```
     cd server
-    pp install Cython
+    pip install Cython
     pip install -r requirements.txt
     cd ..
     ```
@@ -75,23 +77,45 @@ Yet another self-hosted note taking app and TODO list manager.
 
 4. Run the server with uwsgi:
 
-    *TODO: This needs to be defined and tested well*
+    ***TODO:*** *This needs to be defined and tested well*
     ```
     uwsgi -s /tmp/wimm2.sock --manage-script-name --mount /wimm=server:app
     ```
 
-## Details
+## Features
 
- TBD
+TBD, See `SPECS.md` for rough details
 
-## Development stuff
+
+## Setup for development
+
+1. Prerequisites
+
+    To build manually you'll need the following packages installed:
+
+    - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
+    - **Node 11.7** and **NPM 6.5** for client (frontend)
+
+2. Using virtualenv (optional)
+
+    **TBD**
+
+3. Compile client (frontend)
+
+    **TBD**
+
+4. Compile server (backend)
+
+    **TBD**
+
+## Contribution
 
 Any contribution ot this project is welcomed, and appreciated, however
 there isn't any developer guideline set at this moment.
 
-- For python static code analysis an style check we use `flake8`, however it's not fully configured.
+- For python static code analysis an style check we use `flake8`, ~~however it's not fully configured~~.
 
-### Running tests
+## Running tests
 
 1. Server (backend)
 
@@ -100,12 +124,14 @@ there isn't any developer guideline set at this moment.
     python tests.py
     ```
 
+    or via `manage.py`
+    ```
+    cd server/
+    python manage.py runtests
+    ```
+
 2. Client (frontend)
     - There's none ATM
-
-### Features
-
-TBD
 
 ### Future development
 
