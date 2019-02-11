@@ -70,8 +70,8 @@ class Service:
     def sanitize_fields(self, item_json):
         if "id" in item_json:
             del item_json["id"]
-        # if 'uuid' in item_json:
-            # del item_json['uuid']
+        if 'uuid' in item_json:
+            del item_json["uuid"]
         return item_json
 
 

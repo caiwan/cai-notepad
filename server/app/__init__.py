@@ -8,6 +8,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 from flask_httpauth import HTTPTokenAuth
+from flask_principal import Principal
 
 import app.components
 
@@ -71,6 +72,7 @@ MyConfig.init_app(APP)
 API = Api(APP)
 CORS = CORS(APP)
 AUTH = HTTPTokenAuth(scheme="Bearer")
+PRINCIPAL = Principal(app, use_sessions=False)
 
 # --- Initialize Application
 
@@ -87,7 +89,8 @@ for module in MODULES:
             models=MODELS,
             settings=SETTINGS,
             cors=CORS,
-            auth=AUTH
+            auth=AUTH,
+            principal=PRINCIPAL
         )
     except ImportError:
         logging.error("Module not found  %s", module)

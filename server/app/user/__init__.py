@@ -1,8 +1,6 @@
 # coding=utf-8
 from app import components
 
-from flask_security import PeeweeUserDatastore
-
 from app.user.service import userService, loginService, tokenService
 from app.user.model import User, Role, Permission, Token
 from app.user.controller import LoginController, LogoutController, RegisterController, RefreshController, PasswordResetController
@@ -30,15 +28,25 @@ class Module(components.Module):
 
         (
             app,
-            auth
+            auth,
+            principal
         ) = (
             kwargs["app"],
-            kwargs["auth"]
+            kwargs["auth"],
+            kwargs["principal"]
         )
 
         @auth.verify_token
         def verify_token(token_id):
-            return tokenService.verify(token_id)
+            user = tokenService.verify(token_id)
+            if not user:
+                return False
+            # Set current user and its roles to global
+            return True
+
+        @principal.idnentity_loader
+        def load_identity():
+            pass
 
         secret_key = app.config["SECRET_KEY"]
         loginService.secret_key = secret_key

@@ -1,11 +1,8 @@
 # coding=utf-8
 
-import peewee
 import random
-import logging
 from datetime import datetime
 import jwt, bcrypt
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 from app import components
 from app.user.model import User, Permission, Role, Token, TOKEN_EXPIRATION
@@ -22,7 +19,6 @@ class UserService(components.Service):
         return item
 
     def create_item(self, user_json):
-        # This generates a random string for user_id
         user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
         user_json["password"] = bcrypt.hashpw(
             user_json["password"].encode("utf-8"),
@@ -31,16 +27,15 @@ class UserService(components.Service):
         return super().create_item(user_json)
 
     def update_item(self, item_id, item_json):
-        # TBD
         return super().update_item(item_id, item_json)
 
     def delete_item(self, item_id):
-        # TBD
         return super().delete_item(item_id)
 
     def serialize_item(self, item):
         item_json = super().serialize_item(item)
         del item_json["password"]
+        # TODO: Roles?
         return item_json
 
     pass
@@ -96,17 +91,17 @@ class TokenService():
     def verify(self, token_id):
         token = self.get(token_id)
         if not token:
-            return False
+            return None
 
         (user_id, client_id) = self._decode(token.payload)
         if not user_id or not client_id:
-            return False
+            return None
 
         # TODO Security Check for client id / useragent goez here
         user = self._userService.read_item(user_id)
         if user:
-            return user.is_active
-        return False
+            return user if user.is_active else None
+        return None
 
     def _encode(self, user_id):
         try:
@@ -166,9 +161,12 @@ class LoginService(components.Service):
             return({"error": [invalid_msg]}, 400)
         pass
 
-    def logout(self, token):
-        # ...
+    def logout(self, token_id):
+        self._tokenService.revoke(token_id)
         pass
+
+    def renew(self, token_id):
+        self.__tokenService.renew(token_id)
 
 
 loginService = LoginService()
