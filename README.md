@@ -46,6 +46,7 @@ Yet another self-hosted note taking app and TODO list manager.
 2. Install server dependencies
     ```
     cd server
+    pp install Cython
     pip install -r requirements.txt
     cd ..
     ```

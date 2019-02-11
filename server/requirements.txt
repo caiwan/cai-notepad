@@ -1,15 +1,13 @@
-cython
+Bcrypt
+Fuzzy
 Flask>=0.10.1
+Flask-Cors==3.0.3
+Flask-HTTPAuth==3.1.2
 flask-restful>=0.3.6
 Flask-Script
-Flask-HTTPAuth==3.1.2
-pyjwt==1.4.2
-Flask-Bcrypt
-Flask-Cors==3.0.3
-# itsdangerous==0.24
 MarkupSafe==0.23
 peewee==3.6.0
 Peewee-Migrate>=1.1.5
-Fuzzy
 python-slugify
 python-Levenshtein
+pyjwt==1.4.2
