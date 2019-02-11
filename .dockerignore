@@ -203,5 +203,6 @@ dmypy.json
 *.db
 *.db-*
 
+# python tests
 **/test/
 test*.py

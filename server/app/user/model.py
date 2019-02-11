@@ -31,6 +31,7 @@ Permission = User.permissions.through_model
 def token_expiration_time():
     return datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
 
+
 def token_gen_id():
     return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
 
