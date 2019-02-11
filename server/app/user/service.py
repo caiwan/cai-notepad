@@ -2,6 +2,7 @@
 
 import peewee
 import random
+import logging
 from datetime import datetime
 import jwt, bcrypt
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
@@ -10,38 +11,110 @@ from app import components
 from app.user.model import User, Permission, Role, Token, TOKEN_EXPIRATION
 
 
-class TokenService(components.Service):
-    model_class = Token
+class UserService(components.Service):
+    name = "users"
+    model_class = User
+    settings = {"token-expiration": TOKEN_EXPIRATION}
     secret_key = ""
 
-    def read_item(self, token_id):
-        assert self.model_class
-        token = self.model_class.get(self.model_class.token == token_id, self.model_class.expiration >= datetime.now())
+    def read_item(self, item_id):
+        item = self.model_class.get(User.user_id == item_id, User.is_deleted == False)
+        return item
+
+    def create_item(self, user_json):
+        # This generates a random string for user_id
+        user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
+        user_json["password"] = bcrypt.hashpw(
+            user_json["password"].encode("utf-8"),
+            self.secret_key
+        ).decode()
+        return super().create_item(user_json)
+
+    def update_item(self, item_id, item_json):
+        # TBD
+        return super().update_item(item_id, item_json)
+
+    def delete_item(self, item_id):
+        # TBD
+        return super().delete_item(item_id)
+
+    def serialize_item(self, item):
+        item_json = super().serialize_item(item)
+        del item_json["password"]
+        return item_json
+
+    pass
+
+
+userService = UserService()
+
+
+class TokenService():
+    secret_key = ""
+    _userService = userService
+
+    def get(self, token_id):
+        try:
+            token = Token.get(Token.token_id == token_id, Token.expiration <= datetime.now())
+            return token
+        except Token.DoesNotExist:
+            return None
+
+    def create(self, user):
+        token = Token(
+            payload=self._encode(user.user_id),
+            user=user
+        )
+        token.save()
+        return token.token_id
+        pass
+
+    def renew(self, token_id):
+        with components.DB.atomic():
+            try:
+                old_token = Token.get(Token.token_id == token_id)
+                new_token = Token(
+                    token_id=old_token.token_id,
+                    user=old_token.user,
+                    payload=self._encode(old_token.user)
+                )
+                new_token.save()
+                old_token.delete()
+                return True
+            except Token.DoesNotExist:
+                return False
+        pass
+
+    def revoke(self, token_id):
+        try:
+            Token.delete().where(Token.token_id == token_id)
+        except Token.DoesNotExist:
+            # Avoid hiccup
+            pass
+        pass
+
+    def check(self, token_id):
+        token = self.get(token_id)
         if not token:
-            raise peewee.DoesNotExist()
-        return token
+            return False
 
-    def add_token(self, user):
-        # Generate JWT token or sometihng
-        # https://realpython.com/token-based-authentication-with-flask/#jwt-setup
-        return "token"
-        pass
+        (user_id, client_id) = self._decode(token.payload)
+        if not user_id or not client_id:
+            return False
 
-    def revoke_token(self, token_id):
-        pass
+        # TODO Security Check for client id / useragent goez here
+        user = self._userService.read_item(user_id)
+        if user:
+            return user.is_active
+        return False
 
-    def check_token(self, token_id):
-        pass
-
-    def _gen_token_id():
-        return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
-
-    def _encode_auth_token(self, user_id):
+    def _encode(self, user_id):
         try:
             payload = {
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=TOKEN_EXPIRATION),
                 "iat": datetime.datetime.utcnow(),
-                "sub": user_id
+                "sub": user_id,
+                "cid": None  # Client id / identifier (ip, agent, etc ... )
             }
             return jwt.encode(
                 payload,
@@ -51,15 +124,15 @@ class TokenService(components.Service):
         except Exception as e:
             return e
 
-    def _decode_auth_token(self, auth_token):
+    def _decode(self, auth_token):
         try:
             payload = jwt.decode(auth_token, self.secret_key)
-            return payload['sub']
+            return (payload["sub"], payload["cid"])
         except jwt.ExpiredSignatureError:
-            return None
+            return (None, None)
 
         except jwt.InvalidTokenError:
-            return None
+            return (None, None)
 
 
 tokenService = TokenService()
@@ -83,8 +156,8 @@ class LoginService(components.Service):
 
         try:
             user = User.get(User.name == username, User.is_deleted == False, User.is_active == True)
-            if user and bcrypt.check_password_hash(user.password, password):
-                token = self._tokenService.add_token(user)
+            if user and bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+                token = self._tokenService.create(user)
                 return ({"token": token}, 200)
             else:
                 return({"error": [invalid_msg]}, 400)
@@ -99,38 +172,3 @@ class LoginService(components.Service):
 
 
 loginService = LoginService()
-
-
-class UserService(components.Service):
-    name = "users"
-    model_class = User
-    settings = {"token-expiration": TOKEN_EXPIRATION}
-    secret_key = ""
-
-    def read_item(self, item_id):
-        item = self.model_class.get(User.user_id == item_id, User.is_deleted == False)
-        return item
-
-    def create_item(self, user_json):
-        # This generates a random string for user_id
-        user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32)),
-        user_json["password"] = bcrypt.generate_password_hash(user_json["password"], 256).decode()
-        return super().create_item(user_json)
-
-    def update_item(self, item_id, item_json):
-        # TBD
-        return super().update_item(item_id, item_json)
-
-    def delete_item(self, item_id):
-        # TBD
-        return super().delete_item(item_id)
-
-    def serialize_item(self, item):
-        item_json = super().serialize_item(item)
-        del item_json["password"]
-        return item_json
-
-    pass
-
-
-userService = UserService()

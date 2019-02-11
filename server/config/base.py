@@ -4,7 +4,8 @@ import os
 
 SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-SECRET_KEY = "write_something_here"
+# Generate it with manage.py gensalt. You should get something liket this:
+SECRET_KEY = b'$2b$12$4KQgT9MsGuHCQ2i3aA05Cu'
 FLASH_MESSAGES = True
 
 DATABASE = "sqlite"
@@ -18,5 +19,5 @@ DEBUG = True
 # LOGIN_DISABLED = True
 
 # Set secret keys for CSRF protection
-CSRF_SESSION_KEY = "write_something_nice_here"
+CSRF_SESSION_KEY = "qWmODTwKC95EpJHp5zmW7Ui9DkraYLUa"
 CSRF_ENABLED = True

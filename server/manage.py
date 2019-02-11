@@ -8,6 +8,7 @@ import sys
 
 import app
 
+
 # fix import paths for internal imports
 cmd_folder = os.path.dirname(__file__)
 if cmd_folder not in sys.path:
@@ -94,6 +95,14 @@ def listusers():
 @manager.command
 def listroles():
     """Lists all the existing roles"""
+    pass
+
+
+@manager.command
+def gensalt():
+    """Generates salt for encrypting passwrds"""
+    import bcrypt
+    print(bcrypt.gensalt())
     pass
 
 

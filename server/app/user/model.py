@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import peewee
+import random
 from datetime import datetime, timedelta
 from app.components import BaseModel, BaseUser, BaseRole
 
@@ -28,11 +29,14 @@ Permission = User.permissions.through_model
 
 
 def token_expiration_time():
-    return datetime.datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
+    return datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
+
+def token_gen_id():
+    return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
 
 
 class Token(BaseModel):
-    token_id = peewee.CharField(unique=True)
+    token_id = peewee.CharField(unique=True, default=token_gen_id)
     user = peewee.ForeignKeyField(User)
-    expiration = peewee.DateTimeField(null=True, default=token_expiration_time)
+    expiration = peewee.DateTimeField(null=False, default=token_expiration_time)
     payload = peewee.TextField(null=False)
