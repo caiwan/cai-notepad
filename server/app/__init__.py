@@ -66,13 +66,13 @@ class MyConfig(object):
 
 
 # --- Initialize Flask
-APP = Flask(__name__)
+APP = Flask(__name__, static_url_path=None)
 APP.config.from_object(MyConfig)
 MyConfig.init_app(APP)
 API = Api(APP)
 CORS = CORS(APP)
 AUTH = HTTPTokenAuth(scheme="Bearer")
-PRINCIPAL = Principal(app, use_sessions=False)
+PRINCIPAL = Principal(APP, use_sessions=False, skip_static=True)
 
 # --- Initialize Application
 

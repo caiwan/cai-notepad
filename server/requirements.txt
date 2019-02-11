@@ -5,6 +5,7 @@ Flask-Cors==3.0.3
 Flask-HTTPAuth==3.1.2
 flask-restful>=0.3.6
 Flask-Script
+Flask-Principal
 MarkupSafe==0.23
 peewee==3.6.0
 Peewee-Migrate>=1.1.5
