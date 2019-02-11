@@ -28,11 +28,17 @@ class Module(components.Module):
         assert "app" in kwargs
         # assert "security" in kwargs
 
-        # (app, security) = (kwargs["app"], kwargs["security"])
-        (app) = (kwargs["app"])
+        (
+            app,
+            auth
+        ) = (
+            kwargs["app"],
+            kwargs["auth"]
+        )
 
-        # user_datastore = PeeweeUserDatastore(components.DB, User, Role, Permission)
-        # security.init_app(app, datastore=user_datastore)
+        @auth.verify_token
+        def verify_token(token_id):
+            return tokenService.verify(token_id)
 
         secret_key = app.config["SECRET_KEY"]
         loginService.secret_key = secret_key

@@ -3,14 +3,13 @@
 import logging
 import os, sys
 import importlib
-import base64
 
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
+from flask_httpauth import HTTPTokenAuth
 
 import app.components
-from app.user import loginService
 
 # modules
 MODULES = [
@@ -71,6 +70,7 @@ APP.config.from_object(MyConfig)
 MyConfig.init_app(APP)
 API = Api(APP)
 CORS = CORS(APP)
+AUTH = HTTPTokenAuth(scheme="Bearer")
 
 # --- Initialize Application
 
@@ -87,6 +87,7 @@ for module in MODULES:
             models=MODELS,
             settings=SETTINGS,
             cors=CORS,
+            auth=AUTH
         )
     except ImportError:
         logging.error("Module not found  %s", module)

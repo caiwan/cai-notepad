@@ -93,7 +93,7 @@ class TokenService():
             pass
         pass
 
-    def check(self, token_id):
+    def verify(self, token_id):
         token = self.get(token_id)
         if not token:
             return False
