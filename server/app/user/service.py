@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import logging
 import random
 from datetime import datetime
 import jwt, bcrypt

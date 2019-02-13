@@ -14,7 +14,7 @@ class Role(BaseRole):
 
 
 class User(BaseUser):
-    display_name = peewee.TextField()
+    display_name = peewee.TextField(null=True)
     created = peewee.DateTimeField(null=False, default=datetime.now)
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
 

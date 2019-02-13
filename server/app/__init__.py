@@ -93,7 +93,7 @@ for module in MODULES:
             principal=PRINCIPAL
         )
     except ImportError:
-        logging.error("Module not found  %s", module)
+        logging.error("Module not found %s", module)
 
 
 if not TESTING:

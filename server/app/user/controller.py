@@ -7,7 +7,7 @@ from app.user import userService, loginService
 
 
 class RegisterController(components.Controller):
-    path = "/auth/register"
+    path = "/auth/register/"
     service = loginService
 
     def post(self):
@@ -15,7 +15,7 @@ class RegisterController(components.Controller):
 
 
 class LoginController(components.Controller):
-    path = "/auth/login"
+    path = "/auth/login/"
     service = loginService
 
     def post(self):
@@ -23,7 +23,7 @@ class LoginController(components.Controller):
 
 
 class LogoutController(components.Controller):
-    path = "/auth/logout"
+    path = "/auth/logout/"
     service = userService
 
     def post(self):
@@ -31,7 +31,7 @@ class LogoutController(components.Controller):
 
 
 class RefreshController(components.Controller):
-    path = "/auth/logout"
+    path = "/auth/renew/"
     service = loginService
 
     def post(self):
@@ -39,7 +39,7 @@ class RefreshController(components.Controller):
 
 
 class PasswordResetController(components.Controller):
-    path = "/auth/password_reset"
+    path = "/auth/password_reset/"
     service = loginService
 
     def post(self):
@@ -47,8 +47,21 @@ class PasswordResetController(components.Controller):
         return({"error": ["Not implemented"]}, 501)
 
 
+class UserProfileController(components.Controller):
+    path = "/auth/profile/"
+    service = loginService
+
+    def get(self):
+        # TBD
+        return({"error": ["Not implemented"]}, 501)
+
+    def put(self):
+        # TBD
+        return({"error": ["Not implemented"]}, 501)
+
+
 class UserListController(components.Controller):
-    path = "/user/"
+    path = "/users/"
     _service = userService
 
     def get(self):
@@ -59,7 +72,7 @@ class UserListController(components.Controller):
 
 
 class UserController(components.Controller):
-    path = "/user/<int:user_id>/"
+    path = "/users/<int:user_id>/"
     _service = userService
 
     def get(self, user_id):

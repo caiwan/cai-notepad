@@ -11,10 +11,14 @@ from app.user.model import Token
 API_BASE = components.BASE_PATH
 
 
-class TestUser(TestCase, TestUtils):
+class TestUser(TestUtils, TestCase):
 
-    LOGIN = API_BASE + "/auth/login"
-    LOGOUT = API_BASE + "/auth/logout"
+    LOGIN = API_BASE + "/auth/login/"
+    LOGOUT = API_BASE + "/auth/logout/"
+
+    def __init__(self, methodName):
+        TestUtils.__init__(self)
+        TestCase.__init__(self, methodName)
 
     def setUp(self):
         self._setup_app()
@@ -34,7 +38,7 @@ class TestUser(TestCase, TestUtils):
 
         # when login
         response = self.app.post(self.LOGIN, data=json.dumps(credentials), **self.post_args)
-        response_json = self._response(response)
+        response_json = self.response(response)
 
         # then a valid login token shall be given
         self.assertTrue("token" in response_json, msg="no token was given")
@@ -62,7 +66,7 @@ class TestUser(TestCase, TestUtils):
             "password": self.REGULAR_PW
         }
         response = self.app.post(self.LOGIN, data=json.dumps(credentials), **self.post_args)
-        response_json = self._response(response)
+        response_json = self.response(response)
         self.assertTrue("token" in response_json, msg="no token was given")
         token_id = response_json["token"]
 
