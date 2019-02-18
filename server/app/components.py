@@ -9,12 +9,67 @@ from playhouse.shortcuts import Proxy
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from flask_restful import Resource
+# from flask import g, current_app
+from flask import g
 
 
 BASE_PATH = "/api"
 not_found_message = "Resource with the requested id does not exist."
 invalid_call_message = "This endpoint does not implements this method."
 no_permission_message = "You don't have permission to access this resource on this server."
+
+DB = Proxy()
+
+# Base DB models
+
+
+class BaseModel(peewee.Model):
+    """ Peewee's Base model
+    """
+    class Meta:
+        database = DB
+
+
+class BaseUser(BaseModel):
+    """ Base model for user
+    """
+    class Meta:
+        table_name = "user"
+    name = peewee.TextField(null=False, unique=True)
+    password = peewee.TextField(null=False)
+    pass
+
+
+class BaseRole(BaseModel):
+    """ Base model for user roles
+    """
+    name = peewee.TextField(null=False, unique=True)
+    pass
+
+
+class BaseDocumentModel(BaseModel):
+    """ Base model for document handling
+    w/ extra fields built-in
+    """
+    created = peewee.DateTimeField(null=False, default=datetime.now)
+    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+    is_deleted = peewee.BooleanField(null=False, default=False)
+
+    owner = peewee.ForeignKeyField(BaseUser, null=True)
+
+    def changed(self):
+        self.edited = datetime.now()
+
+# Helpers
+
+
+def current_user():
+    if not hasattr(g, "current_user") or not g.current_user:
+        logging.info("No user")
+        return None
+    else:
+        logging.info("User: %d", g.current_user.id)
+        return g.current_user
 
 
 def error_handler(*args, status=400):
@@ -33,36 +88,68 @@ class Service:
 
     def fetch_all_items(self):
         assert self.model_class
-        return self.model_class.select().where(self.model_class.is_deleted == False).objects()
+        user_id = current_user().id if current_user() else None
+        return self.model_class.select(
+            self.model_class
+        ).join(
+            BaseUser, on=(self.model_class.owner == BaseUser.id)
+        ).where(
+            self.model_class.is_deleted == False,
+            BaseUser.id == user_id
+        ).objects()
 
     def read_item(self, item_id):
         assert self.model_class
+        user_id = current_user().id if current_user() else None
         # This will raise not exist exception when not found anyways
-        item = self.model_class.get(self.model_class.id == item_id, self.model_class.is_deleted == False)
-        return item
+        return self.model_class.select(
+            self.model_class
+        ).join(
+            BaseUser, on=(self.model_class.owner == BaseUser.id)
+        ).where(
+            self.model_class.id == item_id,
+            self.model_class.is_deleted == False,
+            self.model_class.owner.id == user_id
+        ).get()
 
     def create_item(self, item_json):
         assert self.model_class
         item = dict_to_model(self.model_class, item_json)
+        item.owner = current_user()
         item.save()
         return item
 
     def update_item(self, item_id, item_json):
         assert self.model_class
-        my_item = self.model_class.select().where(self.model_class.id == item_id,
-                                                  self.model_class.is_deleted == False).get()
-        if my_item:
-            item = dict_to_model(self.model_class, item_json)
-            item.id = my_item.id
-            item.changed()
-            item.save()
-            return item
-        raise self.model_class.DoesNotExist()
+        user_id = current_user().id if current_user() else None
+        my_item = self.model_class.select(
+            self.model_class
+        ).join(
+            BaseUser, on=(self.model_class.owner == BaseUser.id)
+        ).where(
+            self.model_class.id == item_id,
+            self.model_class.is_deleted == False,
+            self.model_class.owner.id == user_id
+        ).get()
+
+        item = dict_to_model(self.model_class, item_json)
+        item.id = my_item.id
+        item.changed()
+        item.save()
+        return item
 
     def delete_item(self, item_id):
         assert self.model_class
-        my_item = self.model_class.select().where(self.model_class.id == item_id,
-                                                  self.model_class.is_deleted == False).get()
+        user_id = current_user().id if current_user() else None
+        my_item = self.model_class.select(
+            self.model_class
+        ).join(
+            BaseUser, on=(self.model_class.owner == BaseUser.id)
+        ).where(
+            self.model_class.id == item_id,
+            self.model_class.is_deleted == False,
+            self.model_class.owner.id == user_id
+        ).get()
         if my_item:
             my_item.is_deleted = True
             my_item.changed()
@@ -184,49 +271,9 @@ class MyJsonEncoder(json.JSONEncoder):
             return int(obj.strftime("%s"))
         return json.JSONEncoder.default(self, obj)
 
-
-# Database
-
-DB = Proxy()
+# Register and connection tools
 
 
-class BaseModel(peewee.Model):
-    """ Peewee's Base model
-    """
-    class Meta:
-        database = DB
-
-
-class BaseUser(BaseModel):
-    """ Base model for user permissions
-    """
-    name = peewee.TextField(null=False, unique=True)
-    password = peewee.TextField(null=False)
-    pass
-
-
-class BaseRole(BaseModel):
-    """ Base model for user roles
-    """
-    name = peewee.TextField(null=False, unique=True)
-    pass
-
-
-class BaseDocumentModel(BaseModel):
-    """ Base model for document handling
-    w/ extra fields built-in
-    """
-    created = peewee.DateTimeField(null=False, default=datetime.now)
-    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
-    is_deleted = peewee.BooleanField(null=False, default=False)
-
-    owner = peewee.ForeignKeyField(BaseUser, null=True)
-
-    def changed(self):
-        self.edited = datetime.now()
-
-
-# --- Register class tools
 def register_controllers(api, controllers):
     for clazz in controllers:
         path = BASE_PATH + clazz.path
@@ -244,8 +291,11 @@ def database_init(app, models):
 
     elif app.config["DATABASE"] == "sqlite":
         from playhouse.pool import PooledSqliteDatabase
-        database = PooledSqliteDatabase(app.config["DATABASE_PATH"], pragmas=(
-            ("journal_mode", "wal"), ("cache_size", -1024 * 64)))
+        database = PooledSqliteDatabase(app.config["DATABASE_PATH"], pragmas={
+            "journal_mode": "wal",
+            "cache_size": -1024 * 64,
+            "foreign_keys": 1
+        })
 
     else:
         raise RuntimeError("No database set or invalid")

@@ -24,6 +24,9 @@ class TestUser(TestUtils, TestCase):
     def setUp(self):
         self._setup_app()
 
+    def tearDown(self):
+        self._db.close()
+
     def test_register(self):
         # given no user
         # when register a new user

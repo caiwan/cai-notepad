@@ -74,6 +74,13 @@ class TestEndpointAccess(TestUtils, TestCase):
         attr("/tasks/1/", "put", as_user="user", payload={"title": "Task"}),
         attr("/tasks/1/", "delete", as_user="user"),
 
+        # --- tasks as anonymous
+        attr("/tasks/", "get", expected_status=[403]),
+        attr("/tasks/", "post", expected_status=[403], payload={}),
+        attr("/tasks/1/", "get", expected_status=[403]),
+        attr("/tasks/1/", "put", expected_status=[403], payload={}),
+        attr("/tasks/1/", "delete", expected_status=[403]),
+
         # categories
         attr("/categories/", "get", as_user="user"),
         attr("/categories/", "post", as_user="user", payload={"name": "Category", "parent": None}),

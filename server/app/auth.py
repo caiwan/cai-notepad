@@ -252,9 +252,3 @@ def error_handler(f):
 def login_required(f):
     return auth_api.login_required(f)
 
-
-def current_user():
-    if not hasattr(g, "current_user") or not g.current_user:
-        return None
-    else:
-        return g.current_user

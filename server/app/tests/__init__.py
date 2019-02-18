@@ -1,6 +1,6 @@
 import peewee
 
-import logging
+# import logging
 
 import json, random
 import jwt, bcrypt
@@ -24,6 +24,9 @@ class TestUtils:
 
     REGULAR_USER = "user"
     REGULAR_PW = "password"
+
+    REGULAR_ALT_USER = "user2"
+    REGULAR_ALT_PW = "password2"
 
     INACTIVE_USER = "inactive-user"
     INACTIVE_PW = "password"
@@ -70,6 +73,17 @@ class TestUtils:
 
         self._users[self.REGULAR_USER] = regular_user
 
+        # regular secondary user
+        regular_user = User(
+            name=self.REGULAR_ALT_USER,
+            password=self.encode_password(self.REGULAR_ALT_PW),
+            is_active=True,
+            user_id=self._user_gen_id()
+        )
+        regular_user.save()
+
+        self._users[self.REGULAR_ALT_USER] = regular_user
+
         # inactive user
         inactive_user = User(
             name=self.INACTIVE_USER,
@@ -106,6 +120,9 @@ class TestUtils:
         token = self._gentoken(self._users[username])
         return "Bearer %s" % token
         pass
+
+    def create_user_header(self, username):
+        return {"headers": {"Authorization": self.create_user_token(username)}}
 
     def _user_gen_id(self):
         return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
