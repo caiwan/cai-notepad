@@ -69,5 +69,5 @@
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false,
-  "python.pythonPath": "/Volumes/Macos/Users/caiwan/.pyenv/versions/3.7.0/bin/python",
+  "python.pythonPath": "/Volumes/Macos/Users/caiwan/.pyenv/versions/notes-env/bin/python",
 }

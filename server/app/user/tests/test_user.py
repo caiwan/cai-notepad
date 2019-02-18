@@ -1,5 +1,4 @@
 # coding=utf-8
-
 from unittest import TestCase
 import json
 
@@ -15,6 +14,8 @@ class TestUser(TestUtils, TestCase):
 
     LOGIN = API_BASE + "/auth/login/"
     LOGOUT = API_BASE + "/auth/logout/"
+
+    PROFILE = API_BASE + "/auth/profile/"
 
     def __init__(self, methodName):
         TestUtils.__init__(self)
@@ -59,6 +60,10 @@ class TestUser(TestUtils, TestCase):
         # then a resource should be accessed without error
         pass
 
+    def test_permissions(self):
+        # TODO
+        pass
+
     def test_logout(self):
         # given user with login and token
         credentials = {
@@ -71,11 +76,13 @@ class TestUser(TestUtils, TestCase):
         token_id = response_json["token"]
 
         # when logout
-        response = self.app.post(self.LOGIN, **self.post_args) # TODO Credentials?
+        response = self.app.get(self.LOGOUT, **self.post_args, headers={
+            "Authorization": "Bearer %s" % token_id
+        })
 
         # then an access token shall be removed
         try:
-            Token.get(Token.token_id == token_id)
-            self.fail("No valid token was saved")
+            token = Token.get(Token.token_id == token_id)
+            self.fail("No token ws deleted, still active %s" % token.token_id)
         except Token.DoesNotExist:
             pass

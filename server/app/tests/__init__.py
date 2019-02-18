@@ -42,7 +42,7 @@ class TestUtils:
         self._create_test_users()
 
     def _create_test_users(self):
-        # amdin user and role
+        # admin user and role
         admin_role = Role(name=self.ADMIN_ROLE)
         admin_role.save()
 
@@ -53,9 +53,8 @@ class TestUtils:
             user_id=self._user_gen_id()
         )
         admin_user.save()
-
         admin_user.permissions.add(admin_role)
-        admin_user.save()
+        # admin_user.save()
 
         self._users[self.ADMIN_USER] = admin_user
 
@@ -125,11 +124,11 @@ class TestUtils:
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=9999),
                 "iat": datetime.datetime.utcnow(),
                 "sub": user_id,
-                "cid": None  # Client id / identifier (ip, agent, etc ... )
+                "cid": "Testing"  # Client id / identifier (ip, agent, etc ... )
             }
             return jwt.encode(
                 payload,
-                self.secret_key,
+                self.config["SECRET_KEY"],
                 algorithm="HS256"
             )
         except Exception as e:

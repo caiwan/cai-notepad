@@ -1,73 +1,59 @@
 # coding=utf-8
-
-import logging
-
-from flask import g
-from flask_principal import identity_loaded, RoleNeed, UserNeed, Identity, AnonymousIdentity
-
 from app import components
 
-from app.user.service import userService, loginService, tokenService
-from app.user.model import User, Role, Permission, Token
-from app.user.controller import LoginController, LogoutController
-from app.user.controller import RegisterController, RefreshController, PasswordResetController, UserProfileController
-from app.user.controller import UserController, UserListController
+from app.user.model import User
+from app.auth import TOKEN_EXPIRATION
 
+class UserService(components.Service):
+    name = "users"
+    model_class = User
+    settings = {"token-expiration": TOKEN_EXPIRATION}
+
+    def read_item(self, item_id):
+        item = self.model_class.get(User.user_id == item_id, User.is_deleted == False)
+        return item
+
+    def create_item(self, user_json):
+        user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(16))
+        user_json["password"] = bcrypt.hashpw(
+            user_json["password"].encode("utf-8"),
+            self.get_secret_key()
+        ).decode()
+        return super().create_item(user_json)
+
+    def update_item(self, item_id, item_json):
+        return super().update_item(item_id, item_json)
+
+    def delete_item(self, item_id):
+        return super().delete_item(item_id)
+
+    def serialize_item(self, item):
+        item_json = super().serialize_item(item)
+        del item_json["password"]
+        item_json["permissions"] = [role.name for role in item.permissions]
+        return item_json
+
+    def get_secret_key():
+        return current_app.config["SECRET_KEY"]
+
+
+userService = UserService()
 
 class Module(components.Module):
-
+    from app.user import model, controller
     name = "users"
-    services = [userService, loginService]
-    models = [User, Role, Permission, Token]
+    services = [userService]
+    models = [model.User, model.Role, model.Permission, model.Token]
     controllers = [
-        LoginController,
-        LogoutController,
-        RegisterController,
-        RefreshController,
-        PasswordResetController,
-        UserProfileController,
-        UserController,
-        UserListController
+        controller.LoginController,
+        controller.LogoutController,
+        controller.RegisterController,
+        controller.RefreshController,
+        controller.PasswordResetController,
+        controller.UserProfileController,
+        controller.UserController,
+        controller.UserListController
     ]
-
-    def pre_register(self, *args, **kwargs):
-        (
-            app,
-            auth,
-            principal
-        ) = (
-            kwargs["app"],
-            kwargs["auth"],
-            kwargs["principal"],
-        )
-
-        @auth.verify_token
-        def verify_token(token_id):
-            user = tokenService.verify(token_id)
-            if not user:
-                g.current_user = None
-                return False
-            g.current_user = user
-            logging.log("User %s %s", user.id, user.user_id)
-            return True
-
-        @principal.identity_loader
-        def load_identity():
-            if not hasattr(g, "current_user"):
-                return AnonymousIdentity()
-            identity = Identity(g.current_user.user_id)
-            identity.user = g.current_user
-            if hasattr(g.current_user, "id"):
-                identity.provides.add(UserNeed(g.current_user.id))
-            if hasattr(g.current_user, "roles"):
-                for role in g.current_user.roles:
-                    identity.provides.add(RoleNeed(role.name))
-            return identity
-
-        secret_key = app.config["SECRET_KEY"]
-        loginService.secret_key = secret_key
-        userService.secret_key = secret_key
-        tokenService.secret_key = secret_key
 
 
 module = Module()

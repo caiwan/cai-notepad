@@ -7,10 +7,11 @@ import importlib
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
-from flask_httpauth import HTTPTokenAuth
-from flask_principal import Principal
+
+from flask_principal import PermissionDenied
 
 import app.components
+import app.auth
 
 # modules
 MODULES = [
@@ -71,8 +72,21 @@ APP.config.from_object(MyConfig)
 MyConfig.init_app(APP)
 API = Api(APP)
 CORS = CORS(APP)
-AUTH = HTTPTokenAuth(scheme="Bearer")
-PRINCIPAL = Principal(APP, use_sessions=False, skip_static=True)
+
+app.auth.principal.init_app(APP)
+
+# setup all the message handlers
+
+
+@APP.errorhandler(PermissionDenied)
+def handle_error(e):
+    return app.components.error_handler("Forbidden", app.components.no_permission_message, status=403)
+
+
+@app.auth.error_handler
+def auth_error_callback():
+    return app.components.error_handler("Forbidden", app.components.no_permission_message, status=403)
+
 
 # --- Initialize Application
 
@@ -88,12 +102,10 @@ for module in MODULES:
             api=API,
             models=MODELS,
             settings=SETTINGS,
-            cors=CORS,
-            auth=AUTH,
-            principal=PRINCIPAL
         )
     except ImportError:
         logging.error("Module not found %s", module)
+        raise
 
 
 if not TESTING:

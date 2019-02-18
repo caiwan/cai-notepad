@@ -1,6 +1,7 @@
 import logging
 
 import json
+
 from datetime import datetime, date
 
 import peewee
@@ -9,7 +10,18 @@ from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from flask_restful import Resource
 
+
 BASE_PATH = "/api"
+not_found_message = "Resource with the requested id does not exist."
+invalid_call_message = "This endpoint does not implements this method."
+no_permission_message = "You don't have permission to access this resource on this server."
+
+
+def error_handler(*args, status=400):
+    if args:
+        return(json.dumps({"error": [str(a) for a in args]}), status)
+    else:
+        return(json.dumps({"error": ["Bad request"]}), status)
 
 
 class Service:
@@ -70,7 +82,7 @@ class Service:
     def sanitize_fields(self, item_json):
         if "id" in item_json:
             del item_json["id"]
-        if 'uuid' in item_json:
+        if "uuid" in item_json:
             del item_json["uuid"]
         return item_json
 
@@ -83,19 +95,19 @@ class Controller(Resource):
     _service = None
 
     def get(self):
-        return({"error": ["Not implemented"]}, 501)
+        return error_handler("Invalid method call", invalid_call_message, status=405)
 
     def post(self):
-        return({"error": ["Not implemented"]}, 501)
+        return error_handler("Invalid method call", invalid_call_message, status=405)
 
     def put(self):
-        return({"error": ["Invalid method call or not implemented"]}, 405)
+        return error_handler("Invalid method call", invalid_call_message, status=405)
 
     def delete(self):
-        return({"error": ["Invalid method call or not implemented"]}, 405)
+        return error_handler("Invalid method call", invalid_call_message, status=405)
 
     def patch(self):
-        return({"error": ["Invalid method call or not implemented"]}, 405)
+        return error_handler("Invalid method call", invalid_call_message, status=405)
 
     def _get_cls(self):
         assert self._service
@@ -110,9 +122,8 @@ class Controller(Resource):
                 item) for item in self._service.fetch_all_items(*args, **kwargs)]
             return(items_json, 200)
         except RuntimeError as e:
-            msg = "Bad request: " + str(e)
-            logging.exception(msg)
-            return({"error": [msg]}, 400)
+            logging.exception(e)
+            return error_handler()
 
     def _create(self, item_json, *args, **kwargs):
         assert self._service
@@ -121,21 +132,18 @@ class Controller(Resource):
         try:
             return (self._service.serialize_item(self._service.create_item(item_json, *args, **kwargs)), 201)
         except RuntimeError as e:
-            msg = "Bad request: " + str(e)
-            logging.exception(msg)
-            return({"error": [msg]}, 400)
+            logging.exception(e)
+            return error_handler()
 
     def _read(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
             return (self._service.serialize_item(self._service.read_item(item_id, *args, **kwargs)), 200)
-        except _cls.DoesNotExist as e:
-            # logging.exception(item_id)
-            return({"error": [str(e)]}, 404)
+        except _cls.DoesNotExist:
+            return error_handler("Not Found", not_found_message, status=404)
         except RuntimeError as e:
-            msg = "Bad request: " + str(e)
-            logging.exception(msg)
-            return({"error": [msg]}, 400)
+            logging.exception(e)
+            return error_handler()
 
     def _update(self, item_id, item_json, *args, **kwargs):
         _cls = self._get_cls()
@@ -143,29 +151,28 @@ class Controller(Resource):
             del item_json["_id"]
         try:
             return (self._service.serialize_item(self._service.update_item(item_id, item_json, *args, **kwargs)), 200)
-        except _cls.DoesNotExist as e:
-            # logging.exception(" :".join(item_id, item_json))
-            return({"error": str(e)}, 404)
+        except _cls.DoesNotExist:
+            return error_handler("Not Found", not_found_message, status=404)
+
+            return error_handler("Not Found")
         except RuntimeError as e:
-            msg = "Bad request: " + str(e)
-            logging.exception(msg)
-            return({"error": [msg]}, 400)
+            logging.exception(e)
+            return error_handler()
 
     def _delete(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
             self._service.delete_item(item_id, *args, **kwargs)
-        except _cls.DoesNotExist as e:
-            return({"error": [str(e)]}, 404)
+        except _cls.DoesNotExist:
+            return error_handler("Not Found", not_found_message, status=404)
         except RuntimeError as e:
-            msg = "Bad request: " + str(e)
-            logging.exception(msg)
-            return({"error": [msg]}, 400)
+            msg = ["Bad request", str(e)]
+            logging.exception("\n".join(msg))
+            return({"error": msg}, 400)
 
         return ("", 200)
 
 
-#
 class MyJsonEncoder(json.JSONEncoder):
     """ Custom JSON enoder for certatin type of objects
     """

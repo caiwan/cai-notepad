@@ -1,5 +1,7 @@
 # coding=utf-8
 
+# import logging
+
 from unittest import TestCase
 import json
 import ddt
@@ -29,49 +31,58 @@ class TestEndpointAccess(TestUtils, TestCase):
 
     def setUp(self):
         self._setup_app()
+        # + add Note
+        # + add Task
+        # + add Category
         pass
 
     @ddt.data(
         # auth
         attr("/auth/register/", "post", payload={}),
-        attr("/auth/login/", "post", payload={}),
+        attr("/auth/login/", "post", payload={"username": "user", "password": "password"}),
         attr("/auth/logout/", "post", as_user="user"),
         attr("/auth/renew/", "post", as_user="user", payload={}),
-        attr("/auth/password_reset/", "post", as_user="user", payload={}),
-        attr("/auth/profile/", "post", as_user="user"),
+        attr("/auth/password_reset/", "get", as_user="user", payload={}),
+        attr("/auth/profile/", "get", as_user="user"),
         attr("/auth/profile/", "put", as_user="user", payload={}),
+
+        # -- anonymous access
+        attr("/auth/logout/", "post", expected_status=[403]),
+        attr("/auth/renew/", "post", expected_status=[403]),
+        attr("/auth/password_reset/", "post", expected_status=[403]),
+        attr("/auth/profile/", "get", expected_status=[403]),
+        attr("/auth/profile/", "put", expected_status=[403], payload={}),
 
         # user
         attr("/users/", "get", as_user="admin"),
-        attr("/users/", "post", as_user="admin", payload={}),
+        attr("/users/", "post", as_user="admin", payload={"name": "something_new", "ppasword": "somepw"}),
         attr("/users/1/", "get", as_user="admin"),
-        attr("/users/1/", "put", as_user="admin", payload={}),
+        attr("/users/1/", "put", as_user="admin", payload={"name": "", "password": "somepw"}),
         attr("/users/1/", "delete", as_user="admin"),
 
         # notes
         attr("/notes/", "get", as_user="user"),
-        attr("/notes/", "post", as_user="user", payload={}),
+        attr("/notes/", "post", as_user="user", payload={"title": "Note", "content": "Content", "tags": []}),
         attr("/notes/1/", "get", as_user="user"),
-        attr("/notes/1/", "put", as_user="user", payload={}),
+        attr("/notes/1/", "put", as_user="user", payload={"title": "Note", "content": "Content", "tags": []}),
         attr("/notes/1/", "delete", as_user="user"),
 
         # tasks
         attr("/tasks/", "get", as_user="user"),
-        attr("/tasks/", "post", as_user="user", payload={}),
+        attr("/tasks/", "post", as_user="user", payload={"title": "Task"}),
         attr("/tasks/1/", "get", as_user="user"),
-        attr("/tasks/1/", "put", as_user="user", payload={}),
+        attr("/tasks/1/", "put", as_user="user", payload={"title": "Task"}),
         attr("/tasks/1/", "delete", as_user="user"),
 
         # categories
         attr("/categories/", "get", as_user="user"),
-        attr("/categories/", "post", as_user="user", payload={}),
+        attr("/categories/", "post", as_user="user", payload={"name": "Category", "parent": None}),
         attr("/categories/1/", "get", as_user="user"),
-        attr("/categories/1/", "put", as_user="user", payload={}),
+        attr("/categories/1/", "put", as_user="user", payload={"name": "Category", "parent": None}),
         attr("/categories/1/", "delete", as_user="user"),
 
         # tag autosearch
         attr("/tags/autocomplete/", "get", params={"q": ""}, as_user="user")
-
     )
     def test_endpoint(self, attr):
 
@@ -97,7 +108,7 @@ class TestEndpointAccess(TestUtils, TestCase):
         if attr["as_user"]:
             if "headers" not in args:
                 args["headers"] = {}
-            args["headers"]["Authentication"] = self.create_user_token(attr["as_user"])
+            args["headers"]["Authorization"] = self.create_user_token(attr["as_user"])
 
         response = method(API_BASE + attr["path"], **args)
 
