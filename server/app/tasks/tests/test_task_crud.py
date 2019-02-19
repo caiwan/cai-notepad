@@ -41,13 +41,18 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - read resource
-        task_json_get = self._get_task(task_id)
+        response = self.app.get(
+            self.TASK_GET.format(id=task_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER))
+        self.assertEquals(200, response.status_code)
+        task_json = json.loads(response.data)
 
         # then
         # - content matches
-        self.assertEqual(1, task_json_get["id"])
-        self.assertTrue("title" in task_json_get)
-        self.assertEqual("My Title", task_json_get["title"])
+        self.assertEqual(task_id, task_json["id"])
+        self.assertTrue("title" in task_json)
+        self.assertEqual("My Title", task_json["title"])
 
     def test_update(self):
         # given
@@ -139,15 +144,62 @@ class TestTaskCrud(TestUtils, TestCase):
         self.assertFalse(bool(my_ids & alt_ids))
 
     def test_read_rights(self):
-        pass
+        # given
+        # - previously inserted task by an user
+        task = {"title": "My Title"}
+        task_json_post = self._insert_task(task)
+        task_id = task_json_post["id"]
+
+        # when
+        # - read resource by another user
+        response = self.app.get(
+            self.TASK_GET.format(id=task_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+
+        # then
+        # - requested content not found
+        self.assertEquals(404, response.status_code)
 
     def test_update_rights(self):
-        pass
+        # given
+        # - previously inserted task by an user
+        task = {"title": "My Title"}
+        task_json_post = self._insert_task(task)
+        task_id = task_json_post["id"]
+
+        # when
+        # - read resource by another user
+        edited_task = {"title": "My Edited Title"}
+        response = self.app.put(
+            self.TASK_GET.format(id=task_id),
+            data=json.dumps(edited_task),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+
+        # then
+        # - requested content not found
+        self.assertEquals(404, response.status_code)
 
     def test_delete_rights(self):
-        pass
+        # given
+        # - previously inserted task by an user
+        task = {"title": "My Title"}
+        task_json_post = self._insert_task(task)
+        task_id = task_json_post["id"]
 
-    #
+        # when
+        # - read resource by another user
+        response = self.app.delete(
+            self.TASK_GET.format(id=task_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+
+        # then
+        # - requested content not found
+        self.assertEquals(404, response.status_code)
+
+    # ---
 
     def _insert_task(self, task, mock_user=TestUtils.REGULAR_USER):
         response = self.app.post(
@@ -157,13 +209,6 @@ class TestTaskCrud(TestUtils, TestCase):
             **self.create_user_header(mock_user)
         )
         self.assertEquals(201, response.status_code)
-        task_json = json.loads(response.data)
-        self.assertIsNotNone(task_json["id"])
-        return task_json
-
-    def _get_task(self, id, mock_user=TestUtils.REGULAR_USER):
-        response = self.app.get(self.TASK_GET.format(id=id), **self.post_args, **self.create_user_header(mock_user))
-        self.assertEquals(200, response.status_code)
         task_json = json.loads(response.data)
         self.assertIsNotNone(task_json["id"])
         return task_json
