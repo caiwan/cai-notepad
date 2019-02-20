@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 import json
 import logging
 
@@ -10,6 +10,9 @@ API_BASE = components.BASE_PATH
 
 class TestNotes(TestCase, TestUtils):
 
+    NOTE_LIST = components.BASE_PATH + "/notes/"
+    NOTE_GET = components.BASE_PATH + "/notes/{id}/"
+
     new_note = {
         "title": "test_title",
         "content": "test_content\r\nárviz tűrő tükör fúró gép\r\n",
@@ -19,7 +22,9 @@ class TestNotes(TestCase, TestUtils):
     edited_note = {
         "title": "edited title",
         "content": "edited contents",
-        "tags": ["these", "are", "the", "other", "tags", "we", "have", "edited", "so", "far"]
+        "tags": ["these", "are", "the", "other", "tags", "we", "have", "edited", "so", "far"],
+        "is_pinned": True,
+        "is_archived": True
     }
 
     def __init__(self, methodName):
@@ -34,95 +39,212 @@ class TestNotes(TestCase, TestUtils):
 
     def test_create_note(self):
         # given
-        # - fixture
+        # - fixture, see above
 
         # when
-        response = self.app.post(API_BASE + "/notes/", data=json.dumps(self.new_note), **self.post_args)
+        note_json = self.response(self.app.post(
+            self.NOTE_LIST,
+            data=json.dumps(self.new_note),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=201)
 
         # then
-        self.assertIsNotNone(response)
-        self.assertEqual(201, response.status_code)
+        self._validate_fields(note_json)
+        self._validate_content(self.new_note, note_json)
 
-        response_json = json.loads(response.data)
+        response_json = self.response(self.app.get(
+            self.NOTE_LIST,
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
-        self.assertTrue("id" in response_json)
-        self.assertTrue("title" in response_json)
-        self.assertTrue("content" in response_json)
-        self._validate_tags(self.new_note, response_json)
-
-        response = self.app.get(API_BASE + "/notes/")
-        self.assertEqual(200, response.status_code)
-        response_json = json.loads(response.data)
-
-        self.assertTrue(response_json)
+        self._validate_fields(response_json)
+        self._validate_content(note_json, response_json)
 
     def test_read_note(self):
         # given
-        note_id = self._insert_note(self.new_note)
+        note_json = self._insert_note(self.new_note)
+
+        self._validate_fields(note_json)
+        self._validate_content(self.new_note, note_json)
 
         # when
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
+        response_json = self.response(self.app.get(
+            self.NOTE_GET.format(id=note_json["id"]),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
         # then
-        self.assertIsNotNone(response)
-        self.assertEqual(200, response.status_code)
-
-        response_json = json.loads(response.data)
-
-        self._validate_tags(self.new_note, response_json)
-        # TODO validate content
+        self._validate_fields(response_json)
+        self._validate_content(self.new_note, response_json)
 
     def test_delete_note(self):
         # given
         note_id = self._insert_note(self.new_note)
 
         # when
-        response = self.app.delete("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
-        self.assertIsNotNone(response)
-        self.assertEqual(200, response.status_code)
+        response_json = self.app.response(self.app.delete(
+            self.NOTE_GET.format(id=note_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
+
+        self.assertIsNone(response_json)
 
         # then
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
-        self.assertIsNotNone(response)
-        self.assertEqual(404, response.status_code)
+        response_json = self.response(self.app.get(
+            self.NOTE_GET.format(id=note_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=404)
+        self.assertTrue("message" in response_json)
 
     def test_edit_note(self):
         # given
         # - fixture, and
-        note_id = self._insert_note(self.new_note)
+        note_json = self._insert_note(self.new_note)
+
+        # self._validate_fields(note_json)
+        # self._validate_content(self.new_note, note_json)
 
         # when
-        response = self.app.put("{}/notes/{}/".format(API_BASE, note_id), data=json.dumps(self.edited_note), **self.post_args)
+        edited_json = self.response(self.app.put(
+            self.NOTE_GET.format(id=note_json["id"]),
+            data=json.dumps(self.edited_note),
+            **self.post_args
+        ))
+
+        self._validate_fields(edited_json)
+        self._validate_content(self.edited_note, edited_json)
 
         # then
-        self.assertIsNotNone(response)
-        self.assertEqual(200, response.status_code)
+        response_json = self.response(self.app.get(
+            self.NOTE_GET.format(id=note_json["id"]),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
-        response_json = json.loads(response.data)
+        self._validate_fields(response_json)
+        self._validate_content(edited_json, response_json)
 
-        self._validate_tags(self.edited_note, response_json)
+    # Permission checks
 
-        # -- check ID due a previous fuckup
-        response = self.app.get("{}/notes/{}/".format(API_BASE, note_id), **self.post_args)
-        self.assertIsNotNone(response)
-        self.assertEqual(200, response.status_code)
-        response_json = json.loads(response.data)
+    def test_list_rights(self):
+        # given
+        # - notes inserted by an user
 
-        self.assertEqual(note_id, response_json["id"])
+        my_notes = [self._insert_note(self.new_note, mock_user=TestUtils.REGULAR_USER) for _ in range(5)]
+        alt_notes = [self._insert_note(self.new_note, mock_user=TestUtils.REGULAR_ALT_USER) for _ in range(4)]
 
-    def _insert_note(self, note):
-        response = self.app.post(API_BASE + "/notes/", data=json.dumps(note), **self.post_args)
+        # when
+        # - requesting notes with another user
+        my_notes_read = self.response(self.app.get(
+            self.NOTE_LIST,
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
-        self.assertIsNotNone(response)
-        self.assertEqual(201, response.status_code)
+        alt_notes_read = self.response(self.app.get(
+            self.NOTE_LIST,
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ))
 
-        response_json = json.loads(response.data)
-        note_id = response_json["id"]
-        self.assertIsNotNone(note_id)
-        logging.debug("note_id={}".format(note_id))
-        return note_id
+        # then
+        # - others notes shall not be accessable
+        self.assertEquals(len(my_notes), len(my_notes_read))
+        self.assertEquals(len(alt_notes), len(alt_notes_read))
+        for (sent, read) in zip(my_notes + alt_notes, my_notes_read + alt_notes_read):
+            self.assertTrue("owner" not in read)
+            self.assertEqual(sent["title"], read["title"])
 
-    def _validate_tags(self, expected, actual):
+        my_ids = set([task["id"] for task in my_notes_read])
+        alt_ids = set([task["id"] for task in alt_notes_read])
+        self.assertFalse(bool(my_ids & alt_ids))
+
+        pass
+
+    def test_read_rights(self):
+        # given
+        note_json = self._insert_note(self.new_note)
+
+        self._validate_fields(note_json)
+        self._validate_content(self.new_note, note_json)
+
+        # when
+        response_json = self.response(self.app.get(
+            self.NOTE_GET.format(id=note_json["id"]),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
+
+        # then
+        self.assertTrue("message" in response_json)
+
+    def test_update_rights(self):
+        # given
+        note_json = self._insert_note(self.new_note)
+
+        self._validate_fields(note_json)
+        self._validate_content(self.new_note, note_json)
+
+        # when
+        response_json = self.response(self.app.put(
+            self.NOTE_GET.format(id=note_json["id"]),
+            data=json.dumps(self.edited_note),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
+
+        # then
+        self.assertTrue("message" in response_json)
+
+    def test_delete_rights(self):
+        # given
+        note_json = self._insert_note(self.new_note)
+
+        self._validate_fields(note_json)
+        self._validate_content(self.new_note, note_json)
+
+        # when
+        response_json = self.response(self.app.delete(
+            self.NOTE_GET.format(id=note_json["id"]),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
+
+        # then
+        self.assertTrue("message" in response_json)
+
+    # utils
+    def _insert_note(self, note, mock_user=TestUtils.REGULAR_USER):
+        note_json = self.response(self.app.post(
+            self.NOTES_LIST,
+            data=json.dumps(note),
+            **self.post_args,
+            **self.create_user_header(mock_user)
+        ), status=201)
+        return note_json
+
+    def _validate_fields(self, note_json):
+        self.assertTrue("id" in note_json)
+        self.assertTrue("title" in note_json)
+        self.assertTrue("content" in note_json)
+        self.assertTrue("tags" in note_json)
+
+        self.assertTrue("created" in note_json)
+        self.assertTrue("edited" in note_json)
+
+        self.assertTrue("is_pinned" in note_json)
+        self.assertTrue("is_archived" in note_json)
+
+    def _validate_content(self, expected, actual):
+        self.assertEqual(expected["id"], actual["id"])
+        self.assertEqual(expected["title"], actual["title"])
+        self.assertEqual(expected["content"], actual["content"])
+
         self.assertEqual(len(expected["tags"]), len(actual["tags"]))
         for tag in expected["tags"]:
             self.assertTrue(tag in actual["tags"])

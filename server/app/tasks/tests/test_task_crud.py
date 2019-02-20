@@ -46,7 +46,8 @@ class TestTaskCrud(TestUtils, TestCase):
         task_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)), status=200)
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=200)
 
         # then
         # - content matches
