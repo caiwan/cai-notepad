@@ -9,12 +9,16 @@ import peewee
 
 import app
 from app import components
+from app.tests import TestUtils
 
 API_BASE = components.BASE_PATH
 
 
 @ddt.ddt
-class TestTagsearch(TestCase):
+class TestTagsearch(TestUtils, TestCase):
+
+    TAGS_GET = components.BASE_PATH + "/tags/autocomplete/"
+    NOTES_LIST = components.BASE_PATH + "/notes"
 
     post_args = {
         "content_type": "application/json"
@@ -45,7 +49,12 @@ class TestTagsearch(TestCase):
         ]
 
         for note in notes:
-            response = self.app.post(API_BASE + "/notes/", data=json.dumps(note), **TestTagsearch.post_args)
+            response = self.app.post(
+                self.NOTES_LIST,
+                data=json.dumps(note),
+                **TestTagsearch.post_args,
+                **self.create_user_header(TestUtils.REGULAR_USER)
+                )
             self.assertEqual(201, response.status_code)
 
     def tearDown(self):
@@ -65,18 +74,41 @@ class TestTagsearch(TestCase):
 
         # when
         with Timer() as timed:
-            response = self.app.get(API_BASE + "/tags/autocomplete/", query_string=query_string, **TestTagsearch.post_args)
+            response = self.response(self.app.get(
+                self.TAGS_GET,
+                query_string=query_string,
+                **self.post_args,
+                **self.create_user_header(TestUtils.REGULAR_USER)
+            ))
 
-        # then
-        self.assertIsNotNone(response)
-        self.assertEqual(200, response.status_code)
-        response_json = json.loads(response.data)
+            # then
+            logging.info("Queried tag:" + query)
+            logging.info("Fetched tags:" + ", ".join([tag for tag in response]))
+            logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
 
-        logging.info("Queryed tag:" + query)
-        logging.info("Fetched tags:" + ", ".join([tag for tag in response_json]))
-        logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
-
-        for tag in expected_result:
-            self.assertTrue(tag in response_json)
+            for tag in expected_result:
+                self.assertTrue(tag in response)
 
         pass
+
+    def test_autocomplete_rights(self):
+        # given (data)
+        query_string = {"q": "the"}
+
+        # when
+        # - query tags as another user
+        with Timer() as timed:
+            response = self.response(self.app.get(
+                self.TAGS_GET,
+                query_string=query_string,
+                **self.post_args,
+                **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            ))
+
+            # then
+            # - You shall not recieve any response
+            logging.info("Fetched tags:" + ", ".join([tag for tag in response]))
+            logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
+
+            self.assertEqual(0, len(response))
+
