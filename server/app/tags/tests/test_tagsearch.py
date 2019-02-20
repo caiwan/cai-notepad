@@ -18,18 +18,14 @@ API_BASE = components.BASE_PATH
 class TestTagsearch(TestUtils, TestCase):
 
     TAGS_GET = components.BASE_PATH + "/tags/autocomplete/"
-    NOTES_LIST = components.BASE_PATH + "/notes"
+    NOTES_LIST = components.BASE_PATH + "/notes/"
 
-    post_args = {
-        "content_type": "application/json"
-    }
+    def __init__(self, methodName):
+        TestUtils.__init__(self)
+        TestCase.__init__(self, methodName)
 
     def setUp(self):
-        self._db = peewee.SqliteDatabase(":memory:")
-        components.DB.initialize(self._db)
-        components.DB.connect()
-        components.DB.create_tables(app.MODELS, safe=True)
-        self.app = app.APP.test_client()
+        self._setup_app()
 
         notes = [
             {
@@ -49,13 +45,12 @@ class TestTagsearch(TestUtils, TestCase):
         ]
 
         for note in notes:
-            response = self.app.post(
+            self.response(self.app.post(
                 self.NOTES_LIST,
                 data=json.dumps(note),
                 **TestTagsearch.post_args,
                 **self.create_user_header(TestUtils.REGULAR_USER)
-                )
-            self.assertEqual(201, response.status_code)
+            ), status=201)
 
     def tearDown(self):
         self._db.close()
@@ -111,4 +106,3 @@ class TestTagsearch(TestUtils, TestCase):
             logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
 
             self.assertEqual(0, len(response))
-

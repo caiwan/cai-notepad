@@ -221,7 +221,7 @@ class TestNotes(TestCase, TestUtils):
     # utils
     def _insert_note(self, note, mock_user=TestUtils.REGULAR_USER):
         note_json = self.response(self.app.post(
-            self.NOTES_LIST,
+            self.NOTE_LIST,
             data=json.dumps(note),
             **self.post_args,
             **self.create_user_header(mock_user)

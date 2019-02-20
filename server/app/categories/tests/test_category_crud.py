@@ -160,6 +160,14 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.assertEqual(root_category_json["id"], category_json["parent"]["id"])
             self.assertEqual(category["name"], category_json["name"])
 
+    @skip("Not implemented")
+    def test_add_category_w_nonexistent_parent():
+        pass
+
+    @skip("Not implemented")
+    def test_add_category_w_parent_rights():
+        pass
+
     # Test ordering / reordering
 
     # TODO: ...

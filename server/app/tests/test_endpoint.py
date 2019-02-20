@@ -99,7 +99,8 @@ class TestEndpointAccess(TestUtils, TestCase):
         attr("/categories/1/", "delete", as_user="user", skip=True, skip_reason="Test data required"),
 
         # tag autosearch
-        attr("/tags/autocomplete/", "get", params={"q": ""}, as_user="user")
+        attr("/tags/autocomplete/", "get", params={"q": "something"}, as_user="user"),
+        attr("/tags/autocomplete/", "get", params={"q": "something"}, expected_status=[403])
     )
     def test_endpoint(self, attr):
         if attr["skip"]:

@@ -66,10 +66,8 @@ class BaseDocumentModel(BaseModel):
 
 def current_user():
     if not hasattr(g, "current_user") or not g.current_user:
-        # logging.info("No user")
         return None
     else:
-        # logging.info("User: %d", g.current_user.id)
         return g.current_user
 
 
@@ -203,7 +201,10 @@ class Service:
 
     def serialize_item(self, item):
         try:
-            item_json = model_to_dict(item, exclude=(self.model_class.is_deleted, self.model_class.owner))
+            item_json = model_to_dict(item, exclude=(
+                self.model_class.is_deleted,
+                self.model_class.owner
+            ))
             return item_json
         except:
             logging.exception(str(item))
@@ -253,7 +254,6 @@ class Controller(Resource):
             return(items_json, 200)
         except RuntimeError as e:
             logging.exception(e)
-            # return error_handler()
             raise BadRequestError()
 
     def _create(self, item_json, *args, **kwargs):
@@ -264,8 +264,6 @@ class Controller(Resource):
             return (self._service.serialize_item(self._service.create_item(item_json, *args, **kwargs)), 201)
         except RuntimeError as e:
             logging.exception(e)
-            # return error_handler()
-            # raise BadRequestError()
             raise
 
     def _read(self, item_id, *args, **kwargs):
@@ -273,12 +271,9 @@ class Controller(Resource):
         try:
             return (self._service.serialize_item(self._service.read_item(item_id, *args, **kwargs)), 200)
         except _cls.DoesNotExist:
-            # return error_handler("Not Found", not_found_message, status=404)
             raise ResourceNotFoundError()
         except RuntimeError as e:
             logging.exception(e)
-            # return error_handler()
-            # raise BadRequestError()
             raise
 
     def _update(self, item_id, item_json, *args, **kwargs):
@@ -289,11 +284,8 @@ class Controller(Resource):
             return (self._service.serialize_item(self._service.update_item(item_id, item_json, *args, **kwargs)), 200)
         except _cls.DoesNotExist:
             raise ResourceNotFoundError()
-            # return error_handler("Not Found", not_found_message, status=404)
-            # return error_handler("Not Found")
         except RuntimeError as e:
             logging.exception(e)
-            # return error_handler()
             raise
 
     def _delete(self, item_id, *args, **kwargs):
@@ -301,12 +293,8 @@ class Controller(Resource):
         try:
             self._service.delete_item(item_id, *args, **kwargs)
         except _cls.DoesNotExist:
-            # return error_handler("Not Found", not_found_message, status=404)
             raise ResourceNotFoundError()
         except RuntimeError as e:
-            # msg = ["Bad request", str(e)]
-            # logging.exception("\n".join(msg))
-            # return({"error": msg}, 400)
             logging.exception(e)
             raise
 

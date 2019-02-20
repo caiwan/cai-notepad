@@ -80,6 +80,8 @@ app.auth.principal.init_app(APP)
 
 @APP.errorhandler(Exception)
 def handle_error(e):
+    if not isinstance(e, app.components.BaseHTTPException):
+        logging.exception(e)
     return app.components.error_handler(e)
 
 
