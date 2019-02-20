@@ -27,6 +27,7 @@ class CategoryService(components.Service):
 
         item = dict_to_model(Category, item_json)
         item.parent = parent
+        item.owner = components.current_user()
         item.save()
         return item
 
@@ -203,9 +204,14 @@ class CategoryService(components.Service):
     def serialize_item(self, item):
         try:
             item_json = model_to_dict(
-                item, exclude=["is_deleted", "flatten_order", "parent"])
-            del item_json["is_deleted"]  # Exclude does nothing :(
-            del item_json["flatten_order"]
+                item, exclude=[
+                    Category.is_deleted,
+                    Category.flatten_order,
+                    Category.parent,
+                    Category.owner
+                ])
+            # del item_json["is_deleted"]  # Exclude does nothing :(
+            # del item_json["flatten_order"]
             item_json["parent"] = {
                 "id": item.parent.id} if item.parent else None
             return item_json

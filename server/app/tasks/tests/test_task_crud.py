@@ -31,6 +31,8 @@ class TestTaskCrud(TestUtils, TestCase):
         task_json = self._insert_task(task)
         # then
         self.assertEquals(task["title"], task_json["title"])
+        self.assertTrue("owner" not in task_json)
+        self.assertTrue("is_deleted" not in task_json)
 
     def test_read(self):
         # given
@@ -41,12 +43,10 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - read resource
-        response = self.app.get(
+        task_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER))
-        self.assertEquals(200, response.status_code)
-        task_json = json.loads(response.data)
+            **self.create_user_header(TestUtils.REGULAR_USER)), status=200)
 
         # then
         # - content matches
@@ -64,14 +64,12 @@ class TestTaskCrud(TestUtils, TestCase):
         # when
         # - modify data
         edited_task = {"title": "My Edited Title"}
-        response = self.app.put(
+        task_json = self.response(self.app.put(
             self.TASK_GET.format(id=task_id),
             data=json.dumps(edited_task),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
-        )
-        self.assertEquals(200, response.status_code)
-        task_json = json.loads(response.data)
+        ))
 
         # then
         # - data modified
@@ -88,21 +86,20 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - delete
-        response = self.app.delete(
+        self.response(self.app.delete(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
-        )
-        self.assertEquals(200, response.status_code)
+        ))
 
         # then
         # - no longer exists
-        response = self.app.get(
+        error_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_ALT_USER)
-        )
-        self.assertEquals(404, response.status_code)
+        ), status=404)
+        self.assertTrue("message" in error_json)
 
     # Test access rights
 
@@ -114,29 +111,24 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - They reads their own tasks
-        my_tasks_response = self.app.get(
+        my_tasks_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
-        )
+        ))
 
-        self.assertEquals(200, my_tasks_response.status_code)
-        my_tasks_json = json.loads(my_tasks_response.data)
-
-        alt_tasks_response = self.app.get(
+        alt_tasks_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_ALT_USER)
-        )
-
-        self.assertEquals(200, alt_tasks_response.status_code)
-        alt_tasks_json = json.loads(alt_tasks_response.data)
+        ))
 
         # then
         # - There's no intersection between them
         self.assertEquals(len(my_tasks), len(my_tasks_json))
         self.assertEquals(len(alt_tasks), len(alt_tasks_json))
         for (sent, read) in zip(my_tasks + alt_tasks, my_tasks_json + alt_tasks_json):
+            self.assertTrue("owner" not in read)
             self.assertEqual(sent["title"], read["title"])
 
         my_ids = set([task["id"] for task in my_tasks_json])
@@ -152,14 +144,15 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - read resource by another user
-        response = self.app.get(
+        response_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
 
         # then
         # - requested content not found
-        self.assertEquals(404, response.status_code)
+        self.assertTrue("message" in response_json)
 
     def test_update_rights(self):
         # given
@@ -171,15 +164,16 @@ class TestTaskCrud(TestUtils, TestCase):
         # when
         # - read resource by another user
         edited_task = {"title": "My Edited Title"}
-        response = self.app.put(
+        response_json = self.response(self.app.put(
             self.TASK_GET.format(id=task_id),
             data=json.dumps(edited_task),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
 
         # then
         # - requested content not found
-        self.assertEquals(404, response.status_code)
+        self.assertTrue("message" in response_json)
 
     def test_delete_rights(self):
         # given
@@ -190,25 +184,25 @@ class TestTaskCrud(TestUtils, TestCase):
 
         # when
         # - read resource by another user
-        response = self.app.delete(
+        response_json = self.response(self.app.delete(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER))
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
 
         # then
         # - requested content not found
-        self.assertEquals(404, response.status_code)
+        self.assertTrue("message" in response_json)
 
     # ---
-
     def _insert_task(self, task, mock_user=TestUtils.REGULAR_USER):
-        response = self.app.post(
+        response_json = self.response(self.app.post(
             self.TASK_LIST,
             data=json.dumps(task),
             **self.post_args,
             **self.create_user_header(mock_user)
-        )
-        self.assertEquals(201, response.status_code)
-        task_json = json.loads(response.data)
-        self.assertIsNotNone(task_json["id"])
-        return task_json
+        ), 201)
+        self.assertTrue("id" in response_json)
+        self.assertIsNotNone(response_json["id"])
+
+        return response_json

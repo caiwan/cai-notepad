@@ -15,6 +15,7 @@ from flask import g
 
 BASE_PATH = "/api"
 not_found_message = "Resource with the requested id does not exist."
+unauthorized_message = "User could not be authorized with the given credentials."
 invalid_call_message = "This endpoint does not implements this method."
 no_permission_message = "You don't have permission to access this resource on this server."
 
@@ -65,18 +66,61 @@ class BaseDocumentModel(BaseModel):
 
 def current_user():
     if not hasattr(g, "current_user") or not g.current_user:
-        logging.info("No user")
+        # logging.info("No user")
         return None
     else:
-        logging.info("User: %d", g.current_user.id)
+        # logging.info("User: %d", g.current_user.id)
         return g.current_user
 
 
-def error_handler(*args, status=400):
-    if args:
-        return(json.dumps({"error": [str(a) for a in args]}), status)
+class BaseHTTPException(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv["message"] = self.message
+        return rv
+
+
+class BadRequestError(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, "Bad Request", payload=payload)
+
+
+class InvalidMethodCallError(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, invalid_call_message, status_code=405, payload=payload)
+
+
+class AuthorizationError(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, unauthorized_message, status_code=401, payload=payload)
+
+
+class NoPermissionError(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, no_permission_message, status_code=403, payload=payload)
+
+
+class ResourceNotFoundError(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, not_found_message, status_code=404, payload=payload)
+
+
+def error_handler(ex):
+    if hasattr(ex, "to_dict") and hasattr(ex, "status_code"):
+        return(json.dumps(ex.to_dict()), ex.status_code)
+    elif isinstance(ex, Exception):
+        return(json.dumps({"message": "Internal server error"}), 500)
     else:
-        return(json.dumps({"error": ["Bad request"]}), status)
+        return(json.dumps({"message": "Bad request"}), 400)
 
 
 class Service:
@@ -159,8 +203,7 @@ class Service:
 
     def serialize_item(self, item):
         try:
-            item_json = model_to_dict(item, exclude=["is_deleted"])
-            del item_json["is_deleted"]  # Exclude does nothing :(
+            item_json = model_to_dict(item, exclude=(self.model_class.is_deleted, self.model_class.owner))
             return item_json
         except:
             logging.exception(str(item))
@@ -182,19 +225,19 @@ class Controller(Resource):
     _service = None
 
     def get(self):
-        return error_handler("Invalid method call", invalid_call_message, status=405)
+        raise InvalidMethodCallError()
 
     def post(self):
-        return error_handler("Invalid method call", invalid_call_message, status=405)
+        raise InvalidMethodCallError()
 
     def put(self):
-        return error_handler("Invalid method call", invalid_call_message, status=405)
+        raise InvalidMethodCallError()
 
     def delete(self):
-        return error_handler("Invalid method call", invalid_call_message, status=405)
+        raise InvalidMethodCallError()
 
     def patch(self):
-        return error_handler("Invalid method call", invalid_call_message, status=405)
+        raise InvalidMethodCallError()
 
     def _get_cls(self):
         assert self._service
@@ -210,7 +253,8 @@ class Controller(Resource):
             return(items_json, 200)
         except RuntimeError as e:
             logging.exception(e)
-            return error_handler()
+            # return error_handler()
+            raise BadRequestError()
 
     def _create(self, item_json, *args, **kwargs):
         assert self._service
@@ -220,17 +264,22 @@ class Controller(Resource):
             return (self._service.serialize_item(self._service.create_item(item_json, *args, **kwargs)), 201)
         except RuntimeError as e:
             logging.exception(e)
-            return error_handler()
+            # return error_handler()
+            # raise BadRequestError()
+            raise
 
     def _read(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
             return (self._service.serialize_item(self._service.read_item(item_id, *args, **kwargs)), 200)
         except _cls.DoesNotExist:
-            return error_handler("Not Found", not_found_message, status=404)
+            # return error_handler("Not Found", not_found_message, status=404)
+            raise ResourceNotFoundError()
         except RuntimeError as e:
             logging.exception(e)
-            return error_handler()
+            # return error_handler()
+            # raise BadRequestError()
+            raise
 
     def _update(self, item_id, item_json, *args, **kwargs):
         _cls = self._get_cls()
@@ -239,23 +288,27 @@ class Controller(Resource):
         try:
             return (self._service.serialize_item(self._service.update_item(item_id, item_json, *args, **kwargs)), 200)
         except _cls.DoesNotExist:
-            return error_handler("Not Found", not_found_message, status=404)
-
-            return error_handler("Not Found")
+            raise ResourceNotFoundError()
+            # return error_handler("Not Found", not_found_message, status=404)
+            # return error_handler("Not Found")
         except RuntimeError as e:
             logging.exception(e)
-            return error_handler()
+            # return error_handler()
+            raise
 
     def _delete(self, item_id, *args, **kwargs):
         _cls = self._get_cls()
         try:
             self._service.delete_item(item_id, *args, **kwargs)
         except _cls.DoesNotExist:
-            return error_handler("Not Found", not_found_message, status=404)
+            # return error_handler("Not Found", not_found_message, status=404)
+            raise ResourceNotFoundError()
         except RuntimeError as e:
-            msg = ["Bad request", str(e)]
-            logging.exception("\n".join(msg))
-            return({"error": msg}, 400)
+            # msg = ["Bad request", str(e)]
+            # logging.exception("\n".join(msg))
+            # return({"error": msg}, 400)
+            logging.exception(e)
+            raise
 
         return ("", 200)
 

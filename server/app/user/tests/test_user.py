@@ -27,7 +27,7 @@ class TestUser(TestUtils, TestCase):
     def tearDown(self):
         self._db.close()
 
-    skip("Registration is not implemented yet")
+    @skip("Registration is not implemented yet")
     def test_register(self):
         # given no user
         # when register a new user

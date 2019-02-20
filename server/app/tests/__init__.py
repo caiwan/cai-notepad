@@ -98,11 +98,24 @@ class TestUtils:
 
         pass
 
-    def response(self, response, code=200):
+    def response(self, response, status=200):
         self.assertIsNotNone(response)
-        self.assertEqual(code, response.status_code)
+        self.assertEqual(status, response.status_code)
         response_json = json.loads(response.data)
+
+        # Check if sensitive data was not enclosed
+        if isinstance(response_json, (list,)):
+            for item in response_json:
+                self._check_disclosure(item)
+        else:
+            self._check_disclosure(response_json)
+
         return response_json
+
+    def _check_disclosure(self, obj):
+        self.assertTrue("owner" not in obj)
+        self.assertTrue("password" not in obj)
+        self.assertTrue("is_deleted" not in obj)
 
     def encode_password(self, password):
         return bcrypt.hashpw(

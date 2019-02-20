@@ -78,18 +78,27 @@ app.auth.principal.init_app(APP)
 # setup all the message handlers
 
 
-@APP.errorhandler(PermissionDenied)
+@APP.errorhandler(Exception)
 def handle_error(e):
-    return app.components.error_handler("Forbidden", app.components.no_permission_message, status=403)
+    return app.components.error_handler(e)
+
+
+# @APP.errorhandler(app.components.BaseHTTPException)
+# def handle_base_error(e):
+    # return app.components.error_handler(e)
+
+
+@APP.errorhandler(PermissionDenied)
+def handle_http_error(e):
+    return app.components.error_handler(app.components.NoPermissionError())
 
 
 @app.auth.error_handler
 def auth_error_callback():
-    return app.components.error_handler("Forbidden", app.components.no_permission_message, status=403)
+    return app.components.error_handler(app.components.NoPermissionError())
 
 
 # --- Initialize Application
-
 MODELS = []
 SETTINGS = {}
 

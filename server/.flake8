@@ -6,6 +6,7 @@ ignore =
   E722,
   # Comparision w/o if - for Peewee query builder
   E712,
-  E401
+  E401,
+  E701
 inline-quotes = double
 docstring-quotes = double

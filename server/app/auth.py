@@ -159,25 +159,27 @@ class LoginService(components.Service):
     model_class = User
     _tokenService = tokenService
 
+    invalid_usr_msg = "Invalid credentials were given or user does not exist"
+
     def login(self, user_json):
         assert user_json
         if "username" not in user_json or "password" not in user_json:
-            return components.error_handler("Bad request", "No username or password was given")
+            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
 
         username = user_json["username"]
         password = user_json["password"]
 
-        invalid_msg = "Invalid username or password"
         try:
             user = User.get(User.name == username, User.is_deleted == False, User.is_active == True)
             if user and bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
                 token = self._tokenService.create(user)
                 return ({"token": token}, 200)
             else:
-                return components.error_handler("Authentication", invalid_msg, 200)
+                raise components.AuthorizationError()
+            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
 
         except User.DoesNotExist:
-            return components.error_handler("Authentication", invalid_msg, 200)
+            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
         pass
 
     def logout(self):
@@ -251,4 +253,3 @@ def error_handler(f):
 
 def login_required(f):
     return auth_api.login_required(f)
-

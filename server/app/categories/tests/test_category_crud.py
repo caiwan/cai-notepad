@@ -1,17 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 import json
 
 from app import components
 from app.tests import TestUtils
 
 
-API_BASE = components.BASE_PATH
-
-
 class TestCategoryCrud(TestUtils, TestCase):
 
-    CATEGORY_LIST = API_BASE + "/categories/"
-    CATEGORY_GET = API_BASE + "/categories/{id}/"
+    CATEGORY_LIST = components.BASE_PATH + "/categories/"
+    CATEGORY_GET = components.BASE_PATH + "/categories/{id}/"
 
     def __init__(self, methodName):
         TestUtils.__init__(self)
@@ -25,20 +22,76 @@ class TestCategoryCrud(TestUtils, TestCase):
 
     # curd
     def test_update(self):
+        # Given
+        # - one category
+        category = {
+            "name": "Category",
+            "parent": None
+        }
+        category_json = self._insert_category(category)
+        self._validate_fields(category_json)
+        category_id = category_json["id"]
+
+        # When
+        # - update it with new data
+        updated_category = {
+            "name": "Updated Category",
+            "parent": None
+        }
+        category_json = self.response(self.app.put(
+            self.CATEGORY_GET.format(id=category_id),
+            data=json.dumps(updated_category),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
+
+        # Then
+        # - Details should be updated
+        self._validate_fields(category_json)
+        self.assertEqual(category_id, category_json["id"])
+        self.assertEqual(updated_category["name"], category_json["name"])
         pass
 
+    @skip("Not implemented")
     def test_delete(self):
+        # TODO: Delete -> Something like a merge of categories
         pass
 
     # Permissions
     def test_update_rights(self):
-        pass
+        # Given
+        # - one category created by an user
+        category = {
+            "name": "Category",
+            "parent": None
+        }
+        category_json = self._insert_category(category)
+        self._validate_fields(category_json)
+        category_id = category_json["id"]
 
+        # When
+        # - attempt update it with another user
+        updated_category = {
+            "name": "Updated Category",
+            "parent": None
+        }
+        error_json = self.response(self.app.put(
+            self.CATEGORY_GET.format(id=category_id),
+            data=json.dumps(updated_category),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
+
+        # Then
+        # - Error should be given
+        self.assertTrue("message" in error_json)
+
+    @skip("Not implemented")
     def test_delete_rights(self):
+        # TODO: Delete -> Something like a merge of categories
         pass
 
     # Parents
-
     def test_add_category_wo_parent(self):
         # given
         # - category structure without parent
@@ -54,16 +107,14 @@ class TestCategoryCrud(TestUtils, TestCase):
 
         # then
         # - the newly created category should be read back
-        response = self.app.get(
+        category_json = self.response(self.app.get(
             self.CATEGORY_GET.format(id=insert_category_id),
             **self.post_args,
-            **self.create_user_header(mock_user=TestUtils.REGULAR_USER)
-        )
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
-        self.assertEquals(200, response.status_code)
-        category_json = json.loads(response.data)
+        self._validate_fields(category_json)
 
-        self.assertIsNotNone(category_json["id"])
         self.assertIsNone(category_json["parent"])
         self.assertEqual(category["name"], category_json["name"])
 
@@ -82,43 +133,47 @@ class TestCategoryCrud(TestUtils, TestCase):
         } for i in range(3)]
 
         # when
-        child_categories_json = [self._insert_category(payload) for payload in child_categories]
+        child_categories = [self._insert_category(payload) for payload in child_categories]
+        child_categories_id = [item["id"] for item in child_categories]
 
         # then
-        for pair in zip(child_categories, child_categories_json):
-            self._validate_category(pair[0], pair[1])
-
         # - check parent-child relationship
-        # Children?
-        response = self.app.get(
-            API_BASE + "/categories/" + str(root_id) + "/",
-            **self.post_args
-        )
-        self.assertEquals(200, response.status_code)
-        root_category_json = json.loads(response.data)
-
-        response = self.app.get(
-            self.CATEGORY_GET.format(id=insert_category_id),
+        root_category_json = self.response(self.app.get(
+            self.CATEGORY_GET.format(id=root_id),
             **self.post_args,
-            **self.create_user_header(mock_user=TestUtils.REGULAR_USER)
-        )
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
 
-        self.assertEquals(200, response.status_code)
-        category_json = json.loads(response.data)
+        responses = [self.response(self.app.get(
+            self.CATEGORY_GET.format(id=id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        )) for id in child_categories_id]
 
-        self.assertIsNotNone(category_json["id"])
-        self.assertIsNone(category_json["parent"])
-        self.assertEqual(category["name"], category_json["name"])
+        for (category, category_json) in zip(child_categories, responses):
 
+            self._validate_fields(category_json)
+
+            self.assertEqual(category["id"], category_json["id"])
+            self.assertIsNotNone(category_json["parent"])
+            self.assertIsNotNone(category_json["parent"]["id"])
+            self.assertEqual(root_category_json["id"], category_json["parent"]["id"])
+            self.assertEqual(category["name"], category_json["name"])
+
+    # Test ordering / reordering
+
+    # TODO: ...
 
     def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
-        response = self.app.post(
+        category_json = self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),
             **self.post_args,
             **self.create_user_header(mock_user)
-        )
-        self.assertEquals(201, response.status_code)
-        category_json = json.loads(response.data)
-        self.assertIsNotNone(category_json["id"])
+        ), status=201)
         return category_json
+
+    def _validate_fields(self, category_json):
+        self.assertTrue("flatten_order" not in category_json)
+        self.assertTrue("id" in category_json)
+        self.assertIsNotNone(category_json["id"])
