@@ -57,7 +57,8 @@ class NoteService(components.Service):
             Note.owner,
             Note.tags
         ))
-        item_json["tags"] = [tag.tag for tag in item.tags]
+        tags = [tag for tag in item.tags]
+        item_json["tags"] = [tag.tag for tag in tags]
         return item_json
 
     def _select_and_sanitize_tags(self, item_json):

@@ -256,8 +256,9 @@ class Controller(Resource):
     def _fetch_all(self, *args, **kwargs):
         assert self._service
         try:
-            items_json = [self._service.serialize_item(
-                item) for item in self._service.fetch_all_items(*args, **kwargs)]
+            items_json = [
+                self._service.serialize_item(item) for item in self._service.fetch_all_items(*args, **kwargs)
+            ]
             return(items_json, 200)
         except RuntimeError as e:
             logging.exception(e)

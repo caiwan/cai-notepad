@@ -104,3 +104,11 @@ class TestTagsearch(TestUtils, TestCase):
         # logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
 
         self.assertEqual(0, len(response))
+
+    def test_list(self):
+        response = self.response(self.app.get(
+            self.TAGS_GET,
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
+        self.assertNotEqual(0, len(response))

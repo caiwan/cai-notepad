@@ -90,11 +90,6 @@ def handle_base_error(e):
     return app.components.error_handler(app.components.ResourceNotFoundError())
 
 
-# @APP.errorhandler(301)
-# def handle_base_error(e):
-# return ("{\"message\":\"Moved Permanently\"}", 301)
-
-
 @APP.errorhandler(PermissionDenied)
 def handle_http_error(e):
     return app.components.error_handler(app.components.NoPermissionError())

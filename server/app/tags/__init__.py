@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 
+from collections import OrderedDict
 import fuzzy
 import Levenshtein
 from slugify import slugify
@@ -23,7 +24,12 @@ class TagService(components.Service):
     def fetch_all_items(self, search_query, result_limit):
         if search_query:
             return self.search_tags(search_query, result_limit)
-        return Tag.select()
+        else:
+            user_id = components.current_user_id()
+            return Tag.select(Tag)\
+                .join(components.BaseUser, on=(Tag.owner == components.BaseUser.id))\
+                .where(components.BaseUser.id == user_id)\
+                .objects()
 
     def serialize_item(self, item):
         return str(item.tag)
@@ -36,24 +42,25 @@ class TagService(components.Service):
             search_query.split(" ")) if word]
         for word in words:
             tags_select = Tag.select(Tag)\
-                .join(FuzzyTag, on=(Tag.tag == FuzzyTag.tag))\
-                .join(components.BaseUser, on=(self.model_class.owner == components.BaseUser.id))\
+                .join(FuzzyTag)\
+                .join(components.BaseUser, on=(Tag.owner == components.BaseUser.id))\
                 .where(
                     FuzzyTag.fuzzy.contains(word),
-                    Tag.owner.id == user_id
-            )
+                    components.BaseUser.id == user_id)
             for tag in tags_select:
                 ld = Levenshtein.distance(str(tag.tag), search_query)
-                if fuzzy.tag not in result_map or ld < result_map[fuzzy.tag]:
-                    result_map[tag.tag] = ld
+                if tag not in result_map or ld < result_map[tag]:
+                    result_map[tag] = ld
 
         # order results by score
-        result_map = dict((k, result_map[k]) for k in sorted(
+        result_map = OrderedDict((k, result_map[k]) for k in sorted(
             result_map, key=result_map.get))
 
         logging.debug(
             "result_set_distances=[{}]".format(
-                ", ".join([str(k.tag) + "=" + str(v) for k, v in result_map.items()]))
+                ", ".join([str(k) + "=" + str(v)
+                           for k, v in result_map.items()])
+            )
         )
 
         if result_limit:
