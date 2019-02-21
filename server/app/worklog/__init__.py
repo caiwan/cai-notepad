@@ -21,10 +21,11 @@ worklogService = WorklogService()
 
 
 class Module(components.Module):
+    from app.worklog.controller import WorklogController, WorklogListController
     name = "worklog"
     services = [worklogService]
     models = [Worklog, WorklogDurationCache]
-    controllers = []
+    controllers = [WorklogController, WorklogListController]
 
 
 module = Module()
