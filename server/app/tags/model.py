@@ -6,6 +6,7 @@ import peewee
 
 class Tag(components.BaseModel):
     tag = peewee.TextField(null=False, unique=True)
+    owner = peewee.ForeignKeyField(components.BaseUser)
 
 
 class FuzzyTag(components.BaseModel):

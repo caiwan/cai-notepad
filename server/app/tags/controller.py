@@ -1,5 +1,5 @@
 from flask import request
-from app import components
+from app import components, auth
 from app.tags import tagService
 
 
@@ -12,6 +12,7 @@ class TagAutoCompleteController(components.Controller):
     path = "/tags/autocomplete/"
     _service = tagService
 
+    @auth.login_required
     def get(self):
         search_query = request.args.get("q")
         result_limit = request.args.get("l")

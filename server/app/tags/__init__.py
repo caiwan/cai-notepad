@@ -30,24 +30,30 @@ class TagService(components.Service):
 
     def search_tags(self, search_query, result_limit):
         result_map = {}
-
+        user_id = components.current_user_id()
         # I admit, it's ineffective in so many ways
-        words = [word for word in self._make_fuzzy(search_query.split(" ")) if word]
-        fuzzies = []
+        words = [word for word in self._make_fuzzy(
+            search_query.split(" ")) if word]
         for word in words:
-            fuzzy = FuzzyTag.select().where(FuzzyTag.fuzzy.contains(word)).objects()
-            fuzzies.extend(fuzzy)
-
-        for fuzzy in fuzzies:
-            ld = Levenshtein.distance(str(fuzzy.tag.tag), search_query)
-            if fuzzy.tag not in result_map or ld > result_map[fuzzy.tag]:
-                result_map[fuzzy.tag] = ld
+            tags_select = Tag.select(Tag)\
+                .join(FuzzyTag, on=(Tag.tag == FuzzyTag.tag))\
+                .join(components.BaseUser, on=(self.model_class.owner == components.BaseUser.id))\
+                .where(
+                    FuzzyTag.fuzzy.contains(word),
+                    Tag.owner.id == user_id
+            )
+            for tag in tags_select:
+                ld = Levenshtein.distance(str(tag.tag), search_query)
+                if fuzzy.tag not in result_map or ld < result_map[fuzzy.tag]:
+                    result_map[tag.tag] = ld
 
         # order results by score
-        result_map = dict((k, result_map[k]) for k in sorted(result_map, key=result_map.get))
+        result_map = dict((k, result_map[k]) for k in sorted(
+            result_map, key=result_map.get))
 
         logging.debug(
-            "result_set_distances=[{}]".format(", ".join([str(k.tag) + "=" + str(v) for k, v in result_map.items()]))
+            "result_set_distances=[{}]".format(
+                ", ".join([str(k.tag) + "=" + str(v) for k, v in result_map.items()]))
         )
 
         if result_limit:
@@ -55,15 +61,20 @@ class TagService(components.Service):
         return [tag for tag in result_map.keys()]
 
     def bulk_search_or_insert(self, tags):
-        new_tags = []
-        tag_items = []
-        for tag in tags:
-            try:
-                tag = Tag.get(Tag.tag == tag)
-                tag_items.append(tag)
-            except Tag.DoesNotExist:
-                new_tags.append(tag)
+        tag_set = set(tags)
+        user_id = components.current_user_id()
 
+        existing_tag_select = Tag.select(Tag.tag)\
+            .join(components.BaseUser, on=(components.BaseUser.id == user_id))\
+            .where(
+                Tag.tag << tag_set,
+                Tag.owner.id == user_id
+        )
+        existing_tags = set([tag.tag for tag in existing_tag_select])
+
+        new_tags = tag_set.difference(existing_tags)
+
+        tag_items = [tag for tag in existing_tags]
         created_tags = []
         created_fuzzies = []
         for new_tag in new_tags:
@@ -73,21 +84,26 @@ class TagService(components.Service):
             created_fuzzies.extend(fuzzies)
 
         with components.DB.atomic():
+            user = components.current_user()
             if created_tags:
                 for tag in created_tags:
+                    tag.owner = user
                     tag.save()
-                logging.debug("New tags:" + ", ".join([str(tag.tag) for tag in created_tags]))
+                logging.debug(
+                    "New tags:" + ", ".join([str(tag.tag) for tag in created_tags]))
 
             if created_fuzzies:
                 for fuzzy_tag in created_fuzzies:
                     fuzzy_tag.save()
-                logging.debug("New fuzzies:" + ", ".join([str(fuzzy.fuzzy) for fuzzy in created_fuzzies]))
+                logging.debug(
+                    "New fuzzies:" + ", ".join([str(fuzzy.fuzzy) for fuzzy in created_fuzzies]))
 
         return tag_items
 
     def _create_tag_from_string(self, tag_str):
         tag = Tag(tag=tag_str)
-        fuzzies = [FuzzyTag(tag=tag, fuzzy=fuzzy_word) for fuzzy_word in self._make_fuzzy(tag_str.split(" ")) if fuzzy_word]
+        fuzzies = [FuzzyTag(tag=tag, fuzzy=fuzzy_word) for fuzzy_word in self._make_fuzzy(
+            tag_str.split(" ")) if fuzzy_word]
         return (tag, fuzzies)
 
     _dmeta = fuzzy.DMetaphone()

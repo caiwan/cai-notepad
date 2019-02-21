@@ -19,25 +19,29 @@ class UserService(components.Service):
         return item
 
     def create_item(self, user_json):
-        raise RuntimeError("Not implemented")
-        # user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(16))
-        # user_json["password"] = bcrypt.hashpw(
-        # user_json["password"].encode("utf-8"),
-        # self._get_secret_key()
-        # ).decode()
-        # return super().create_item(user_json)
+        user_json = self.sanitize_fields(user_json)
+        user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(16))
+        user_json["password"] = bcrypt.hashpw(
+            user_json["password"].encode("utf-8"),
+            self._get_secret_key()
+        ).decode()
+        item = dict_to_model(self.model_class, user_json)
+        item.save()
+        return item
 
     def update_item(self, item_id, item_json):
         raise RuntimeError("Not implemented")
-        # return super().update_item(item_id, item_json)
 
     def delete_item(self, item_id):
         raise RuntimeError("Not implemented")
-        # return super().delete_item(item_id)
 
     def serialize_item(self, item):
-        item_json = super().serialize_item(item)
-        # del item_json["password"]
+        item_json = model_to_dict(item, exclude=(
+            self.model_class.is_deleted,
+            self.model_class.password
+        ))
+        return item_json
+
         item_json["permissions"] = [role.name for role in item.permissions]
         return item_json
 

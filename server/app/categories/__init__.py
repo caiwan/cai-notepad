@@ -15,7 +15,13 @@ class CategoryService(components.Service):
     model_class = Category
 
     def fetch_all_items(self):
-        return Category.select().where(Category.is_deleted == False).order_by(Category.flatten_order)
+        user_id = components.current_user_id()
+        return Category.select(Category).join(
+            components.BaseUser, on=(Category.owner == components.BaseUser.id)
+        ).where(
+            Category.is_deleted == False,
+            components.BaseUser.id == user_id
+        ).order_by(Category.flatten_order)
 
     def create_category(self, item_json):
         parent = None

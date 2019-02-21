@@ -1,11 +1,8 @@
-from unittest import TestCase, skip
+from unittest import TestCase
 import json
-import logging
 
 from app.tests import TestUtils
 from app import components
-
-API_BASE = components.BASE_PATH
 
 
 class TestNotes(TestCase, TestUtils):
@@ -54,7 +51,7 @@ class TestNotes(TestCase, TestUtils):
         self._validate_content(self.new_note, note_json)
 
         response_json = self.response(self.app.get(
-            self.NOTE_LIST,
+            self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
         ))
@@ -82,20 +79,20 @@ class TestNotes(TestCase, TestUtils):
 
     def test_delete_note(self):
         # given
-        note_id = self._insert_note(self.new_note)
+        note_json = self._insert_note(self.new_note)
 
         # when
-        response_json = self.app.response(self.app.delete(
-            self.NOTE_GET.format(id=note_id),
+        response_json = self.response(self.app.delete(
+            self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
         ))
 
-        self.assertIsNone(response_json)
+        self.assertEqual(0, len(response_json))
 
         # then
         response_json = self.response(self.app.get(
-            self.NOTE_GET.format(id=note_id),
+            self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
         ), status=404)
@@ -113,10 +110,12 @@ class TestNotes(TestCase, TestUtils):
         edited_json = self.response(self.app.put(
             self.NOTE_GET.format(id=note_json["id"]),
             data=json.dumps(self.edited_note),
-            **self.post_args
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
         ))
 
         self._validate_fields(edited_json)
+        self.assertEqual(note_json["id"], edited_json["id"])
         self._validate_content(self.edited_note, edited_json)
 
         # then
@@ -127,6 +126,7 @@ class TestNotes(TestCase, TestUtils):
         ))
 
         self._validate_fields(response_json)
+        self.assertEqual(note_json["id"], response_json["id"])
         self._validate_content(edited_json, response_json)
 
     # Permission checks
@@ -241,7 +241,7 @@ class TestNotes(TestCase, TestUtils):
         self.assertTrue("is_archived" in note_json)
 
     def _validate_content(self, expected, actual):
-        self.assertEqual(expected["id"], actual["id"])
+        self.assertIsNotNone(actual["id"])
         self.assertEqual(expected["title"], actual["title"])
         self.assertEqual(expected["content"], actual["content"])
 

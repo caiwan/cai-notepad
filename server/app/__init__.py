@@ -1,7 +1,8 @@
 # coding=utf-8
 
 import logging
-import os, sys
+import os
+import sys
 import importlib
 
 from flask import Flask
@@ -35,7 +36,6 @@ TESTING = (os.getenv("FLASK_TESTING") == "True")
 logging.basicConfig(
     format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
 logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
-# logging.getLogger().setLevel(logging.DEBUG if DEBUG else logging.INFO)
 logging.disable(logging.NOTSET)
 logging.info("Loading %s, app version = %s", __name__,
              os.getenv("CURRENT_VERSION_ID"))
@@ -80,14 +80,19 @@ app.auth.principal.init_app(APP)
 
 @APP.errorhandler(Exception)
 def handle_error(e):
-    if not isinstance(e, app.components.BaseHTTPException):
-        logging.exception(e)
+    if not isinstance(e, app.components.BaseHTTPException) and (DEBUG or TESTING):
+        raise e
     return app.components.error_handler(e)
 
 
-# @APP.errorhandler(app.components.BaseHTTPException)
+@APP.errorhandler(404)
+def handle_base_error(e):
+    return app.components.error_handler(app.components.ResourceNotFoundError())
+
+
+# @APP.errorhandler(301)
 # def handle_base_error(e):
-    # return app.components.error_handler(e)
+# return ("{\"message\":\"Moved Permanently\"}", 301)
 
 
 @APP.errorhandler(PermissionDenied)

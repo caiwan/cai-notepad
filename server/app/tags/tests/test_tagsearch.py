@@ -5,9 +5,6 @@ from chrono import Timer
 
 import logging
 
-import peewee
-
-import app
 from app import components
 from app.tests import TestUtils
 
@@ -79,7 +76,8 @@ class TestTagsearch(TestUtils, TestCase):
             # then
             logging.info("Queried tag:" + query)
             logging.info("Fetched tags:" + ", ".join([tag for tag in response]))
-            logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
+            logging.info(
+                "Time spent: %s ms" % (str(type((timed.elapsed)))))
 
             for tag in expected_result:
                 self.assertTrue(tag in response)
@@ -92,17 +90,17 @@ class TestTagsearch(TestUtils, TestCase):
 
         # when
         # - query tags as another user
-        with Timer() as timed:
-            response = self.response(self.app.get(
-                self.TAGS_GET,
-                query_string=query_string,
-                **self.post_args,
-                **self.create_user_header(TestUtils.REGULAR_ALT_USER)
-            ))
+        # with Timer() as timed:
+        response = self.response(self.app.get(
+            self.TAGS_GET,
+            query_string=query_string,
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ))
 
-            # then
-            # - You shall not recieve any response
-            logging.info("Fetched tags:" + ", ".join([tag for tag in response]))
-            logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
+        # then
+        # - You shall not recieve any response
+        # logging.info("Fetched tags:" + ", ".join([tag for tag in response]))
+        # logging.info("Time spent: {} ms".format(timed.elapsed * 1000))
 
-            self.assertEqual(0, len(response))
+        self.assertEqual(0, len(response))

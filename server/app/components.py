@@ -14,7 +14,7 @@ from flask import g
 
 
 BASE_PATH = "/api"
-not_found_message = "Resource with the requested id does not exist."
+not_found_message = "Requested resource does not exist on this server."
 unauthorized_message = "User could not be authorized with the given credentials."
 invalid_call_message = "This endpoint does not implements this method."
 no_permission_message = "You don't have permission to access this resource on this server."
@@ -69,6 +69,13 @@ def current_user():
         return None
     else:
         return g.current_user
+
+
+def current_user_id():
+    if not hasattr(g, "current_user") or not g.current_user:
+        return None
+    else:
+        return g.current_user.id
 
 
 class BaseHTTPException(Exception):
@@ -130,7 +137,7 @@ class Service:
 
     def fetch_all_items(self):
         assert self.model_class
-        user_id = current_user().id if current_user() else None
+        user_id = current_user_id()
         return self.model_class.select(
             self.model_class
         ).join(
@@ -142,7 +149,7 @@ class Service:
 
     def read_item(self, item_id):
         assert self.model_class
-        user_id = current_user().id if current_user() else None
+        user_id = current_user_id()
         # This will raise not exist exception when not found anyways
         return self.model_class.select(
             self.model_class
@@ -156,14 +163,14 @@ class Service:
 
     def create_item(self, item_json):
         assert self.model_class
-        item = dict_to_model(self.model_class, item_json)
+        item = dict_to_model(self.model_class, self.sanitize_fields(item_json))
         item.owner = current_user()
         item.save()
         return item
 
     def update_item(self, item_id, item_json):
         assert self.model_class
-        user_id = current_user().id if current_user() else None
+        user_id = current_user_id()
         my_item = self.model_class.select(
             self.model_class
         ).join(
@@ -182,7 +189,7 @@ class Service:
 
     def delete_item(self, item_id):
         assert self.model_class
-        user_id = current_user().id if current_user() else None
+        user_id = current_user_id()
         my_item = self.model_class.select(
             self.model_class
         ).join(
@@ -200,19 +207,19 @@ class Service:
         raise peewee.DoesNotExist()
 
     def serialize_item(self, item):
-        try:
-            item_json = model_to_dict(item, exclude=(
-                self.model_class.is_deleted,
-                self.model_class.owner
-            ))
-            return item_json
-        except:
-            logging.exception(str(item))
-            raise
+        item_json = model_to_dict(item, exclude=(
+            self.model_class.is_deleted,
+            self.model_class.owner
+        ))
+        return item_json
 
     def sanitize_fields(self, item_json):
         if "id" in item_json:
             del item_json["id"]
+        if "owner" in item_json:
+            del item_json["owner"]
+        if "user_id" in item_json:
+            del item_json["user_id"]
         if "uuid" in item_json:
             del item_json["uuid"]
         return item_json
@@ -400,7 +407,7 @@ class Module:
             for controller in self.controllers:
                 path = BASE_PATH + controller.path
                 logging.info("Register endpoint {} {}".format(path, controller.__name__))
-                api.add_resource(controller, path)
+                api.add_resource(controller, path, strict_slashes=False)
                 pass
 
             self.__is_initialized = True

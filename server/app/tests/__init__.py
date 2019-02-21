@@ -98,9 +98,9 @@ class TestUtils:
 
         pass
 
-    def response(self, response, status=200):
+    def response(self, response, status=200, out_response=None):
         self.assertIsNotNone(response)
-        self.assertEqual(status, response.status_code)
+        self.assertEqual(status, response.status_code, msg=response.data)
         response_json = json.loads(response.data)
 
         # Check if sensitive data was not enclosed
@@ -110,6 +110,7 @@ class TestUtils:
         else:
             self._check_disclosure(response_json)
 
+        out_response = response # noqa: ignore=F841
         return response_json
 
     def _check_disclosure(self, obj):

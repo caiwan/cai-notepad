@@ -20,21 +20,28 @@ class NoteService(components.Service):
         super().__init__()
 
     def fetch_all_items(self):
-        return Note.select().where(Note.is_deleted == False).order_by(Note.edited.desc())
+        user_id = components.current_user_id()
+        return Note.select(Note).join(
+            components.BaseUser, on=(Note.owner == components.BaseUser.id)
+        ).where(
+            Note.is_deleted == False,
+            components.BaseUser.id == user_id
+        ).order_by(Note.edited.desc()).objects()
 
     def create_item(self, item_json):
         (item_json, tags) = self._select_and_sanitize_tags(item_json)
         # Category ?
         item = dict_to_model(Note, item_json)
         item.content = markupsafe.escape(markupsafe.Markup(item.content))
+        item.owner = components.current_user()
         item.save(force_insert=True)
         item.tags.add(tags)
         return item
 
     def update_item(self, item_id, item_json):
+        myItem = self.read_item(item_id)
         (item_json, tags) = self._select_and_sanitize_tags(item_json)
         item = dict_to_model(Note, item_json)
-        myItem = self.read_item(item_id)
         with components.DB.atomic():
             item.id = int(myItem.id)
             item.changed()
@@ -42,12 +49,16 @@ class NoteService(components.Service):
             item.tags.clear()
             item.tags.add(tags)
             return item
-        raise RuntimeError("Could not update")
+        raise RuntimeError("Could not update note")
 
     def serialize_item(self, item):
-        json = model_to_dict(item, exclude=["tags"])
-        json["tags"] = [tag.tag for tag in item.tags]
-        return json
+        item_json = model_to_dict(item, exclude=(
+            Note.is_deleted,
+            Note.owner,
+            Note.tags
+        ))
+        item_json["tags"] = [tag.tag for tag in item.tags]
+        return item_json
 
     def _select_and_sanitize_tags(self, item_json):
         tags = []

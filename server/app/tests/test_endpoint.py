@@ -73,9 +73,17 @@ class TestEndpointAccess(TestUtils, TestCase):
         attr("/notes/", "get", as_user="user"),
         attr("/notes/", "post", as_user="user", payload={"title": "Note", "content": "Content", "tags": []}),
         attr("/notes/1/", "get", as_user="user", skip=True, skip_reason="Test data required"),
-        attr("/notes/1/", "put", as_user="user", payload={"title": "Note",
-                                                          "content": "Content", "tags": []}, skip=True, skip_reason="Test data required"),
+        attr("/notes/1/", "put", as_user="user", payload={
+            "title": "Note",
+            "content": "Content", "tags": []}, skip=True, skip_reason="Test data required"),
         attr("/notes/1/", "delete", as_user="user", skip=True, skip_reason="Test data required"),
+
+        # --- notes as anonymous
+        attr("/notes/", "get", expected_status=[403]),
+        attr("/notes/", "post", expected_status=[403], payload={}),
+        attr("/notes/1/", "get", expected_status=[403]),
+        attr("/notes/1/", "put", expected_status=[403], payload={}),
+        attr("/notes/1/", "delete", expected_status=[403]),
 
         # tasks
         attr("/tasks/", "get", as_user="user"),
@@ -87,9 +95,9 @@ class TestEndpointAccess(TestUtils, TestCase):
         # --- tasks as anonymous
         attr("/tasks/", "get", expected_status=[403]),
         attr("/tasks/", "post", expected_status=[403], payload={}),
-        attr("/tasks/1/", "get", expected_status=[403], skip=True, skip_reason="Test data required"),
-        attr("/tasks/1/", "put", expected_status=[403], payload={}, skip=True, skip_reason="Test data required"),
-        attr("/tasks/1/", "delete", expected_status=[403], skip=True, skip_reason="Test data required"),
+        attr("/tasks/1/", "get", expected_status=[403]),
+        attr("/tasks/1/", "put", expected_status=[403], payload={}),
+        attr("/tasks/1/", "delete", expected_status=[403]),
 
         # categories
         attr("/categories/", "get", as_user="user"),
@@ -97,6 +105,13 @@ class TestEndpointAccess(TestUtils, TestCase):
         attr("/categories/1/", "get", as_user="user", skip=True, skip_reason="Test data required"),
         attr("/categories/1/", "put", as_user="user", payload={"name": "Category", "parent": None}, skip=True, skip_reason="Test data required"),
         attr("/categories/1/", "delete", as_user="user", skip=True, skip_reason="Test data required"),
+
+        # -- categories as anonymous
+        attr("/categories/", "get", expected_status=[403]),
+        attr("/categories/", "post", expected_status=[403], payload={}),
+        attr("/categories/1/", "get", expected_status=[403]),
+        attr("/categories/1/", "put", expected_status=[403], payload={}),
+        attr("/categories/1/", "delete", expected_status=[403]),
 
         # tag autosearch
         attr("/tags/autocomplete/", "get", params={"q": "something"}, as_user="user"),
