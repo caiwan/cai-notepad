@@ -56,6 +56,8 @@ class TestNotes(TestCase, TestUtils):
             **self.create_user_header(TestUtils.REGULAR_USER)
         ))
 
+        # TODO: Test for tags
+
         self._validate_fields(response_json)
         self._validate_content(note_json, response_json)
 
@@ -124,6 +126,8 @@ class TestNotes(TestCase, TestUtils):
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
         ))
+
+        # TODO: Test for tags
 
         self._validate_fields(response_json)
         self.assertEqual(note_json["id"], response_json["id"])

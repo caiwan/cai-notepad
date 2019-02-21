@@ -71,23 +71,20 @@ class TagService(components.Service):
         tag_set = set(tags)
         user_id = components.current_user_id()
 
-        existing_tag_select = Tag.select(Tag.tag)\
-            .join(components.BaseUser, on=(components.BaseUser.id == user_id))\
+        tag_items = set(
+            Tag.select(Tag).join(components.BaseUser, on=(
+                components.BaseUser.id == user_id))
             .where(
                 Tag.tag << tag_set,
                 Tag.owner.id == user_id
-        )
-        existing_tags = set([tag.tag for tag in existing_tag_select])
+            ).objects())
 
-        new_tags = tag_set.difference(existing_tags)
-
-        tag_items = [tag for tag in existing_tags]
         created_tags = []
         created_fuzzies = []
-        for new_tag in new_tags:
+        # TODO: this part sucks for some reason:
+        for new_tag in tag_set.difference(set(tag.tag for tag in tag_items)):
             (tag, fuzzies) = self._create_tag_from_string(new_tag)
             created_tags.append(tag)
-            tag_items.append(tag)
             created_fuzzies.extend(fuzzies)
 
         with components.DB.atomic():
@@ -105,7 +102,7 @@ class TagService(components.Service):
                 logging.debug(
                     "New fuzzies:" + ", ".join([str(fuzzy.fuzzy) for fuzzy in created_fuzzies]))
 
-        return tag_items
+        return list(tag_items) + created_tags
 
     def _create_tag_from_string(self, tag_str):
         tag = Tag(tag=tag_str)
