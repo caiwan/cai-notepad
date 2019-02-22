@@ -205,12 +205,10 @@ class Service:
             self.model_class.is_deleted == False,
             self.model_class.owner.id == user_id
         ).get()
-        if my_item:
-            my_item.is_deleted = True
-            my_item.changed()
-            my_item.save()
-            return my_item
-        raise peewee.DoesNotExist()
+        my_item.is_deleted = True
+        my_item.changed()
+        my_item.save()
+        return my_item
 
     def serialize_item(self, item):
         item_json = model_to_dict(item, exclude=(

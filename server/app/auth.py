@@ -238,10 +238,7 @@ def load_identity():
     identity.user = g.current_user
     logging.debug("Current user %s %d " % (g.current_user.name, g.current_user.id))
     identity.provides.add(p.UserNeed(g.current_user.id))
-    # [logging.debug(d) for d in dir(g.current_user.permissions)]
-    # lol = g.user.permissions.count()
-    # XXX FK
-    if g.user.permissions.count():
+    if g.current_user.permissions.count():
         for role in g.current_user.permissions:
             identity.provides.add(p.RoleNeed(role.name.upper()))
         logging.debug("User has permissions: %s" % (

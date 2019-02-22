@@ -1,5 +1,4 @@
 # coding=utf-8
-import random
 import bcrypt
 
 from playhouse.shortcuts import dict_to_model, model_to_dict
@@ -17,17 +16,16 @@ class UserService(components.Service):
     settings = {"token-expiration": TOKEN_EXPIRATION}
 
     def read_item(self, item_id):
-        item = self.model_class.get(User.user_id == item_id, User.is_deleted == False)
+        item = User.get(User.id == item_id, User.is_deleted == False)
         return item
 
     def create_item(self, user_json):
         user_json = self.sanitize_fields(user_json)
-        user_json["user_id"] = "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(16))
         user_json["password"] = bcrypt.hashpw(
             user_json["password"].encode("utf-8"),
             self._get_secret_key()
         ).decode()
-        item = dict_to_model(self.model_class, user_json)
+        item = dict_to_model(User, user_json)
         item.save(force_insert=True)
         return item
 
@@ -35,19 +33,26 @@ class UserService(components.Service):
         raise RuntimeError("Not implemented")
 
     def delete_item(self, item_id):
-        raise RuntimeError("Not implemented")
+        my_item = User.get(
+            User.id == item_id,
+            User.is_deleted == False
+        )
+        my_item.is_deleted = True
+        my_item.changed()
+        my_item.save()
+        return my_item
 
     def serialize_item(self, item):
         item_json = model_to_dict(item, exclude=(
-            self.model_class.is_deleted,
-            self.model_class.password
+            User.is_deleted,
+            User.password
         ))
         return item_json
 
         item_json["permissions"] = [role.name for role in item.permissions]
         return item_json
 
-    def _get_secret_key():
+    def _get_secret_key(self):
         return current_app.config["SECRET_KEY"]
 
 
