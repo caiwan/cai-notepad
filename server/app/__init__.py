@@ -75,7 +75,16 @@ CORS = CORS(APP)
 
 app.auth.principal.init_app(APP)
 
+
 # setup all the message handlers
+@app.auth.error_handler
+def auth_error_callback():
+    return app.components.error_handler(app.components.NoPermissionError())
+
+
+@APP.errorhandler(PermissionDenied)
+def handle_http_error(e):
+    return app.components.error_handler(app.components.NoPermissionError())
 
 
 @APP.errorhandler(Exception)
@@ -88,16 +97,6 @@ def handle_error(e):
 @APP.errorhandler(404)
 def handle_base_error(e):
     return app.components.error_handler(app.components.ResourceNotFoundError())
-
-
-@APP.errorhandler(PermissionDenied)
-def handle_http_error(e):
-    return app.components.error_handler(app.components.NoPermissionError())
-
-
-@app.auth.error_handler
-def auth_error_callback():
-    return app.components.error_handler(app.components.NoPermissionError())
 
 
 # --- Initialize Application

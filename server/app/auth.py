@@ -1,9 +1,10 @@
 # coding=utf-8
 
-# import logging
+import logging
 from datetime import datetime, timedelta
-import jwt, bcrypt
-import random
+import jwt
+import bcrypt
+from uuid import UUID, uuid4
 
 import peewee
 
@@ -30,7 +31,7 @@ class User(components.BaseUser):
     created = peewee.DateTimeField(null=False, default=datetime.now)
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
 
-    user_id = peewee.TextField(null=False, unique=True)
+    user_ref_id = peewee.UUIDField(null=False, unique=True, default=uuid4)
     is_deleted = peewee.BooleanField(null=False, default=False)
     is_active = peewee.BooleanField(null=False, default=False)
 
@@ -47,86 +48,86 @@ def token_expiration_time():
     return datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
 
 
-def token_gen_id():
-    return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
+# def token_gen_id():
+    # return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
 
 
 class Token(components.BaseModel):
-    token_id = peewee.CharField(unique=True, default=token_gen_id)
+    id = peewee.UUIDField(primary_key=True, default=uuid4)
     user = peewee.ForeignKeyField(User)
-    expiration = peewee.DateTimeField(null=False, default=token_expiration_time)
+    expiration = peewee.DateTimeField(
+        null=False, default=token_expiration_time)
     payload = peewee.TextField(null=False)
 
 
 class TokenService():
-    def get(self, token_id):
+    def get(self, id):
         try:
-            token = Token.get(Token.token_id == token_id, Token.expiration >= datetime.now())
+            token = Token.get(
+                Token.id == UUID(id), Token.expiration >= datetime.now())
             return token
         except Token.DoesNotExist:
             return None
 
     def create(self, user):
         token = Token(
-            payload=self._encode(user.user_id),
+            payload=self._encode(user.user_ref_id),
             user=user
         )
-        token.save()
-        return token.token_id
+        token.save(force_insert=True)
+        return token.id
         pass
 
-    def renew(self, token_id):
+    def renew(self, id):
         with components.DB.atomic():
             try:
-                old_token = Token.get(Token.token_id == token_id)
-                new_token = Token(
-                    token_id=old_token.token_id,
-                    user=old_token.user,
-                    payload=self._encode(old_token.user)
-                )
-                new_token.save()
-                old_token.delete()
+                token = Token.get(Token.id == UUID(id))
+                token.payload = self._encode(token.user.user_ref_id)
+                token.save()
                 return True
             except Token.DoesNotExist:
                 return False
         pass
 
-    def revoke(self, token_id):
+    def revoke(self, id):
         try:
-            # logging.info("Lol?" + token_id)
-            token = Token.get(Token.token_id == token_id)
+            token = Token.get(Token.id == UUID(id))
             token.delete_instance()
-            # Token.delete().where(Token.token_id == token_id)
         except Token.DoesNotExist:
-            # Avoid hiccup
+            # Avoid exception when try delete the same twice
+            # This should not happen anyways.
             pass
         pass
 
-    def verify(self, token_id):
-        token = self.get(token_id)
+    def verify(self, id):
+        token = self.get(id)
         if not token:
-            # logging.info("no token")
+            logging.debug("no valid token")
             return None
 
-        (user_id, client_id) = self._decode(token.payload)
-        if not user_id or not client_id:
-            # logging.info("no uid or cid %s %s" % (user_id, client_id))
+        (user_ref_id, client_info) = self._decode(token.payload)
+        if not user_ref_id or not client_info:
+            logging.debug("Token has no ref_id or client %s %s" %
+                          (user_ref_id, client_info))
             return None
 
         # TODO Security Check for client id / useragent goez here
 
-        user = User.get(User.user_id == user_id, User.is_deleted == False, User.is_active == True)
+        user = User.get(User.user_ref_id == user_ref_id,
+                        User.is_deleted == False, User.is_active == True)
         if user:
             return user if user.is_active else None
         return None
 
-    def _encode(self, user_id):
+    def _encode(self, user_ref_id):
         try:
+            # Store some client info (ip, agent, etc ... ) to avoid token/session theft
+            client_info = "Some client id will go here at some point"
             payload = {
                 "exp": datetime.utcnow() + timedelta(days=0, seconds=TOKEN_EXPIRATION),
                 "iat": datetime.utcnow(),
-                "sub": user_id,
-                "cid": "Some client id will go here at some point"  # Client id / identifier (ip, agent, etc ... )
+                "sub": str(user_ref_id),
+                "client_info": client_info
             }
             return jwt.encode(
                 payload,
@@ -139,13 +140,13 @@ class TokenService():
     def _decode(self, auth_token):
         try:
             payload = jwt.decode(auth_token, self.get_secret_key())
-            return (payload["sub"], payload["cid"])
+            return (payload["sub"], payload["client_info"])
         except jwt.ExpiredSignatureError:
-            # logging.info("no signature %s" % auth_token)
+            logging.debug("no signature %s" % auth_token)
             return (None, None)
 
         except jwt.InvalidTokenError:
-            # logging.info("iv token %s" % auth_token)
+            logging.debug("iv token %s" % auth_token)
             return (None, None)
 
     def get_secret_key(self):
@@ -164,22 +165,26 @@ class LoginService(components.Service):
     def login(self, user_json):
         assert user_json
         if "username" not in user_json or "password" not in user_json:
-            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
+            raise components.AuthorizationError(
+                payload={"reason": self.invalid_usr_msg})
 
         username = user_json["username"]
         password = user_json["password"]
 
         try:
-            user = User.get(User.name == username, User.is_deleted == False, User.is_active == True)
+            user = User.get(User.name == username,
+                            User.is_deleted == False, User.is_active == True)
             if user and bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
                 token = self._tokenService.create(user)
                 return ({"token": token}, 200)
             else:
                 raise components.AuthorizationError()
-            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
+            raise components.AuthorizationError(
+                payload={"reason": self.invalid_usr_msg})
 
         except User.DoesNotExist:
-            raise components.AuthorizationError(payload={"reason": self.invalid_usr_msg})
+            raise components.AuthorizationError(
+                payload={"reason": self.invalid_usr_msg})
         pass
 
     def logout(self):
@@ -188,20 +193,20 @@ class LoginService(components.Service):
             self._tokenService.revoke(auth_data["token"])
         return ("", 200)
 
-    def renew(self, token_id):
-        self.__tokenService.renew(token_id)
+    def renew(self, id):
+        self.__tokenService.renew(id)
         return ("", 200)
 
     def get_profile(self):
-        if not hasattr(g, "current_user") or not g.current_user:
-            return (None, 200)
+        # if not hasattr(g, "current_user") or not g.current_user:
+        # return (None, 200)
         # user = g.current_user
         # TODO ...
         pass
 
     def set_profile(self, payload):
-        if not hasattr(g, "current_user") or not g.current_user:
-            return (None, 200)
+        # if not hasattr(g, "current_user") or not g.current_user:
+        # return (None, 200)
         # user = g.current_user
         # TODO ...
         pass
@@ -211,37 +216,45 @@ loginService = LoginService()
 
 
 @auth_api.verify_token
-def verify_token(token_id):
-    # logging.info("Token %s", str(token_id))
-    user = tokenService.verify(token_id)
+def verify_token(id):
+    # logging.info("Token %s", str(id))
+    user = tokenService.verify(id)
     if not user:
         g.current_user = None
         return False
     g.current_user = user
-    # logging.info("User %s %s", user.id, user.user_id)
+    logging.debug("User authenticated id=%s ref_id=%s",
+                  user.id, user.user_ref_id)
     return True
 
 
 @principal.identity_loader
+@auth_api.login_required
 def load_identity():
     if not hasattr(g, "current_user") or not g.current_user:
+        logging.debug("User identity as Anonymous")
         return p.AnonymousIdentity()
-    # logging.info("Current user %s %d " % (g.current_user.name, g.current_user.id))
-    identity = p.Identity(g.current_user.user_id)
+    identity = p.Identity(g.current_user.id)
     identity.user = g.current_user
-    if hasattr(g.current_user, "id"):
-        identity.provides.add(p.UserNeed(g.current_user.id))
-    else:
-        return p.AnonymousIdentity()
-        # logging.info("Has no id")
-    if hasattr(g.current_user, "permissions"):
+    logging.debug("Current user %s %d " % (g.current_user.name, g.current_user.id))
+    identity.provides.add(p.UserNeed(g.current_user.id))
+    # [logging.debug(d) for d in dir(g.current_user.permissions)]
+    # lol = g.user.permissions.count()
+    # XXX FK
+    if g.user.permissions.count():
         for role in g.current_user.permissions:
             identity.provides.add(p.RoleNeed(role.name.upper()))
-        # logging.info("Current user permissions: %s" % (", ".join([role.name for role in g.current_user.permissions])))
+        logging.debug("User has permissions: %s" % (
+            ", ".join([role.name for role in g.current_user.permissions])))
     else:
-        # logging.info("Has no permissions")
+        logging.debug("User Has no permissions")
         pass
     return identity
+
+
+@principal.identity_saver
+def save_identity(identity):
+    g.identity = identity
 
 
 admin_permission = p.Permission(p.RoleNeed("ADMIN"))

@@ -1,6 +1,10 @@
 # coding=utf-8
+import logging
+
 from unittest import TestCase, skip
 import json
+
+from uuid import UUID
 
 from app import components
 from app.tests import TestUtils
@@ -51,9 +55,10 @@ class TestUser(TestUtils, TestCase):
         token_id = response_json["token"]
 
         try:
-            token = Token.get(Token.token_id == token_id)
+            token = Token.get(Token.id == UUID(token_id))
             self.assertEqual(self.REGULAR_USER, token.user.name)
-        except Token.DoesNotExist:
+        except Token.DoesNotExist as e:
+            logging.exception(token_id + " " + str(e))
             self.fail("No valid token was saved")
 
         pass
@@ -95,7 +100,7 @@ class TestUser(TestUtils, TestCase):
         # then
         # - an access token shall be removed
         try:
-            token = Token.get(Token.token_id == token_id)
-            self.fail("No token ws deleted, still active %s" % token.token_id)
+            token = Token.get(Token.id == UUID(token_id))
+            self.fail("No token ws deleted, still active %s" % token.id)
         except Token.DoesNotExist:
             pass

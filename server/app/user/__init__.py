@@ -2,6 +2,8 @@
 import random
 import bcrypt
 
+from playhouse.shortcuts import dict_to_model, model_to_dict
+
 from app import components
 
 from app.user.model import User
@@ -26,7 +28,7 @@ class UserService(components.Service):
             self._get_secret_key()
         ).decode()
         item = dict_to_model(self.model_class, user_json)
-        item.save()
+        item.save(force_insert=True)
         return item
 
     def update_item(self, item_id, item_json):

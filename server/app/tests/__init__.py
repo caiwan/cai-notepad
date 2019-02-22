@@ -2,7 +2,7 @@ import peewee
 
 # import logging
 
-import json, random
+import json
 import jwt, bcrypt
 import datetime
 import app
@@ -53,7 +53,7 @@ class TestUtils:
             name=self.ADMIN_USER,
             password=self.encode_password(self.ADMIN_PW),
             is_active=True,
-            user_id=self._user_gen_id()
+            # user_id=self._user_gen_id()
         )
         admin_user.save()
         admin_user.permissions.add(admin_role)
@@ -66,7 +66,7 @@ class TestUtils:
             name=self.REGULAR_USER,
             password=self.encode_password(self.REGULAR_PW),
             is_active=True,
-            user_id=self._user_gen_id()
+            # user_id=self._user_gen_id()
 
         )
         regular_user.save()
@@ -78,7 +78,7 @@ class TestUtils:
             name=self.REGULAR_ALT_USER,
             password=self.encode_password(self.REGULAR_ALT_PW),
             is_active=True,
-            user_id=self._user_gen_id()
+            # user_id=self._user_gen_id()
         )
         regular_user.save()
 
@@ -89,7 +89,7 @@ class TestUtils:
             name=self.INACTIVE_USER,
             password=self.encode_password(self.INACTIVE_PW),
             is_active=False,
-            user_id=self._user_gen_id()
+            # user_id=self._user_gen_id()
 
         )
         inactive_user.save()
@@ -110,6 +110,7 @@ class TestUtils:
         else:
             self._check_disclosure(response_json)
 
+        # return the original rq as passthrough w/o needing a tuple
         out_response = response # noqa: ignore=F841
         return response_json
 
@@ -132,30 +133,30 @@ class TestUtils:
         if username not in self._users:
             return {}
         token = self._gentoken(self._users[username])
-        return "Bearer %s" % token
+        return "Bearer %s" % str(token)
         pass
 
     def create_user_header(self, username):
         return {"headers": {"Authorization": self.create_user_token(username)}}
 
-    def _user_gen_id(self):
-        return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
+    # def _user_gen_id(self):
+    # return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
 
     def _gentoken(self, user):
         token = Token(
-            payload=self._encode_jwt(user.user_id),
+            payload=self._encode_jwt(user.user_ref_id),
             user=user
         )
-        token.save()
-        return token.token_id
+        token.save(force_insert=True)
+        return token.id
 
-    def _encode_jwt(self, user_id):
+    def _encode_jwt(self, user_ref_id):
         try:
             payload = {
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=9999),
                 "iat": datetime.datetime.utcnow(),
-                "sub": user_id,
-                "cid": "Testing"  # Client id / identifier (ip, agent, etc ... )
+                "sub": str(user_ref_id),
+                "client_info": "Testing"  # Client id / identifier (ip, agent, etc ... )
             }
             return jwt.encode(
                 payload,

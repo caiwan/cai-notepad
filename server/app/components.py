@@ -3,6 +3,7 @@ import logging
 import json
 
 from datetime import datetime, date
+from uuid import UUID
 
 import peewee
 from playhouse.shortcuts import Proxy
@@ -97,6 +98,11 @@ class BaseHTTPException(Exception):
 class BadRequestError(BaseHTTPException):
     def __init__(self, payload=None):
         return BaseHTTPException.__init__(self, "Bad Request", payload=payload)
+
+
+class MethodNotImplemented(BaseHTTPException):
+    def __init__(self, payload=None):
+        return BaseHTTPException.__init__(self, invalid_call_message, status_code=501, payload=payload)
 
 
 class InvalidMethodCallError(BaseHTTPException):
@@ -318,6 +324,8 @@ class MyJsonEncoder(json.JSONEncoder):
             return int(obj.strftime("%s"))
         if isinstance(obj, datetime):
             return int(obj.strftime("%s"))
+        if isinstance(obj, UUID):
+            return str(obj)
         return json.JSONEncoder.default(self, obj)
 
 # Register and connection tools
@@ -383,7 +391,8 @@ class Module:
         pass
 
     def register(self, *args, **kwargs):
-        (api, models, settings) = (kwargs["api"], kwargs["models"], kwargs["settings"])
+        (api, models, settings) = (
+            kwargs["api"], kwargs["models"], kwargs["settings"])
 
         if settings is None:
             settings = {}
@@ -407,7 +416,8 @@ class Module:
 
             for controller in self.controllers:
                 path = BASE_PATH + controller.path
-                logging.info("Register endpoint {} {}".format(path, controller.__name__))
+                logging.info("Register endpoint {} {}".format(
+                    path, controller.__name__))
                 api.add_resource(controller, path, strict_slashes=False)
                 pass
 

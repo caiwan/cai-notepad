@@ -53,7 +53,8 @@ class PasswordResetController(components.Controller):
     @auth.login_required
     def post(self):
         # TBD
-        return({"error": ["Not implemented"]}, 501)
+        # return({"error": ["Not implemented"]}, 501)
+        raise components.MethodNotImplemented()
 
 
 class UserProfileController(components.Controller):
@@ -63,26 +64,31 @@ class UserProfileController(components.Controller):
     @auth.login_required
     def get(self):
         # TBD
-        return({"error": ["Not implemented"]}, 501)
+        # return({"error": ["Not implemented"]}, 501)
+        raise components.MethodNotImplemented()
 
     @auth.login_required
     def put(self):
         # TBD
-        return({"error": ["Not implemented"]}, 501)
+        # return({"error": ["Not implemented"]}, 501)
+        raise components.MethodNotImplemented()
 
 
 class UserListController(components.Controller):
     path = "/users/"
     _service = userService
-    
-    @auth.login_required
+
+    # @auth.login_required
     @auth.admin_permission.require()
     def get(self):
         return self._fetch_all()
 
-    @auth.login_required
+    # @auth.login_required
     @auth.admin_permission.require()
     def post(self):
+        import logging
+        from flask import g
+        logging.info("Identity %s" % g.identity)
         return self._create(request.json)
 
 
@@ -91,16 +97,16 @@ class UserController(components.Controller):
     _service = userService
 
     @auth.login_required
-    @auth.admin_permission.require()
+    # @auth.admin_permission.require()
     def get(self, user_id):
         return self._read(user_id)
 
     @auth.login_required
-    @auth.admin_permission.require()
+    # @auth.admin_permission.require()
     def put(self, user_id):
         return self._update(user_id, request.json)
 
     @auth.login_required
-    @auth.admin_permission.require()
+    # @auth.admin_permission.require()
     def delete(self, user_id):
         return self._delete(user_id)
