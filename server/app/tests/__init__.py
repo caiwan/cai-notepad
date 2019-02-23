@@ -100,7 +100,7 @@ class TestUtils:
 
     def response(self, response, status=200, out_response=None):
         self.assertIsNotNone(response)
-        self.assertEqual(status, response.status_code, msg=response.data)
+        self.assertEqual(status, response.status_code, msg=response.data.decode("utf-8"))
         response_json = json.loads(response.data)
 
         # Check if sensitive data was not enclosed
@@ -139,16 +139,13 @@ class TestUtils:
     def create_user_header(self, username):
         return {"headers": {"Authorization": self.create_user_token(username)}}
 
-    # def _user_gen_id(self):
-    # return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
-
     def _gentoken(self, user):
         token = Token(
             payload=self._encode_jwt(user.user_ref_id),
             user=user
         )
         token.save(force_insert=True)
-        return token.id
+        return str(token.id)
 
     def _encode_jwt(self, user_ref_id):
         try:

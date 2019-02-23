@@ -150,7 +150,6 @@ class TestAdmin(TestUtils, TestCase):
             ** self.post_args,
             **self.create_user_header(self.REGULAR_USER)), status=403
         )
-        self.assertEqual(0, len(response))
         # then
         self.assertTrue("message" in response)
 

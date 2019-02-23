@@ -19,6 +19,13 @@ class UserService(components.Service):
         item = User.get(User.id == item_id, User.is_deleted == False)
         return item
 
+    def fetch_all_items(self):
+        return User.select(
+            User
+        ).where(
+            User.is_deleted == False,
+        ).objects()
+
     def create_item(self, user_json):
         user_json = self.sanitize_fields(user_json)
         user_json["password"] = bcrypt.hashpw(

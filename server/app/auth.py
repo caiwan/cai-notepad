@@ -63,6 +63,8 @@ class Token(components.BaseModel):
 class TokenService():
     def get(self, id):
         try:
+            if not id:
+                return None
             token = Token.get(
                 Token.id == UUID(id), Token.expiration >= datetime.now())
             return token

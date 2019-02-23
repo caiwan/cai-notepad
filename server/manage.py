@@ -10,7 +10,8 @@ import app
 
 
 # fix import paths for internal imports
-cmd_folder = os.path.dirname(__file__)
+cmd_folder = os.path.dirname(os.path.abspath(__file__))
+
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
@@ -49,8 +50,9 @@ def userService():
 @manager.command
 def runtests():
     """Runs all the unit and integration tests"""
-    import tests
-    tests.runAll()
+    # import tests
+    # tests.runAll()
+    pass
 
 
 @manager.command

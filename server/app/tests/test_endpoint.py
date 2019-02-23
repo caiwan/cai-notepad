@@ -64,7 +64,7 @@ class TestEndpointAccess(TestUtils, TestCase):
 
         # user
         attr("/users/", "get", as_user="admin"),
-        attr("/users/", "post", as_user="admin", payload={"name": "something_new", "ppasword": "somepw"}),
+        attr("/users/", "post", as_user="admin", payload={"name": "something_new", "password": "somepw"}),
         attr("/users/1/", "get", as_user="admin"),
         attr("/users/1/", "put", as_user="admin", payload={"name": "", "password": "somepw"}),
         attr("/users/1/", "delete", as_user="admin"),
