@@ -14,9 +14,10 @@ export class BaseIONode {
     return this.io.headers;
   }
 
-  handleFault (v) {
+  async handleFault (v) {
     if (v.ok) { return v; }
-    console.error('Error', v);
-    throw Error(`${v.status} ${v.statusText}`);
+    const j = await v.json();
+    console.error(`Error: ${v.status} ${v.statusText} ${j.message}`);
+    throw Error(`${j.message}`);
   }
 }

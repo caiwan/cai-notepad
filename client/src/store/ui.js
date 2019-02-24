@@ -13,6 +13,10 @@ export default {
         rootState.Notes.isLoading ||
         rootState.Tasks.isLoading
       ;
+    },
+    isLoggedIn () {
+      console.log('LoggedIn:', !!localStorage.getItem('user'));
+      return !!localStorage.getItem('user');
     }
   },
 
@@ -30,7 +34,6 @@ export default {
 
   actions: {
     pushIOError ({ commit }, error) {
-      console.log('Error:', error);
       commit('pushSnackbar', `${error}`);
     }
   }

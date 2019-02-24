@@ -5,19 +5,21 @@
       :class="{visible: isLoading}"
     ></div>
 
-    <header
-      class="top-nav drawer-transition"
-      :class="{'drawer-on' : showSidebar}"
-    >
-      <nav-bar v-if="!isInitializing" />
-    </header>
+    <template v-if="isLoggedIn">
+      <header
+        class="top-nav drawer-transition"
+        :class="{'drawer-on' : showSidebar}"
+      >
+        <nav-bar v-if="!isInitializing" />
+      </header>
 
-    <div
-      id="drawer"
-      :class="{'drawer-on' : showSidebar}"
-    >
-      <drawer v-if="!isInitializing" />
-    </div>
+      <div
+        id="drawer"
+        :class="{'drawer-on' : showSidebar}"
+      >
+        <drawer v-if="!isInitializing" />
+      </div>
+    </template>
 
     <main
       class="drawer-transition"
@@ -66,7 +68,7 @@ export default {
   },
   computed: {
     ...mapState('UI', ['showSidebar', 'showSnackbar', 'snackbarMessages']),
-    ...mapGetters('UI', ['isLoading']),
+    ...mapGetters('UI', ['isLoading', 'isLoggedIn']),
     ...mapState('App', ['isInitializing'])
   },
   methods: {
@@ -103,54 +105,59 @@ $drawer-width: 250px;
   }
 }
 
-#snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  margin-left: -125px;
-  background-color: $warning;
-  color: $gray-800;
-  text-align: center;
-  border-radius: 4px;
-  padding: 16px;
-  position: fixed;
-  z-index: 20;
-  left: 50%;
-  bottom: 30px;
+footer {
+  width: 100%;
 
-  @keyframes fadein {
-    from {
-      bottom: 0;
-      opacity: 0;
-    }
-    to {
-      bottom: 30px;
-      opacity: 1;
-    }
-  }
-  @keyframes fadeout {
-    from {
-      bottom: 30px;
-      opacity: 1;
-    }
-    to {
-      bottom: 0;
-      opacity: 0;
-    }
-  }
+  #snackbar {
+    position: fixed;
+    bottom: 30px;
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: 120px;
+    margin-right: 120px;
+    background-color: $warning;
+    color: $gray-800;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    bottom: 30px;
+    z-index: 20;
 
-  &.snackbar-on {
-    visibility: visible !important;
-    // animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    animation: fadein 0.5s;
-  }
+    @keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
 
-  ul {
-    margin: 0px;
-    padding: 0px;
-    list-style-type: none;
-    li {
+    &.snackbar-on {
+      visibility: visible !important;
+      // animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      animation: fadein 0.5s;
+    }
+
+    ul {
+      margin: 0px;
       padding: 0px;
-      margin: 0.5em 0em 0.5em 0em;
+      list-style-type: none;
+      li {
+        padding: 0px;
+        margin: 0.5em 0em 0.5em 0em;
+      }
     }
   }
 }
