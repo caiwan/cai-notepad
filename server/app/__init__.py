@@ -28,17 +28,19 @@ MODULES = [
     "worklog"
 ]
 
-
 PRODUCTION = (os.getenv("FLASK_ENV") == "production")
 DEBUG = (os.getenv("FLASK_DEBUG") == "True")
 TESTING = (os.getenv("FLASK_TESTING") == "True")
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
-logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
+logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
 logging.disable(logging.NOTSET)
-logging.info("Loading %s, app version = %s", __name__,
-             os.getenv("CURRENT_VERSION_ID"))
+if not PRODUCTION:
+    logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
+else:
+    logging.getLogger().setLevel(logging.WARN)
+
+logging.info("Loading %s, app version = %s", __name__, os.getenv("CURRENT_VERSION_ID"))
+
 
 # ---
 # fix import paths for internal imports

@@ -1,13 +1,12 @@
 # coding=utf-8
-import bcrypt
 
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from app import components
+from app import auth
 
 from app.user.model import User
 from app.auth import TOKEN_EXPIRATION
-from flask import current_app
 
 
 class UserService(components.Service):
@@ -28,10 +27,9 @@ class UserService(components.Service):
 
     def create_item(self, user_json):
         user_json = self.sanitize_fields(user_json)
-        user_json["password"] = bcrypt.hashpw(
-            user_json["password"].encode("utf-8"),
-            self._get_secret_key()
-        ).decode()
+        if "name" not in user_json or "password" not in user_json[""]:
+            raise components.BadRequestError("Username or password missing")
+        user_json["password"] = auth.hash_password(user_json["password"])
         item = dict_to_model(User, user_json)
         item.save(force_insert=True)
         return item
@@ -54,13 +52,9 @@ class UserService(components.Service):
             User.is_deleted,
             User.password
         ))
-        return item_json
 
         item_json["permissions"] = [role.name for role in item.permissions]
         return item_json
-
-    def _get_secret_key(self):
-        return current_app.config["SECRET_KEY"]
 
 
 userService = UserService()

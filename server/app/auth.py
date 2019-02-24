@@ -7,6 +7,7 @@ import bcrypt
 from uuid import UUID, uuid4
 
 import peewee
+from playhouse.shortcuts import model_to_dict
 
 from flask import g, current_app
 from flask_httpauth import HTTPTokenAuth
@@ -101,8 +102,8 @@ class TokenService():
             pass
         pass
 
-    def verify(self, id):
-        token = self.get(id)
+    def verify(self, token_id):
+        token = self.get(token_id)
         if not token:
             logging.debug("no valid token")
             return None
@@ -181,8 +182,6 @@ class LoginService(components.Service):
                 return ({"token": token}, 200)
             else:
                 raise components.AuthorizationError()
-            raise components.AuthorizationError(
-                payload={"reason": self.invalid_usr_msg})
 
         except User.DoesNotExist:
             raise components.AuthorizationError(
@@ -265,3 +264,43 @@ def error_handler(f):
 
 def login_required(f):
     return auth_api.login_required(f)
+
+
+def hash_password(password):
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        current_app.config["SECRET_KEY"]
+    )
+
+
+# For maintanance only
+def _adduser(username, password):
+    user = User(
+        name=username,
+        password=hash_password(password)
+    )
+    user.save(force_insert=True)
+    return user.id
+
+
+def _rmuser(user_id):
+    user = User.get(User.id == int(user_id))
+    user.delete_instance()
+
+
+def _listusers():
+    return [model_to_dict(user) for user in User.select()]
+
+
+def _addrole(role):
+    role = Role(name=role)
+    role.save()
+
+
+def _rmrole(role):
+    role = Role.get(Role.name == role)
+    role.delete_instance()
+
+
+def _listroles():
+    return [model_to_dict(role) for role in Role.select()]
