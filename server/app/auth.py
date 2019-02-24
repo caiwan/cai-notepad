@@ -288,12 +288,39 @@ def _rmuser(user_id):
     user.delete_instance()
 
 
+def _setuser(user_id, key, value):
+    if key == "password":
+        value = hash_password(value)
+    User.update({
+        getattr(User, key): value
+    }).where(
+        User.id == int(user_id)
+    ).execute()
+    pass
+
 def _listusers():
     return [model_to_dict(user) for user in User.select()]
 
 
+def _listuserroles(user_id):
+    user = User.get(User.id == int(user_id))
+    return [model_to_dict(permission) for permission in user.permissions]
+
+
+def _assignrole(user_id, role):
+    user = User.get(User.id == int(user_id))
+    role = Role.get(Role.name == role.upper())
+    user.permissions.add(role)
+
+
+def _revokerole(user_id, role):
+    user = User.get(User.id == int(user_id))
+    role = Role.get(Role.name == role.upper())
+    user.permissions.remove(role)
+
+
 def _addrole(role):
-    role = Role(name=role)
+    role = Role(name=role.upper())
     role.save()
 
 

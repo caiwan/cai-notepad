@@ -18,9 +18,9 @@ import app.auth
 MODULES = [
     "user",
     "user.settings",
-    # "user.admin"
     "notes",
     "notes.attachments",
+    "sync",
     "tags",
     "tasks",
     "categories",

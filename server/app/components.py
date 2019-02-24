@@ -326,6 +326,13 @@ class MyJsonEncoder(json.JSONEncoder):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 
+class MyJsonDecoder(json.JSONDecoder):
+    #     def __init__(self):
+    #         json.MyJsonDecoder.__init__(self, json)
+    #     def object_hook(self, obj):
+    # pass
+    pass
+
 # Register and connection tools
 
 
@@ -366,8 +373,24 @@ def create_tables(app, models):
     DB.create_tables(models, safe=True)
 
 
-# Module descriptor
+# maintenance tools
+def _database_backup(models):
+    backup = {}
+    for model in models:
+        records = model.select().objects()
+        backup[model.__name__] = [model_to_dict(record, recurse=False) for record in records]
+    return backup
 
+
+def _database_restore(models, data):
+    model_map = dict((m.__name__, m) for m in models)
+    with DB.atomic():
+        for table, records in data.items():
+            model = model_map[table]
+            model.insert_many(records)
+
+
+# Module descriptor
 class Module:
     """ Base module class
     """

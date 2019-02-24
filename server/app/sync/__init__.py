@@ -7,14 +7,12 @@ from app.tasks.model import Task
 
 
 class SyncService(components.Service):
-
     def __init__(self, name, model, target, *args, **kwargs):
         self.name = name
         self.model_class = model
         self.target_class = target
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    pass
 
 
 noteSyncService = SyncService("noteSync", NoteSync, Note)
@@ -25,7 +23,6 @@ class Module(components.Module):
     name = "sync"
     services = [noteSyncService, taskSyncService]
     models = [NoteSync, TaskSync]
-    components = []
 
 
 module = Module()
