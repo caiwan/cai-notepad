@@ -199,11 +199,10 @@ class LoginService(components.Service):
         return ("", 200)
 
     def get_profile(self):
-        # if not hasattr(g, "current_user") or not g.current_user:
-        # return (None, 200)
-        # user = g.current_user
-        # TODO ...
-        pass
+        if not hasattr(g, "current_user") or not g.current_user:
+            raise components.BadRequestError()
+        user = g.current_user
+        return (self.serialize_item(user), 200)
 
     def set_profile(self, payload):
         # if not hasattr(g, "current_user") or not g.current_user:
@@ -211,6 +210,15 @@ class LoginService(components.Service):
         # user = g.current_user
         # TODO ...
         pass
+
+    def serialize_item(self, item):
+        item_json = model_to_dict(item, exclude=(
+            User.is_deleted,
+            User.password
+        ))
+
+        item_json["permissions"] = [role.name for role in item.permissions]
+        return item_json
 
 
 loginService = LoginService()
@@ -297,6 +305,7 @@ def _setuser(user_id, key, value):
         User.id == int(user_id)
     ).execute()
     pass
+
 
 def _listusers():
     return [model_to_dict(user) for user in User.select()]

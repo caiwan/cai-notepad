@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-dark">
     <a
-      class="btn navbar-toggler"
+      class="btn navbar-toggle"
       @click="toggleSidebar()"
     >
       <!-- <span>Toggle drawer</span> -->
@@ -11,18 +11,51 @@
       class="form-control"
       placeholder="Search"
     />
-    <ul class="nav navbar-nav px-3">
-      <li class="nav-item navbar-brand">Notes</li>
-    </ul>
+
+    <div class="btn-group dropdown">
+      <div
+        class="btn navbar-toggle"
+        @click="toggleUserMenu()"
+      >
+        <i class="fa fa-user" />
+        <ul
+          class="dropdown-menu"
+          v-if="showUserMenu"
+        >
+          <li>{{userName}}</li>
+          <li>
+            <i class="fa fa-sign-out-alt" />
+            <a
+              href="#"
+              @click="logout"
+            >Logout</a></li>
+        </ul>
+      </div>
+    </div>
+
   </nav>
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 
 export default {
+  computed: {
+    ...mapState('UI', ['showUserMenu']),
+    ...mapState('User', ['user']),
+    userName () {
+      return this.user ? this.user.display_name ? this.user.display_name : this.user.name : '';
+    }
+  },
   methods: {
     toggleSidebar () {
       this.$store.commit('UI/toggle', 'showSidebar');
+    },
+    toggleUserMenu () {
+      this.$store.commit('UI/toggle', 'showUserMenu');
+    },
+    logout () {
+      this.$store.dispatch('User/logout');
     }
   }
 };
@@ -48,6 +81,20 @@ nav {
     }
     display: inline !important;
     flex-grow: 1;
+  }
+  .dropdown {
+    z-index: 65536;
+    .dropdown-toggle {
+      // display: block !important;
+      // float: left;
+      word-break: keep-all;
+    }
+    .dropdown-menu {
+      position: absolute !important;
+      display: block !important;
+      left: -120px !important;
+      width: 100px;
+    }
   }
 }
 </style>

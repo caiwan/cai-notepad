@@ -1,11 +1,10 @@
 <template>
-  <section class="contanier-fluid">
-
-    <header class="row">
-      <div class="col-12">
+  <section class="main container-flex">
+    <div class="col-md-12">
+      <header class="row">
         Ide jon majd a dashoard, ha kesz lesz
-      </div>
-    </header>
+      </header>
+    </div>
 
   </section>
 </template>

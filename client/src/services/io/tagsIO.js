@@ -5,7 +5,9 @@ import { BaseIONode } from './_BaseIONode';
 export class Tags extends BaseIONode {
   queryAutocomplete (query, limit) {
     return fetch(`${this.root}/tags/autocomplete/?q=${query}&l=${limit}`, {
-      credentials: 'same-origin'
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: this.io.headers
     })
       .then(v => v.json());
   }

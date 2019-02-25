@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Dashboard from '@/components/dashboard/component';
-import Login from '@/components/user/login';
+import Login from '@/components/login/component';
 import Tasks from '@/components/tasks/component';
 import Notes from '@/components/notes/component';
 

@@ -63,14 +63,10 @@ class UserProfileController(components.Controller):
 
     @auth.login_required
     def get(self):
-        # TBD
-        # return({"error": ["Not implemented"]}, 501)
-        raise components.MethodNotImplemented()
+        return self.service.get_profile()
 
     @auth.login_required
     def put(self):
-        # TBD
-        # return({"error": ["Not implemented"]}, 501)
         raise components.MethodNotImplemented()
 
 

@@ -6,7 +6,9 @@ import { BaseIONode } from './_BaseIONode';
 export class Categories extends BaseIONode {
   fetchAll () {
     return fetch(`${this.root}/categories/`, {
-      credentials: 'same-origin'
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: this.io.headers
     })
       .then(this.handleFault)
       .then(v => v.json());
@@ -35,7 +37,8 @@ export class Categories extends BaseIONode {
   remove (item) {
     return fetch(`${this.root}/categories/${item.id}/`, {
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: this.io.headers
     })
       .then(this.handleFault);
   }

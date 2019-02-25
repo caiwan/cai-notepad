@@ -68,7 +68,8 @@ export default {
   },
   computed: {
     ...mapState('UI', ['showSidebar', 'showSnackbar', 'snackbarMessages']),
-    ...mapGetters('UI', ['isLoading', 'isLoggedIn']),
+    ...mapGetters('UI', ['isLoading']),
+    ...mapGetters('User', ['isLoggedIn']),
     ...mapState('App', ['isInitializing'])
   },
   methods: {

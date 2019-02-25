@@ -5,7 +5,9 @@ import { BaseIONode } from './_BaseIONode';
 export class Tasks extends BaseIONode {
   fetchAll () {
     return fetch(`${this.root}/tasks/`, {
-      credentials: 'same-origin'
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: this.io.headers
     }).then(this.handleFault)
       .then(v => v.json());
   }
@@ -31,7 +33,8 @@ export class Tasks extends BaseIONode {
   remove (task) {
     return fetch(`${this.root}/tasks/${task.id}/`, {
       method: 'DELETE',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: this.io.headers
     }).then(this.handleFault);
   }
 }

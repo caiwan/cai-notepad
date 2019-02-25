@@ -91,7 +91,7 @@ def handle_http_error(e):
 
 @APP.errorhandler(Exception)
 def handle_error(e):
-    if not isinstance(e, app.components.BaseHTTPException) and (DEBUG or TESTING):
+    if not isinstance(e, app.components.BaseHTTPException) and not PRODUCTION:
         raise e
     return app.components.error_handler(e)
 

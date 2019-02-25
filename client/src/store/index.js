@@ -6,11 +6,12 @@ import Notes from './notesStore';
 import Categories from './categoryStore';
 import UI from './ui';
 import App from './app';
+import User from './userStore';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
-    Tasks, Notes, Categories, UI, App
+    Tasks, Notes, Categories, UI, App, User
   }
 });
