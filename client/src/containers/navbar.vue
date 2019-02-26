@@ -24,8 +24,11 @@
         >
           <li>{{userName}}</li>
           <li>
-            <i class="fa fa-sign-out-alt" />
-            <a
+            <router-link :to="{ name: 'User' }">Settings</router-link>
+          </li>
+
+          <li>
+            <i class="fa fa-sign-out-alt" /><a
               href="#"
               @click="logout"
             >Logout</a></li>

@@ -3,7 +3,7 @@
     <!-- <div class="row"> -->
     <div class="col-md-12">
       <header>
-        <div v-if="!isCreateNew">
+        <template v-if="!isCreateNew">
           <section class="card bg-light mx-1 my-2">
             <div class="card-body py-2">
               <button
@@ -11,15 +11,15 @@
                 class="btn btn-primary btn-raised"
               >New note</button></div>
           </section>
-        </div>
-        <div v-else>
+        </template>
+        <template v-else>
           <note-editor
             :note="newNote"
             :isCreating="true"
             v-on:doneEdit="addNewNote()"
             v-on:cancelEdit="clearNewNote()"
           ></note-editor>
-        </div>
+        </template>
       </header>
       <!-- </div> -->
     </div>

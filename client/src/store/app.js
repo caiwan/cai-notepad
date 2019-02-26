@@ -4,6 +4,8 @@ export default {
     isInitializing: true
   },
   mutations: {
-    initialized: (state) => { state.isInitializing = false; }
+    initialized: (state) => {
+      state.isInitializing = false;
+    }
   }
 };

@@ -1,3 +1,4 @@
+import syncGoogle from './user/syncGoogleStore';
 import io from '../services/io';
 import { router } from '../router';
 
@@ -11,16 +12,23 @@ try {
 
 export default {
   namespaced: true,
+
+  modules: {
+    'SyncGoogle': syncGoogle
+  },
+
   state: {
     status: { loggedIn: !!user },
     user
   },
+
   getters:
   {
     isLoggedIn (state) {
       return state.status && state.status.loggedIn;
     }
   },
+
   mutations:
   {
     // loginRequest (state, user) {
@@ -49,10 +57,22 @@ export default {
     //   state.status = {};
     // }
   },
+
   actions: {
 
-    async fetchUser () {
-
+    async fetchProfile ({ dispatch, commit }) {
+      const user = await io.user.fetchProfile()
+        .catch(error => {
+          dispatch('UI/pushIOError', error, { root: true });
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          commit('logout');
+          router.push('/login');
+        });
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        commit('loginSuccess', user);
+      }
     },
 
     login ({ dispatch, commit }, { username, password }) {
@@ -76,6 +96,7 @@ export default {
           router.push('/login');
         });
     },
+
     logout ({ dispatch, commit, getters }) {
       io.user.logout().catch(error => dispatch('UI/pushIOError', error, { root: true }))
         .then(() => {
@@ -85,6 +106,7 @@ export default {
         .then(() => { commit('logout'); })
         .then(() => { router.push('/login'); });
     },
+
     register ({ dispatch, commit }, user) {
       // commit('registerRequest', user);
 

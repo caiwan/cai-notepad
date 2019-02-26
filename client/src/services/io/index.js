@@ -13,6 +13,8 @@ class IO {
     this.headers = null;
     this.root = './api';
 
+    this.settigns = {};
+
     this.user = null;
     this.userSettings = null;
     this.tasks = null;
@@ -27,17 +29,31 @@ class IO {
     const dummyFetch = async function () {
       return {
         json () {
-          return { csrftoken: '' };
+          return {
+            csrftoken: '',
+            root: './api',
+            tokens: {
+              googe: {
+                clientId: 'CLIENT_ID.apps.googleusercontent.com',
+                scope: 'profile email',
+                prompt: 'select_account'
+              }
+            }
+          };
         }
       };
     };
 
     this.initialized = dummyFetch()
       .then(v => v.json())
-      .then(data => {
+      .then(settings => {
+        this.settings = settings;
         this.headers = new Headers({
-          'X-CSRFToken': data.csrftoken
+          'X-CSRFToken': settings.csrftoken
         });
+
+        this.root = settings.root;
+
         this.updateHeader();
 
         this.user = new User(this);
@@ -48,6 +64,8 @@ class IO {
         this.categories = new Categories(this);
         this.milestones = null;
         this.worklog = null;
+
+        return settings;
       });
   }
   toJson (data) {
