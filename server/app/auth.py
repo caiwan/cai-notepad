@@ -61,7 +61,7 @@ class Token(components.BaseModel):
     payload = peewee.TextField(null=False)
 
 
-class TokenService():
+class TokenService(metaclass=components.Singleton):
     def get(self, id):
         try:
             if not id:

@@ -22,9 +22,19 @@ no_permission_message = "You don't have permission to access this resource on th
 
 DB = Proxy()
 
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        # for (k, v) in cls._instances.items():
+        # logging.info("__SINGLETON__ %s %s", k.__class__.__name__, v.__class__.__name__)
+        return cls._instances[cls]
+
+
 # Base DB models
-
-
 class BaseModel(peewee.Model):
     """ Peewee's Base model
     """
@@ -134,7 +144,7 @@ def error_handler(ex):
         return(json.dumps({"message": "Bad request"}), 400)
 
 
-class Service:
+class Service(metaclass=Singleton):
     """ Base service class
     """
     name = ""
@@ -313,11 +323,13 @@ class Controller(Resource):
         return ("", 200)
 
 
-class MyJsonEncoder(json.JSONEncoder):
+class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
     """ Custom JSON enoder for certatin type of objects
     """
 
     def default(self, obj):
+        if callable(obj):
+            return self.default(obj())
         if isinstance(obj, date):
             return int(obj.strftime("%s"))
         if isinstance(obj, datetime):
@@ -326,7 +338,8 @@ class MyJsonEncoder(json.JSONEncoder):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 
-class MyJsonDecoder(json.JSONDecoder):
+
+class MyJsonDecoder(json.JSONDecoder, metaclass=Singleton):
     #     def __init__(self):
     #         json.MyJsonDecoder.__init__(self, json)
     #     def object_hook(self, obj):
@@ -391,7 +404,7 @@ def _database_restore(models, data):
 
 
 # Module descriptor
-class Module:
+class Module(metaclass=Singleton):
     """ Base module class
     """
     name = ""

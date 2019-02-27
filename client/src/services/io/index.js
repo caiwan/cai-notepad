@@ -23,50 +23,30 @@ class IO {
     this.milestones = null;
     this.worklog = null;
 
-    // this.initialized = fetch('./api/settings/', {
-    // credentials: 'same-origin'
-    // })
-    const dummyFetch = async function () {
-      return {
-        json () {
-          return {
-            csrftoken: '',
-            root: './api',
-            tokens: {
-              googe: {
-                clientId: 'CLIENT_ID.apps.googleusercontent.com',
-                scope: 'profile email',
-                prompt: 'select_account'
-              }
-            }
-          };
-        }
-      };
-    };
+    this.initialized =
+      fetch('/api/settings', { credentials: 'same-origin' })
+        .then(v => v.json())
+        .then(settings => {
+          this.settings = settings;
+          this.headers = new Headers({
+            'X-CSRFToken': settings.csrftoken
+          });
 
-    this.initialized = dummyFetch()
-      .then(v => v.json())
-      .then(settings => {
-        this.settings = settings;
-        this.headers = new Headers({
-          'X-CSRFToken': settings.csrftoken
+          this.root = settings.root;
+
+          this.updateHeader();
+
+          this.user = new User(this);
+          this.userSettings = null;
+          this.tasks = new Tasks(this);
+          this.notes = new Notes(this);
+          this.tags = new Tags(this);
+          this.categories = new Categories(this);
+          this.milestones = null;
+          this.worklog = null;
+
+          return settings;
         });
-
-        this.root = settings.root;
-
-        this.updateHeader();
-
-        this.user = new User(this);
-        this.userSettings = null;
-        this.tasks = new Tasks(this);
-        this.notes = new Notes(this);
-        this.tags = new Tags(this);
-        this.categories = new Categories(this);
-        this.milestones = null;
-        this.worklog = null;
-
-        return settings;
-      });
   }
   toJson (data) {
     return {

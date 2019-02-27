@@ -8,7 +8,6 @@ from app import auth
 from app.user.model import User
 from app.auth import TOKEN_EXPIRATION
 
-
 class UserService(components.Service):
     name = "users"
     model_class = User
@@ -62,6 +61,7 @@ userService = UserService()
 
 class Module(components.Module):
     from app.user import model, controller
+
     name = "users"
     services = [userService]
     models = [model.User, model.Role, model.Permission, model.Token]

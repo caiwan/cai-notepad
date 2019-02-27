@@ -21,3 +21,17 @@ DEBUG = True
 # Set secret keys for CSRF protection
 CSRF_SESSION_KEY = "qWmODTwKC95EpJHp5zmW7Ui9DkraYLUa"
 CSRF_ENABLED = True
+
+RESTFUL_JSON = {
+    "indent": 0,
+    "sort_keys": False
+}
+
+APP_API_TOKENS = {
+    "oauth-google": {
+        "client_id": "",
+        "scope": "profile email"
+    },
+    "oauth-twitter": {},
+    "oauth-habitica": {},
+}

@@ -57,6 +57,9 @@ class PasswordResetController(components.Controller):
         raise components.MethodNotImplemented()
 
 
+# User admin
+
+
 class UserProfileController(components.Controller):
     path = "/auth/profile/"
     service = auth.loginService

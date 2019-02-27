@@ -12,7 +12,11 @@ import VueMarkdown from 'vue-markdown';
 import GAuth from 'vue-google-oauth2';
 
 io.initialized.then(settings => {
-  const gauthOption = settings.tokens.googe;
+  const gauthOption = {
+    clientId: settings['oauth-google']['client_id'],
+    scope: settings['oauth-google']['scope'],
+    prompt: 'select_account'
+  };
   Vue.use(GAuth, gauthOption);
   console.log('gauthOption', { gauthOption });
   return settings;

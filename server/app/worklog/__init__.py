@@ -8,7 +8,7 @@ class WorklogService(components.Service):
     name = "worklog"
     model_class = Worklog
     settings = {
-        "default-pomodoro-times": [
+        "default_pomodoro_times": [
             [25, 5, 25, 5, 25, 15],
             [45, 15, 45, 15],
             [90, 15]

@@ -14,7 +14,6 @@ class SyncService(components.Service):
         super().__init__(*args, **kwargs)
 
 
-
 noteSyncService = SyncService("noteSync", NoteSync, Note)
 taskSyncService = SyncService("taskSync", TaskSync, Task)
 

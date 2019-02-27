@@ -13,10 +13,13 @@ from flask_principal import PermissionDenied
 
 import app.components
 import app.auth
+import app.settings
 
 # modules
 MODULES = [
+    "settings",
     "user",
+    "user.oauth",
     "user.settings",
     "notes",
     "notes.attachments",
@@ -32,14 +35,16 @@ PRODUCTION = (os.getenv("FLASK_ENV") == "production")
 DEBUG = (os.getenv("FLASK_DEBUG") == "True")
 TESTING = (os.getenv("FLASK_TESTING") == "True")
 
-logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
 logging.disable(logging.NOTSET)
 if not PRODUCTION:
     logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
 else:
     logging.getLogger().setLevel(logging.WARN)
 
-logging.info("Loading %s, app version = %s", __name__, os.getenv("CURRENT_VERSION_ID"))
+logging.info("Loading %s, app version = %s", __name__,
+             os.getenv("CURRENT_VERSION_ID"))
 
 
 # ---
@@ -103,7 +108,10 @@ def handle_base_error(e):
 
 # --- Initialize Application
 MODELS = []
-SETTINGS = {}
+SETTINGS = {
+    "csrftoken": "",
+    "root": "./api"
+}
 
 for module in MODULES:
     try:
@@ -119,6 +127,7 @@ for module in MODULES:
         logging.error("Module not found %s", module)
         raise
 
+app.settings.settingsService.set_settings(SETTINGS)
 
 if not TESTING:
     app.components.database_init(APP, MODELS)
