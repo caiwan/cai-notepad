@@ -11,6 +11,8 @@ export default {
   getters: {
     isLoading (state, getters, rootState) {
       return rootState.App.isInitializing ||
+        // TODO: + User + Authenticators + Profile + Settings
+        // TODO: + Categories
         rootState.Notes.isLoading ||
         rootState.Tasks.isLoading
       ;

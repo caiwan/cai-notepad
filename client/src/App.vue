@@ -62,10 +62,6 @@ export default {
   components: {
     NavBar, Drawer
   },
-  async created () {
-    await io.initialized;
-    this.initialized();
-  },
   computed: {
     ...mapState('UI', ['showSidebar', 'showSnackbar', 'snackbarMessages']),
     ...mapGetters('UI', ['isLoading']),
@@ -73,11 +69,17 @@ export default {
     ...mapState('App', ['isInitializing'])
   },
   methods: {
+    ...mapActions('User', ['fetchProfile']),
     ...mapMutations('App', ['initialized']),
     dismissSnackbar () {
       this.$store.commit('UI/pullSnackbar');
       console.log('dismiss');
     }
+  },
+  async created () {
+    await io.initialized;
+    this.fetchProfile();
+    this.initialized();
   }
 };
 </script>

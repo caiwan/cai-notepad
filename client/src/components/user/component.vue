@@ -84,35 +84,35 @@ export default {
     };
   },
   computed: {
-    ...mapState('User/SyncGoogle', { google: 'settings' })
+    ...mapState('User/SyncGoogle', { google: 'settings' }),
+    ...mapState('User/Authenticators', { authenticators: 'items' })
   },
   methods: {
+    ...mapActions('User/Authenticators', {
+      fetchAuthenticators: 'fetchAll',
+      signIn: 'signIn',
+      signOut: 'signOut'
+    }),
+    ...mapMutations('UI', ['pushSnackbar']),
     signInGoogle () {
       this.$gAuth.getAuthCode()
-        .then(authCode => {
-          // on success
-          console.log('authCode', authCode);
-          return this.$http.post('http://your-backend-server.com/auth/google', { code: authCode, redirect_uri: 'postmessage' });
-        })
-        .then(response => {
-          // after ajax
-        })
+        .then(authCode => { this.signIn({ service: 'google', authCode }); })
         .catch(error => {
-          // on fail do something
-          console.log('Error', error);
+          console.error('Error', error);
+          this.pushSnackbar('Could not sign in');
         });
     },
     signOutGoogle () {
-      // you can use promise from v1.1.0 also
       this.$gAuth.signOut()
-        .then(() => {
-          // things to do when sign-out succeeds
-        })
+        .then(() => { this.signOut('google'); })
         .catch(error => {
-          // things to do when sign-out fails
-          console.log('Error', error);
+          console.error('Error', error);
+          this.pushSnackbar('Could not sign out');
         });
     }
+  },
+  created () {
+    this.fetchAuthenticators();
   }
 };
 </script>

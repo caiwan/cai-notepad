@@ -32,4 +32,33 @@ export class User extends BaseIONode {
     }).then(this.handleFault)
       .then(v => v.json());
   }
-}
+};
+
+// ---------------------------------------------------------
+
+export class Authenticators extends BaseIONode {
+  fetchAll () {
+    return fetch(`${this.root}/auth/oauth/authenticators/`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: this.io.headers
+    }).then(this.handleFault)
+      .then(v => v.json());
+  }
+
+  add (service, authCode) {
+    return fetch(`${this.root}/auth/oauth/cb/${service}/`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      ...this.io.toJson({
+        'auth_code': authCode
+      })
+    })
+      .then(this.handleFault)
+      .then(v => v.json());
+  }
+
+  remove (service) {
+    // TODO
+  }
+};

@@ -2,24 +2,28 @@
 
 import logging
 
-from flask import current_app
-from app import auth, components
+from playhouse.shortcuts import model_to_dict
+
+from app import components
 from app.user.oauth.model import UserAuthenticators
+from app.user.oauth.google import google_auth_code
 
 
 class OauthService(components.Service):
     APP_API_TOKENS = "APP_API_TOKENS"
-    model = UserAuthenticators
+    model_class = UserAuthenticators
     enabled = False
     settings = {}
 
-    def __init__(self, service_name):
+    def __init__(self, service_name, auth_code_handler):
         self.name = service_name
+        self.auth_code_handler = auth_code_handler
         super().__init__()
 
-    def token(self, token):
-        if self.enabled:
-            logging.info("Yay, a 3rd party token: %s" % str(token))
+    def auth_code(self, auth_code):
+        if self.enabled and callable(self.auth_code_handler):
+            logging.info("Yay, a 3rd party token: %s" % str(auth_code))
+            self.auth_code_handler(self, auth_code)
 
     def _set_settings(self, app):
         if self.APP_API_TOKENS in app.config and self.name in app.config[self.APP_API_TOKENS]:
@@ -33,35 +37,62 @@ class OauthService(components.Service):
             self.enabled = False
 
 
-googleOauthService = OauthService("oauth-google")
+googleOauthService = OauthService("oauth-google", google_auth_code)
 
 
-class DispatchOuathService(metaclass=components.Singleton):
+class DispatchOuathService(components.Service):
     name = "oauth-dispatch"
     services = {
         "google": googleOauthService
     }
+    model_class = UserAuthenticators
     settings = None
 
-    def dispatch(self, service, token):
+    def fetch_all_items(self):
+        return super().fetch_all_items()
+
+    def create_item(self, service, item_json):
+        return self._dispatch(service).create_item(item_json)
+
+    def update_item(self, service, item_id, item_json):
+        return self._dispatch(service).update_item(item_id, item_json)
+
+    def delete_item(self, service, item_id):
+        return self._dispatch(service).delete_item(item_id)
+
+    def read_item(self, service, item_id):
+        return self._dispatch(service).read_item(item_id)
+
+    def dispatch_callback(self, service, auth_code):
+        return self._dispatch(service).auth_code(auth_code)
+
+    def _dispatch(self, service):
         if service not in self.services:
             raise components.BadRequestError("No such service %s" % service)
-        self.services[service].token(token)
-        return ("", 200)
+        return self.services[service]
+
+
+    def serialize_item(self, item):
+        item_json = model_to_dict(item, exclude=(
+            self.model_class.owner,
+            self.model_class.is_deleted,
+            self.model_class.auth_code,
+        ))
+        return item_json
 
 
 dispatchOuathService = DispatchOuathService()
 
 
 class Module(components.Module):
-    from app.user.oauth.controller import OauthTokenController
+    from app.user.oauth.controller import AuthCodeController, AuthListController
     name = "oauth"
     models = [UserAuthenticators]
     services = [
         dispatchOuathService,
         googleOauthService
     ]
-    controller = [OauthTokenController]
+    controllers = [AuthCodeController, AuthListController]
 
     def pre_register(self, *args, **kwargs):
         app = kwargs["app"]

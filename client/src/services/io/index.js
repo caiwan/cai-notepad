@@ -2,7 +2,7 @@ import { Tasks } from './tasksIO';
 import { Notes } from './notesIO';
 import { Tags } from './tagsIO';
 import { Categories } from './categoriesIO';
-import { User } from './userIO';
+import { User, UserSettings, Authenticators } from './userIO';
 
 // Eslint no-undef exceptions
 /* global Headers */
@@ -16,6 +16,7 @@ class IO {
     this.settigns = {};
 
     this.user = null;
+    this.authenticators = null;
     this.userSettings = null;
     this.tasks = null;
     this.notes = null;
@@ -37,6 +38,7 @@ class IO {
           this.updateHeader();
 
           this.user = new User(this);
+          this.authenticators = new Authenticators(this);
           this.userSettings = null;
           this.tasks = new Tasks(this);
           this.notes = new Notes(this);

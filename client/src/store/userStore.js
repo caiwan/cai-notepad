@@ -1,3 +1,5 @@
+import userSettings from './user/settingStore';
+import authenticators from './user/authenticatorStore';
 import syncGoogle from './user/syncGoogleStore';
 import io from '../services/io';
 import { router } from '../router';
@@ -14,7 +16,9 @@ export default {
   namespaced: true,
 
   modules: {
-    'SyncGoogle': syncGoogle
+    'SyncGoogle': syncGoogle,
+    'Settings': userSettings,
+    'Authenticators': authenticators
   },
 
   state: {
