@@ -27,10 +27,16 @@ RESTFUL_JSON = {
     "sort_keys": False
 }
 
-APP_API_TOKENS = {
+APP_INTEGRATIONS = {
     "oauth-google": {
         "client_id": "",
-        "scope": "profile email"
+        "project_id": "",
+        "auth_uri": "",
+        "token_uri": "",
+        "auth_provider_x509_cert_url": "",
+        "client_secret": "",
+        "javascript_origins": [""],
+        "scope": "profile email",
     },
     "oauth-twitter": {},
     "oauth-habitica": {},

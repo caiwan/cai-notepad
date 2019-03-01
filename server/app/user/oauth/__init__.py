@@ -10,7 +10,7 @@ from app.user.oauth.google import google_auth_code
 
 
 class OauthService(components.Service):
-    APP_API_TOKENS = "APP_API_TOKENS"
+    APP_INTEGRATIONS = "APP_INTEGRATIONS"
     model_class = UserAuthenticators
     enabled = False
     settings = {}
@@ -26,8 +26,8 @@ class OauthService(components.Service):
             self.auth_code_handler(self, auth_code)
 
     def _set_settings(self, app):
-        if self.APP_API_TOKENS in app.config and self.name in app.config[self.APP_API_TOKENS]:
-            config = app.config[self.APP_API_TOKENS]
+        if self.APP_INTEGRATIONS in app.config and self.name in app.config[self.APP_INTEGRATIONS]:
+            config = app.config[self.APP_INTEGRATIONS]
             self.enabled = True
             self.settings = {
                 "client_id": config[self.name]["client_id"],

@@ -4,20 +4,41 @@ import logging
 
 from flask import current_app
 
-import google.oauth2.credentials
-import google_auth_oauthlib.flow
+from googleapiclient.discovery import build
+# from google_auth_oauthlib.flow import Flow
+# from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 
 from app import auth, components
 from app.user.oauth.model import UserAuthenticators
 
 
 class GoogleAuthenticator(components.Singleton):
-    def fetch_and_add_profile(service, auth_code):
-        # flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file('client_secret.json',scope=['https://www.googleapis.com/auth/drive.metadata.readonly'])
+    APP_INTEGRATIONS = "APP_INTEGRATIONS"
+    name = "oauth-google"
 
-        #  FK https://developers.google.com/api-client-library/python/start/get_started
+    def fetch_and_add_profile(self, service, auth_code):
+        assert current_app.config[self.APP_INTEGRATIONS]
+        assert current_app.config[self.APP_INTEGRATIONS][self.name]
+        # a pelyhes lofaszt mindenbe bele
+        config = current_app.config[self.APP_INTEGRATIONS][self.name]
 
-        pass
+        # TODO: Refresh token https://www.npmjs.com/package/vue-google-oauth2
+        # https://google-auth.readthedocs.io/en/stable/reference/google.oauth2.credentials.html#google.oauth2.credentials.Credentials
+
+        # credentials = Credentials(
+        #     token,
+        #     refresh_token,
+        #     id_token,
+        #     client_id,
+        #     client_secret,
+        #     scopes
+        # )
+        # service = build('userinfo.profile', 'api_version')
+
+    # service = build('admin', 'directory_v1', credentials=credentials)
+
+    pass
     pass
 
 
