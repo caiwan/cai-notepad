@@ -12,6 +12,10 @@ import VueMarkdown from 'vue-markdown';
 import GAuth from 'vue-google-oauth2';
 
 io.initialized.then(settings => {
+  if (!settings.hasOwnProperty('oauth-google')) {
+    console.info('Google authentication was not enabled or set up');
+    return settings;
+  }
   const gauthOption = {
     clientId: settings['oauth-google']['client_id'],
     scope: settings['oauth-google']['scope'],

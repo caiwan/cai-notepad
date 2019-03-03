@@ -6,7 +6,7 @@
         class="row justify-content-center align-items-center"
         style="height:100vh"
       >
-        <div class="col-4">
+        <div class="col-lg-4 col-md-6 col-sm-12">
           <div class="card">
             <div class="card-body">
               <form

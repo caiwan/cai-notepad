@@ -64,8 +64,17 @@ export default {
 
   actions: {
 
-    async fetchProfile ({ dispatch, commit }) {
-      const user = await io.user.fetchProfile()
+    async fetchProfile ({ dispatch, commit, getters }) {
+      if (!getters.isLoggedIn) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return;
+      }
+      await io.user.fetchProfile()
+        .then(user => {
+          localStorage.setItem('user', JSON.stringify(user));
+          commit('loginSuccess', user);
+        })
         .catch(error => {
           dispatch('UI/pushIOError', error, { root: true });
           localStorage.removeItem('token');
@@ -73,10 +82,6 @@ export default {
           commit('logout');
           router.push('/login');
         });
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
-        commit('loginSuccess', user);
-      }
     },
 
     login ({ dispatch, commit }, { username, password }) {

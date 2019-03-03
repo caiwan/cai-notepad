@@ -1,5 +1,4 @@
 import io from '@/services/io';
-import common, { copyObject } from '@/store/_common';
 
 export default {
   namespaced: true,
@@ -7,38 +6,43 @@ export default {
   state: {
     items: [],
     isLoading: false
-
   },
 
   getters: {
-
+    isAuthenticated: (state) => (idpId) => !!state.items[idpId],
+    getAuthenticators: (state) => (idpId) => state.items[idpId] || null
   },
 
   mutations: {
-    ...common.mutations
+    clear: (state) => { state.items = []; },
+    put: (state, item) => {
+      if (!state.items.hasOwnProperty(item['idp_id'])) { state.items[item['idp_id']] = []; }
+      state.items[item.idp_id].push(item);
+    }
   },
 
   actions: {
-    async fetchAll ({ commit, dispatch }) {
-      commit('fetchStart');
+    async fetchAll ({ commit, dispatch, state }) {
+      state.isLoading = true;
       await io.authenticators.fetchAll()
         .then((items) => {
           commit('clear');
-          commit('putAll', items);
+          items.forEach((item) => commit('put', item));
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      commit('fetchEnd');
+      state.isLoading = false;
     },
 
-    async signIn ({ dispatch, commit }, { service, authCode }) {
-      await io.authenticators.add(service, authCode)
+    async signIn ({ dispatch, commit }, { service, tokens }) {
+      await io.authenticators.add(service, tokens)
         .then(dispatch('fetchAll'))
         .catch(error => dispatch('UI/pushIOError', error, { root: true }));
     },
 
-    async signOut ({ dispatch, commit }, { service }) {
-      // await ...
-      console.log('kkthxbai', { service });
+    async signOut ({ dispatch, commit }, item) {
+      await io.authenticators.remove(item.id)
+        .then(dispatch('fetchAll'))
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }));
     }
 
   }

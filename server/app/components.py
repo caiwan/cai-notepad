@@ -29,8 +29,6 @@ class Singleton(type):
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        # for (k, v) in cls._instances.items():
-        # logging.info("__SINGLETON__ %s %s", k.__class__.__name__, v.__class__.__name__)
         return cls._instances[cls]
 
 

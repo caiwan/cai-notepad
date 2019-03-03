@@ -29,15 +29,20 @@ RESTFUL_JSON = {
 
 APP_INTEGRATIONS = {
     "oauth-google": {
+        "enabled": False,
         "client_id": "",
-        "project_id": "",
-        "auth_uri": "",
-        "token_uri": "",
-        "auth_provider_x509_cert_url": "",
+        # "project_id": "",
+        # "auth_uri": "",
+        # "token_uri": "",
+        # "auth_provider_x509_cert_url": "",
         "client_secret": "",
-        "javascript_origins": [""],
+        # "javascript_origins": [""],
         "scope": "profile email",
     },
-    "oauth-twitter": {},
-    "oauth-habitica": {},
+    "oauth-twitter": {
+        "enabled": False,
+    },
+    "oauth-habitica": {
+        "enabled": False,
+    },
 }

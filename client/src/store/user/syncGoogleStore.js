@@ -4,7 +4,6 @@ export default {
 
   state: {
     settings: {
-      connected: false,
       enableGMail: false,
       enableGTasks: false,
       enableGCalendar: false

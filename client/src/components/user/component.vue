@@ -50,7 +50,7 @@
                     @click="signOutGoogle"
                   >Disconnect Google Account</button>
                 </template>
-                <template else>
+                <template v-else>
                   <button
                     class="btn btn-success"
                     @click="signInGoogle"
@@ -84,8 +84,15 @@ export default {
     };
   },
   computed: {
-    ...mapState('User/SyncGoogle', { google: 'settings' }),
-    ...mapState('User/Authenticators', { authenticators: 'items' })
+    ...mapState('User/SyncGoogle', { googleSettings: 'settings' }),
+    ...mapState('User/Authenticators', { authenticators: 'items' }),
+    ...mapGetters('User/Authenticators', { isAuthenticated: 'isAuthenticated' }),
+    google () {
+      return {
+        connected: this.isAuthenticated('google'),
+        ...this.googleSettings
+      };
+    }
   },
   methods: {
     ...mapActions('User/Authenticators', {
@@ -95,8 +102,17 @@ export default {
     }),
     ...mapMutations('UI', ['pushSnackbar']),
     signInGoogle () {
-      this.$gAuth.getAuthCode()
-        .then(authCode => { this.signIn({ service: 'google', authCode }); })
+      this.$gAuth.signIn()
+        .then(async GoogleUser => {
+          if (this.$gAuth.isAuthorized) {
+            const authResponse = await GoogleUser.reloadAuthResponse();
+            const tokens = {
+              ...authResponse
+            };
+            console.log('user', tokens);
+            this.signIn({ service: 'google', tokens });
+          }
+        })
         .catch(error => {
           console.error('Error', error);
           this.pushSnackbar('Could not sign in');
@@ -104,7 +120,7 @@ export default {
     },
     signOutGoogle () {
       this.$gAuth.signOut()
-        .then(() => { this.signOut('google'); })
+        .then(() => { this.signOut(this.authenticators['google'][0]); })
         .catch(error => {
           console.error('Error', error);
           this.pushSnackbar('Could not sign out');

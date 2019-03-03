@@ -46,19 +46,24 @@ export class Authenticators extends BaseIONode {
       .then(v => v.json());
   }
 
-  add (service, authCode) {
+  connect (service, tokenObj) {
     return fetch(`${this.root}/auth/oauth/cb/${service}/`, {
       method: 'POST',
       credentials: 'same-origin',
       ...this.io.toJson({
-        'auth_code': authCode
+        ...tokenObj
       })
     })
       .then(this.handleFault)
       .then(v => v.json());
   }
 
-  remove (service) {
-    // TODO
+  remove (id) {
+    return fetch(`${this.root}/auth/oauth/authenticators/${id}`, {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: this.io.headers
+    }).then(this.handleFault)
+      .then(v => v.json());
   }
 };

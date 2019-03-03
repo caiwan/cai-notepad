@@ -21,3 +21,12 @@ class AuthListController(components.Controller):
     @auth.login_required
     def get(self):
         return self._fetch_all()
+
+
+class AuthController(components.Controller):
+    path = "/auth/oauth/authenticators/<int:token_id>"
+    _service = dispatchOuathService
+
+    @auth.login_required
+    def delete(self, token_id):
+        return self._delete(token_id)

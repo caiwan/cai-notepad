@@ -7,6 +7,7 @@
 
     <template v-if="isLoggedIn">
       <header
+        id="header"
         class="top-nav drawer-transition"
         :class="{'drawer-on' : showSidebar}"
       >
@@ -22,6 +23,7 @@
     </template>
 
     <main
+      id="main"
       class="drawer-transition"
       :class="{'drawer-on' : showSidebar}"
     >
@@ -29,6 +31,7 @@
     </main>
 
     <footer
+      id="footer"
       class="drawer-transition"
       :class="{'drawer-on' : showSidebar}"
     >
@@ -108,22 +111,29 @@ $drawer-width: 250px;
   }
 }
 
-footer {
-  width: 100%;
+#footer {
+  position: fixed;
+  // width: 100%;
+  left: 15px;
+  right: 15px;
+  bottom: 0px;
+
+  &.drawer-on {
+    // left: $drawer-width !important;
+  }
 
   #snackbar {
-    position: fixed;
+    position: relative;
     bottom: 30px;
     visibility: hidden;
-    min-width: 250px;
-    margin-left: 120px;
-    margin-right: 120px;
+    // min-width: 250px;
+    // width: auto;
+    margin: 0 auto;
     background-color: $warning;
     color: $gray-800;
     text-align: center;
     border-radius: 4px;
     padding: 16px;
-    bottom: 30px;
     z-index: 20;
 
     @keyframes fadein {
@@ -197,7 +207,7 @@ footer {
   }
 }
 
-header {
+#header {
   &.top-nav {
     transition: $transition-speed;
     margin-left: 0px;

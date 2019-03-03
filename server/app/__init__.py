@@ -35,12 +35,12 @@ PRODUCTION = (os.getenv("FLASK_ENV") == "production")
 DEBUG = (os.getenv("FLASK_DEBUG") == "True")
 TESTING = (os.getenv("FLASK_TESTING") == "True")
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
 logging.disable(logging.NOTSET)
 if not PRODUCTION:
+    logging.basicConfig(format="%(levelname)-7s %(module)s.%(funcName)s - %(message)s")
     logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
 else:
+    logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
     logging.getLogger().setLevel(logging.WARN)
 
 logging.info("Loading %s, app version = %s", __name__,
