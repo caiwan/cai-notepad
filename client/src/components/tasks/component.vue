@@ -108,8 +108,11 @@
               >
 
             </div>
-            <!-- DELETE -->
 
+            <!-- SCHEDULE  -->
+            <button class="btn btn-outline-secondary"><i class="fa fa-clock"></i></button>
+
+            <!-- DELETE -->
             <button
               class="btn btn-danger"
               @click="removeTask(task)"
