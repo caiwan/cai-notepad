@@ -9,10 +9,12 @@ export default {
   },
 
   getters: {
+    // TODO: We will have a loading-stack which operates on a push-pop manner instead
     isLoading (state, getters, rootState) {
       return rootState.App.isInitializing ||
-        // TODO: + User + Authenticators + Profile + Settings
-        // TODO: + Categories
+        // TODO: + User Profile + Settings
+        rootState.User.isLoading || rootState.User.Authenticators.isLoading ||
+        rootState.Categories.isLoading ||
         rootState.Notes.isLoading ||
         rootState.Tasks.isLoading
       ;
@@ -35,6 +37,13 @@ export default {
     pushIOError ({ commit }, error) {
       console.error(error);
       commit('pushSnackbar', `${error}`);
+    },
+    // TODO: We will have a loading-stack which operates on a push-pop manner instead
+    pushLoad () {
+      // ...
+    },
+    popLoad () {
+      // ...
     }
   }
 

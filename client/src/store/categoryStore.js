@@ -6,7 +6,9 @@ export default {
   state: {
     items: [],
     itemMap: [],
-    itemTree: []
+    itemTree: [],
+    isLoading: false,
+    isLoaded: false
   },
 
   getters: {
@@ -46,22 +48,29 @@ export default {
 
   actions: {
 
-    async fetchAll ({ commit, dispatch }) {
+    async fetchAll ({ commit, dispatch, state }) {
+      // Ensure it's loaded only once
+      if (state.isLoaded) { return; }
+      state.isLoading = true;
       const items = await io.categories.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (items) {
         commit('clear');
         items.forEach(item => {
           commit('put', item);
         });
+        state.isLoaded = true;
       }
+      state.isLoading = false;
     },
 
-    async addNew ({ commit, state, dispatch }, { parent, name }) {
+    async addNew ({ commit, dispatch, state }, { parent, name }) {
       name = name && name.trim();
       console.log('Lol', { parent, name });
       if (!name) {
         return;
       }
+
+      state.isLoading = true;
 
       const item = await io.categories.add({
         name, parent
@@ -69,10 +78,14 @@ export default {
       if (!item) { return; }
 
       commit('put', item);
+
+      state.isLoading = false;
     },
 
-    async edit ({ commit, dispatch }, item) {
+    async edit ({ commit, dispatch, state }, item) {
       item.name = item.name.trim();
+      state.isLoading = true;
+
       if (!item.name) {
         await io.categories.remove(item);
         commit('remove', item);
@@ -82,11 +95,14 @@ export default {
         if (!edited) { return; }
         commit('edit', edited);
       }
+      state.isLoading = false;
     },
 
-    async remove ({ commit, dispatch }, item) {
+    async remove ({ commit, state, dispatch }, item) {
+      state.isLoading = true;
       await io.categories.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       commit('rm', item);
+      state.isLoading = false;
     }
 
   }

@@ -123,8 +123,7 @@ export default {
       item.title = item.title.trim();
       // Remove when we've deleted the title and committed
       if (!item.title) {
-        await io.tasks.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-        commit('remove', item); // this will update filters anyway
+        await dispatch('remove', item); // this will update filters anyway
       } else {
         // Save otherwise
         const edited = await io.tasks.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));

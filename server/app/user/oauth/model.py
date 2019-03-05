@@ -6,6 +6,7 @@ from app.components import BaseModel, BaseUser
 
 class UserAuthenticator(BaseModel):
     owner = peewee.ForeignKeyField(BaseUser, backref="authenticators")
+    is_deleted = peewee.BooleanField(null=False, default=False)
 
     idp_id = peewee.TextField(null=False)
     access_token = peewee.TextField(null=False)

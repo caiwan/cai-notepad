@@ -23,7 +23,8 @@ export default {
 
   state: {
     status: { loggedIn: !!user },
-    user
+    user,
+    isLoading: false
   },
 
   getters:
@@ -64,12 +65,13 @@ export default {
 
   actions: {
 
-    async fetchProfile ({ dispatch, commit, getters }) {
+    async fetchProfile ({ dispatch, commit, getters, state }) {
       if (!getters.isLoggedIn) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         return;
       }
+      state.isLoading = true;
       await io.user.fetchProfile()
         .then(user => {
           localStorage.setItem('user', JSON.stringify(user));
@@ -82,6 +84,7 @@ export default {
           commit('logout');
           router.push('/login');
         });
+      state.isLoading = false;
     },
 
     login ({ dispatch, commit }, { username, password }) {

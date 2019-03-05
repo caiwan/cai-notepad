@@ -33,16 +33,21 @@ export default {
       state.isLoading = false;
     },
 
-    async signIn ({ dispatch, commit }, { service, tokens }) {
+    async signIn ({ dispatch, state }, { service, tokens }) {
+      state.isLoading = true;
+
       await io.authenticators.add(service, tokens)
         .then(dispatch('fetchAll'))
         .catch(error => dispatch('UI/pushIOError', error, { root: true }));
+      state.isLoading = false;
     },
 
-    async signOut ({ dispatch, commit }, item) {
+    async signOut ({ dispatch, state }, item) {
+      state.isLoading = false;
       await io.authenticators.remove(item.id)
         .then(dispatch('fetchAll'))
         .catch(error => dispatch('UI/pushIOError', error, { root: true }));
+      state.isLoading = false;
     }
 
   }
