@@ -38,14 +38,16 @@ export default {
     filteredItems: [],
     categoryFilter: 'all',
     milestoneFilter: 'all',
-    isLoading: false
+    isLoading: false,
+    colorMap: []
   },
 
   getters: {
     filtered: state => filters[state.visibility](state.filteredItems),
     remaining: state => filters.active(state.filteredItems).length,
     archived: state => state.filteredItems.filter(item => item.is_archived),
-    colors: () => io.settings['tasks']['priority_colors'] || []
+    colors: () => io.settings['tasks']['priority_colors'] || [],
+    colorName: (state) => (name) => state.colorMap[name] || 'none'
   },
 
   mutations: {
@@ -64,13 +66,18 @@ export default {
 
   actions: {
 
-    async fetchAll ({ commit, dispatch }) {
+    async fetchAll ({ state, commit, dispatch, getters }) {
       commit('fetchStart');
       const items = await io.tasks.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (items) {
         commit('clear');
         commit('putAll', items);
       }
+
+      getters.colors.forEach((color) => {
+        state.colorMap[color.value] = color.name;
+      });
+
       commit('fetchEnd');
     },
 

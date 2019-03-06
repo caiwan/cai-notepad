@@ -40,7 +40,7 @@
           :placeholder="'Due date'"
           :format="'yyyy-MM-dd'"
           :bootstrapStyling="true"
-          :imput-class="'calendar-input'"
+          :input-class="'calendar-input'"
           :clear-button="true"
           :clear-button-icon="'fa fa-times'"
           :calendar-button="true"

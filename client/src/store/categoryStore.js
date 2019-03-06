@@ -12,7 +12,8 @@ export default {
   },
 
   getters: {
-    getCategory: (state) => (id) => id in state.items ? state.items[id] : null
+    category: (state) => (id) => id in state.itemMap ? state.itemMap[id] : null,
+    categoryName: (state) => (id) => id in state.itemMap ? state.itemMap[id].name : 'Unassigned'
   },
 
   mutations: {

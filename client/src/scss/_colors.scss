@@ -17,23 +17,35 @@ $gray-800: #333 !default;
 $gray-900: #222 !default;
 $black: #000 !default;
 
-$blue: #375a7f !default;
-$indigo: #6610f2 !default;
-$purple: #6f42c1 !default;
-$pink: #e83e8c !default;
-$red: #e74c3c !default;
-$orange: #fd7e14 !default;
-$yellow: #f39c12 !default;
-$green: #00bc8c !default;
-$teal: #20c997 !default;
-$cyan: #3498db !default;
+$red: #d32f2f !default;
+$pink: #C2185B !default;
+$purple: #7B1FA2 !default;
+$indigo: #303F9F !default;
+$blue: #1976D2 !default;
+$cyan: #00ACC1 !default;
+$teal: #00897B !default;
+$green: #43A047 !default;
+$yellow: #FDD835 !default;
+$orange: #FB8C00 !default;
 
-$primary: $blue !default;
+$red-900: #b71c1c !default;
+$pink-900: #880E4F !default;
+$purple-900: #6A1B9A !default;
+$indigo-900: #1A237E !default;
+$blue-900: #0D47A1 !default;
+$cyan-900: #006064 !default;
+$teal-900: #004D40 !default;
+$green-900: #1B5E20 !default;
+$yellow-900: #F57F17 !default;
+$orange-900: #E65100 !default;
+
+
+$primary: #375a7f !default;
 $secondary: $gray-700 !default;
-$success: $green !default;
-$info: $cyan !default;
-$warning: $yellow !default;
-$danger: $red !default;
+$success: #00bc8c !default;
+$info: #3498db !default;
+$warning: #f39c12 !default;
+$danger: #e74c3c !default;
 $light: $gray-800 !default;
 $dark: $gray-500 !default;
 

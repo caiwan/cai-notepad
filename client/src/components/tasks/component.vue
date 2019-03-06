@@ -60,7 +60,8 @@
                 @click="toggleTask(task)"
               >
               <label
-                class="toggle btn btn-success"
+                class="toggle btn btn-secondary fill color"
+                :class="colorName(task.color)"
                 :for="'check_'+task.id"
               >
                 <i class="checkmark fa fa-check"></i>
@@ -82,14 +83,14 @@
               class="badge badge-secondary"
               v-show="task != editingTask"
             >
-              {{task.category ? task.category.name : "Unassigned"}}
+              {{categoryName(task.category)}}
             </span>
 
             <span
               class="badge badge-secondary"
               v-show="task != editingTask && task.due"
             >
-              {{task.due ? task.due : "Unassigned"}}
+              {{task.due}}
             </span>
 
             <!-- EDIT -->
@@ -99,7 +100,7 @@
             >
               <category-selector
                 class="input-group-prepend"
-                :category="task.category"
+                :category="category(task.category)"
                 v-on:selected="categorySelected(task, $event)"
                 v-show="task == editingTask"
               />
@@ -116,10 +117,12 @@
               <!-- SCHEDULE  -->
               <button class="btn btn-outline-secondary input-group-append">
                 <i class="fa fa-clock"></i></button>
+
               <!-- PRIORITY / COLORIZE  -->
-              <div class="category input-group-append">
+              <div class="category color-palette input-group-append">
                 <button
-                  class="btn btn-outline-secondary "
+                  class="btn btn-outline-secondary outline color"
+                  :class="editingTask ? colorName(editingTask.color) : ''"
                   @click="toggleColorPalette()"
                 ><i class="fa fa-palette"></i>
                 </button>
@@ -133,24 +136,26 @@
                       :key="index"
                     >
                       <button
-                        class="btn btn-primary"
+                        class="btn fill color"
                         :class="color.name"
-                        @click="selectColor(color.value)"
+                        @click="selectColor(editingTask, color.value)"
                       ></button>
                     </li>
                   </ul>
                 </nav>
               </div>
+
               <!--SAVE/CANCEL  -->
               <button
-                class="btn btn-outline-danger input-group-append"
+                class="btn btn-secondary input-group-append"
                 @click="cancelEditTask(task)"
               ><i class=" fa fa-times"></i></button>
 
               <button
-                class="btn btn-outline-success input-group-append"
+                class="btn btn-success input-group-append"
                 @click="doneEditTask(task)"
               ><i class="fa fa-check"></i></button>
+
             </div>
 
             <!-- Edit -->
@@ -224,8 +229,11 @@
             :key="task.id"
           ><span class="task-title">
               {{task.title}}</span>
-            <span class="badge badge-secondary">
-              {{task.category ? task.category.name : "Unassigned"}}
+            <span
+              class="badge badge-secondary fill color"
+              :class="colorName(task.color)"
+            >
+              {{categoryName(task.category)}}
             </span>
             <!-- Some button -->
             <button
@@ -280,9 +288,10 @@ export default {
       filteredTasks: 'filtered',
       remainingTasks: 'remaining',
       archivedTaks: 'archived',
-      colors: 'colors'
+      colors: 'colors',
+      colorName: 'colorName'
     }),
-    ...mapGetters('Categories', { getCategory: 'getCategory' }),
+    ...mapGetters('Categories', ['category', 'categoryName']),
 
     allDone: {
       get: function () {
@@ -294,16 +303,13 @@ export default {
     },
 
     selectedCategory () {
-      return this.getCategory(this.categoryId);
+      return this.category(this.categoryId);
     }
   },
 
   methods: {
     ...mapActions('Tasks', {
       toggleTask: 'toggleCompleted',
-      startEditTask: 'startEdit',
-      doneEditTask: 'doneEdit',
-      cancelEditTask: 'cancelEdit',
       removeTask: 'remove',
       archiveCompleted: 'archiveCompleted',
       setAllDone: 'setAllDone',
@@ -330,8 +336,22 @@ export default {
       };
     },
 
+    startEditTask (task) {
+      this.showColorPalette = false;
+      this.$store.dispatch('Tasks/startEdit', task);
+    },
+    doneEditTask (task) {
+      this.showColorPalette = false;
+      this.$store.dispatch('Tasks/doneEdit', task);
+    },
+
+    cancelEditTask (task) {
+      this.showColorPalette = false;
+      this.$store.dispatch('Tasks/cancelEdit', task);
+    },
+
     categorySelected (task, category) {
-      task.category = category;
+      task.category = category.id;
       console.log('select category', { task, category });
     },
 
@@ -339,9 +359,9 @@ export default {
       this.showColorPalette = !this.showColorPalette;
     },
 
-    selectColor (colorId) {
+    selectColor (task, colorId) {
       this.showColorPalette = false;
-      console.log('Hello', colorId);
+      task.color = colorId;
     }
   },
 
@@ -365,7 +385,7 @@ export default {
   watch: {
     $route (to, from) {
       this._fetchAndUpdate();
-      this.newTask.category = this.selectedCategory;
+      this.newTask.category = this.selectedCategory.id;
       console.log('selected cat', this.selectedCategory, this.categoryId);
     }
   }
@@ -411,41 +431,126 @@ hr {
 @import "@/scss/__category_selector.scss";
 
 .color-palette {
-  display: flex;
-  max-width: 150px;
-  right: 0px !important;
-  .color-selector {
-    columns: 2;
-    margin: 0 auto;
-    text-align: center;
-    li {
-      display: block;
-      vertical-align: top;
-      button {
-        &.red {
-          background-color: red;
-        }
-        &.oragne {
-          background-color: orange;
-        }
-        &.yellow {
-          background-color: yellow;
-        }
-        &.green {
-          background-color: green;
-        }
-        &.blue {
-          background-color: blue;
-        }
-        &.purple {
-          background-color: purple;
-        }
-        .none {
+  &.selector {
+    width: 96px;
+    right: 0px !important;
+    .color-selector {
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+
+      text-align: center;
+      li {
+        display: block;
+        button {
+          margin: 4px;
+          width: 48px !important;
+          height: 48px !important;
         }
       }
     }
   }
 }
+
+.color {
+  &.outline {
+    &.red {
+      color: $red;
+      &:hover {
+        background-color: $red-900;
+        color: $white;
+      }
+    }
+    &.orange {
+      color: $orange;
+      &:hover {
+        background-color: $orange-900;
+        color: $white;
+      }
+    }
+    &.yellow {
+      color: $yellow;
+      &:hover {
+        background-color: $yellow-900;
+        color: $white;
+      }
+    }
+    &.green {
+      color: $green;
+      &:hover {
+        background-color: $green-900;
+        color: $white;
+      }
+    }
+    &.blue {
+      color: $blue;
+      &:hover {
+        background-color: $blue-900;
+        color: $white;
+      }
+    }
+    &.purple {
+      color: $purple;
+      &:hover {
+        background-color: $purple-900;
+        color: $white;
+      }
+    }
+    &.none {
+      color: $secondary;
+      &:hover {
+        background-color: $secondary;
+        color: $white;
+      }
+    }
+  }
+
+  &.fill {
+    &.red {
+      background-color: $red-900;
+      &:hover {
+        background-color: $red;
+      }
+    }
+    &.orange {
+      background-color: $orange-900;
+      &:hover {
+        background-color: $orange;
+      }
+    }
+    &.yellow {
+      background-color: $yellow-900;
+      &:hover {
+        background-color: $yellow;
+      }
+    }
+    &.green {
+      background-color: $green-900;
+      &:hover {
+        background-color: $green;
+      }
+    }
+    &.blue {
+      background-color: $blue-900;
+      &:hover {
+        background-color: $blue;
+      }
+    }
+    &.purple {
+      background-color: $purple-900;
+      &:hover {
+        background-color: $purple;
+      }
+    }
+    &.none {
+      background-color: $light;
+      &:hover {
+        background-color: $secondary;
+      }
+    }
+  }
+}
+
 // --- custom toggle / checkmark stuff
 .toggle {
   margin: 0px;

@@ -12,4 +12,5 @@ class Task(components.BaseDocumentModel):
     note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
     category = peewee.ForeignKeyField(Category, null=True)
     due = peewee.DateTimeField(null=True, default=None)
-    pass
+    color = peewee.IntegerField(null=False, default=0)
+    order = peewee.IntegerField(null=False, default=0)

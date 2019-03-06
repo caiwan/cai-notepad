@@ -228,7 +228,7 @@ class Service(metaclass=Singleton):
         item_json = model_to_dict(item, exclude=(
             self.model_class.is_deleted,
             self.model_class.owner
-        ))
+        ), recurse=False)
         return item_json
 
     def sanitize_fields(self, item_json):
