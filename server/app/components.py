@@ -177,29 +177,35 @@ class Service(metaclass=Singleton):
 
     def create_item(self, item_json):
         assert self.model_class
-        item = dict_to_model(self.model_class, self.sanitize_fields(item_json))
-        item.owner = current_user()
-        item.save()
-        return item
+        try:
+            item = dict_to_model(self.model_class, self.sanitize_fields(item_json))
+            item.owner = current_user()
+            item.save()
+            return item
+        except peewee.IntegrityError as ex:
+            raise BadRequestError(payload={"reason":str(ex)})
 
     def update_item(self, item_id, item_json):
         assert self.model_class
-        user_id = current_user_id()
-        my_item = self.model_class.select(
-            self.model_class
-        ).join(
-            BaseUser, on=(self.model_class.owner == BaseUser.id)
-        ).where(
-            self.model_class.id == item_id,
-            self.model_class.is_deleted == False,
-            self.model_class.owner.id == user_id
-        ).get()
+        try:
+            user_id = current_user_id()
+            my_item = self.model_class.select(
+                self.model_class
+            ).join(
+                BaseUser, on=(self.model_class.owner == BaseUser.id)
+            ).where(
+                self.model_class.id == item_id,
+                self.model_class.is_deleted == False,
+                self.model_class.owner.id == user_id
+            ).get()
 
-        item = dict_to_model(self.model_class, item_json)
-        item.id = my_item.id
-        item.changed()
-        item.save()
-        return item
+            item = dict_to_model(self.model_class, item_json)
+            item.id = my_item.id
+            item.changed()
+            item.save()
+            return item
+        except peewee.IntegrityError as ex:
+            raise BadRequestError(payload={"reason":str(ex)})
 
     def delete_item(self, item_id):
         assert self.model_class
