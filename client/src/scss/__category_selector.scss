@@ -19,7 +19,7 @@ $zebra-odd-color: darken($secondary, $zebra-color-amount);
     display: block !important;
     position: absolute;
     top: 100%;
-    left: 0;
+    // left: 0;
     float: left;
     z-index: 65536;
     min-width: 160px;

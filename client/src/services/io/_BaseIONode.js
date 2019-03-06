@@ -16,8 +16,14 @@ export class BaseIONode {
 
   async handleFault (v) {
     if (v.ok) { return v; }
-    const j = await v.json();
-    console.error(`Error: ${v.status} ${v.statusText} ${j.message}`);
+
+    var j = null;
+    try {
+      j = await v.json();
+    } catch (e) {
+      throw Error(`${v.status} ${v.statusText}`);
+    }
+    console.error(`Error: ${v.status} ${v.statusText}`, j);
     throw Error(`${j.message}`);
   }
 }

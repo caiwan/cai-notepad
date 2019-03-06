@@ -23,12 +23,13 @@
           v-if="showUserMenu"
         >
           <li>{{userName}}</li>
-          <li>
+          <li><i class="fa fa-cog" />
             <router-link :to="{ name: 'User' }">Settings</router-link>
           </li>
 
           <li>
-            <i class="fa fa-sign-out-alt" /><a
+            <i class="fa fa-sign-out-alt" />
+            <a
               href="#"
               @click="logout"
             >Logout</a></li>
@@ -86,17 +87,16 @@ nav {
     flex-grow: 1;
   }
   .dropdown {
-    z-index: 65536;
     .dropdown-toggle {
-      // display: block !important;
-      // float: left;
       word-break: keep-all;
     }
     .dropdown-menu {
+      z-index: 65536;
       position: absolute !important;
       display: block !important;
       left: -120px !important;
       width: 100px;
+      padding: 8px;
     }
   }
 }

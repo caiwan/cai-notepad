@@ -52,26 +52,26 @@
         <!-- FOOTER BUTTONS -->
         <button
           @click="pin()"
-          class="btn-small btn-primary btn-raised"
+          class="btn btn-sm btn-primary btn-raised"
         >{{note.is_pinned ? "Unpin" : "Pin"}}</button>
         <button
           v-if="!isCreating"
           @click="archive()"
-          class="btn-small btn-primary btn-raised"
+          class="btn btn-sm btn-primary btn-raised"
         >{{note.is_archived ? "Restore" : "Archive"}}</button>
         <button
           v-if="!isCreating"
           @click="remove()"
-          class="btn-small btn-danger btn-raised"
+          class="btn btn-sm btn-danger btn-raised"
         >Delete</button>
         <span class="gap"></span>
         <button
           @click="done()"
-          class="btn-small btn-success btn-raised"
+          class="btn btn-sm btn-success btn-raised"
         >Done</button>
         <button
           @click="cancel()"
-          class="btn-small btn-secondary btn-raised"
+          class="btn btn-sm btn-secondary btn-raised"
         >Cancel</button>
       </div>
     </footer>

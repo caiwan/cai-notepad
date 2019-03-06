@@ -3,19 +3,19 @@
     <header class="card-header note-title-row">
       <span @dblclick="edit()">{{ note.title }}&nbsp;</span>
       <button
-        class="btn-small btn-danger"
+        class="btn btn-sm btn-danger"
         @click="remove()"
       ><i class="fa fa-trash"></i></button>
       <button
-        class="btn-small btn-warning"
+        class="btn btn-sm btn-warning"
         @click="edit()"
       ><i class="fa fa-edit"></i></button>
       <button
-        class="btn-small btn-primary"
+        class="btn btn-sm btn-primary"
         @click="archive()"
       ><i class="fas fa-archive"></i></button>
       <button
-        class="btn-small btn-primary"
+        class="btn btn-sm btn-primary"
         @click="pin()"
       ><i class="fas fa-bookmark"></i></button>
     </header>

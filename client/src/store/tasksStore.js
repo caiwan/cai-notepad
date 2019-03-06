@@ -37,14 +37,15 @@ export default {
     visibility: 'all',
     filteredItems: [],
     categoryFilter: 'all',
-    milesonteFilter: 'all',
+    milestoneFilter: 'all',
     isLoading: false
   },
 
   getters: {
     filtered: state => filters[state.visibility](state.filteredItems),
     remaining: state => filters.active(state.filteredItems).length,
-    archived: state => state.filteredItems.filter(item => item.is_archived)
+    archived: state => state.filteredItems.filter(item => item.is_archived),
+    colors: () => io.settings['tasks']['priority_colors'] || []
   },
 
   mutations: {
@@ -56,7 +57,7 @@ export default {
 
     updateFilteredItems (state) {
       state.filteredItems = filters._all(
-        state.items, state.milesonteFilter, state.categoryFilter
+        state.items, state.milestoneFilter, state.categoryFilter
       );
     }
   },
@@ -75,7 +76,7 @@ export default {
 
     updateFilters ({ state, commit }, { categoryId, milestoneId }) {
       commit('set', { property: 'categoryFilter', value: categoryId });
-      commit('set', { property: 'milesonteFilter', value: milestoneId });
+      commit('set', { property: 'milestoneFilter', value: milestoneId });
       commit('updateFilteredItems');
     },
 
@@ -135,9 +136,9 @@ export default {
     },
 
     cancelEdit ({ state }, item) {
-      item.title = this.beforeEditCache;
+      item.title = state.beforeEditCache;
       state.editingItem = null;
-      this.beforeEditCache = '';
+      state.beforeEditCache = '';
     },
 
     async remove ({ commit, dispatch }, item) {

@@ -85,6 +85,13 @@
               {{task.category ? task.category.name : "Unassigned"}}
             </span>
 
+            <span
+              class="badge badge-secondary"
+              v-show="task != editingTask && task.due"
+            >
+              {{task.due ? task.due : "Unassigned"}}
+            </span>
+
             <!-- EDIT -->
             <div
               class="input-group"
@@ -102,15 +109,56 @@
                 v-model="task.title"
                 v-focus="task == editingTask"
                 v-show="task == editingTask"
-                @blur="doneEditTask(task)"
                 @keyup.enter="doneEditTask(task)"
                 @keyup.esc="cancelEditTask(task)"
               >
 
+              <!-- SCHEDULE  -->
+              <button class="btn btn-outline-secondary input-group-append">
+                <i class="fa fa-clock"></i></button>
+              <!-- PRIORITY / COLORIZE  -->
+              <div class="category input-group-append">
+                <button
+                  class="btn btn-outline-secondary "
+                  @click="toggleColorPalette()"
+                ><i class="fa fa-palette"></i>
+                </button>
+                <nav
+                  class="selector color-palette"
+                  v-if="showColorPalette"
+                >
+                  <ul class="selector-group color-selector">
+                    <li
+                      v-for="(color, index) in colors"
+                      :key="index"
+                    >
+                      <button
+                        class="btn btn-primary"
+                        :class="color.name"
+                        @click="selectColor(color.value)"
+                      ></button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+              <!--SAVE/CANCEL  -->
+              <button
+                class="btn btn-outline-danger input-group-append"
+                @click="cancelEditTask(task)"
+              ><i class=" fa fa-times"></i></button>
+
+              <button
+                class="btn btn-outline-success input-group-append"
+                @click="doneEditTask(task)"
+              ><i class="fa fa-check"></i></button>
             </div>
 
-            <!-- SCHEDULE  -->
-            <button class="btn btn-outline-secondary"><i class="fa fa-clock"></i></button>
+            <!-- Edit -->
+            <button
+              v-show="task != editingTask"
+              class="btn btn-primary"
+              @click="startEditTask(task)"
+            ><i class="fa fa-edit"></i></button>
 
             <!-- DELETE -->
             <button
@@ -130,7 +178,8 @@
         <span
           class="mr-auto task-count badge badge-secondary"
           v-show="remainingTasks"
-        ><strong>{{ remainingTasks }}</strong>{{ remainingTasks | pluralize }} left</span>
+        ><strong>{{ remainingTasks }}</strong>
+          {{ remainingTasks | pluralize }} left</span>
         <span class="gap" />
 
         <button
@@ -215,7 +264,8 @@ export default {
       newTask: {
         title: '',
         category: null
-      }
+      },
+      showColorPalette: false
     };
   },
 
@@ -229,7 +279,8 @@ export default {
     ...mapGetters('Tasks', {
       filteredTasks: 'filtered',
       remainingTasks: 'remaining',
-      archivedTaks: 'archived'
+      archivedTaks: 'archived',
+      colors: 'colors'
     }),
     ...mapGetters('Categories', { getCategory: 'getCategory' }),
 
@@ -274,14 +325,23 @@ export default {
     addNewTask () {
       this.$store.dispatch('Tasks/addNew', this.newTask);
       this.newTask = {
-        title: ''
-        // category: this.selectedCategory
+        title: '',
+        category: this.selectedCategory
       };
     },
 
     categorySelected (task, category) {
       task.category = category;
       console.log('select category', { task, category });
+    },
+
+    toggleColorPalette () {
+      this.showColorPalette = !this.showColorPalette;
+    },
+
+    selectColor (colorId) {
+      this.showColorPalette = false;
+      console.log('Hello', colorId);
     }
   },
 
@@ -348,6 +408,44 @@ hr {
   }
 }
 
+@import "@/scss/__category_selector.scss";
+
+.color-palette {
+  display: flex;
+  max-width: 150px;
+  right: 0px !important;
+  .color-selector {
+    columns: 2;
+    margin: 0 auto;
+    text-align: center;
+    li {
+      display: block;
+      vertical-align: top;
+      button {
+        &.red {
+          background-color: red;
+        }
+        &.oragne {
+          background-color: orange;
+        }
+        &.yellow {
+          background-color: yellow;
+        }
+        &.green {
+          background-color: green;
+        }
+        &.blue {
+          background-color: blue;
+        }
+        &.purple {
+          background-color: purple;
+        }
+        .none {
+        }
+      }
+    }
+  }
+}
 // --- custom toggle / checkmark stuff
 .toggle {
   margin: 0px;
