@@ -1,29 +1,5 @@
 import io from '@/services/io';
-import common from '@/store/_common';
-
-class Filter {
-  constructor () {
-    this.all = (items) => items.filter(item => !item.is_archived);
-    this.active = (items) => items.filter(item => !item.is_completed && !item.is_archived);
-    this.completed = (items) => items.filter(item => item.is_completed && !item.is_archived);
-  }
-
-  _category (items, categoryId) {
-    if (categoryId === 'all') {
-      return items;
-    } else if (categoryId === 'unassigned') {
-      return items.filter(item => !item.category);
-    } else {
-      return items.filter(item => item.category && item.category.id === categoryId);
-    }
-  };
-
-  _milestone (items, milestoneId) {
-    return items;
-  };
-
-  _all (items, milestoneId, categoryId) { return this._category(this._milestone(items, milestoneId), categoryId); }
-};
+import common, { Filter } from '@/store/_common';
 
 var filters = new Filter();
 

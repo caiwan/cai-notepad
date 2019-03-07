@@ -1,7 +1,7 @@
 @import "colors";
 $border: 1px, solid, $gray-600;
 
-$tag-background: darken($teal, 10);
+$tag-background: $teal;
 $tag-color: $white;
 $tag-margin: 3px;
 $tag-padding: 2px;

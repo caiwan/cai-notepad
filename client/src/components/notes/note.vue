@@ -39,7 +39,7 @@
       </div>
       <i class="fa fa-folder"></i>
       &nbsp;
-      {{note.category ? note.category.name : "Unassigned"}}
+      {{categoryName(note.category)}}
       &nbsp;
       <template v-if="note.due_date">
         <i class="fa fa-calendar"></i>
@@ -53,9 +53,12 @@
 
 <script>
 import moment from 'moment';
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+
 export default {
   props: ['note'],
   computed: {
+    ...mapGetters('Categories', ['category', 'categoryName'])
   },
   methods: {
     edit () {

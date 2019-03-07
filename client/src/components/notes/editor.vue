@@ -30,7 +30,7 @@
       <div class="footer-bottom-line">
         <!-- CATEGORY SELECTOR  -->
         <category-selector
-          :category="note.category"
+          :category="category(note.category)"
           v-on:selected="categorySelected"
         />
 
@@ -120,7 +120,9 @@ export default {
   },
 
   computed: {
-    ...mapState('Notes/Tags', { autocompleteTags: 'items' })
+    ...mapState('Notes/Tags', { autocompleteTags: 'items' }),
+    ...mapGetters('Categories', ['category', 'categoryName'])
+
   },
 
   methods: {
@@ -134,7 +136,7 @@ export default {
 
     categorySelected (category) {
       console.log('Category:', [category.name, category.id]);
-      this.note.category = category;
+      this.note.category = category.id;
     },
 
     // dateSelected () {
@@ -213,7 +215,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../scss/_colors.scss";
+@import "@/scss/_colors.scss";
 
 header {
   padding: 2px 4px !important;
@@ -250,8 +252,9 @@ div {
   }
 }
 
-@import "../../scss/__tag-input.scss";
-@import "../../scss/__category_selector.scss";
+@import "@/scss/__tag-input.scss";
+@import "@/scss/__category_selector.scss";
+@import "@/scss/__color_tags.scss";
 
 footer {
   padding: 2px 8px !important;

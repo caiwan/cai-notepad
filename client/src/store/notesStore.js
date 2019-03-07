@@ -1,24 +1,6 @@
 import io from '@/services/io';
-import common, { copyObject } from '@/store/_common';
+import common, { Filter, copyObject } from '@/store/_common';
 import tags from './notes/tagsStore';
-
-class Filter {
-  category (items, categoryId) {
-    if (categoryId === 'all') {
-      return items;
-    } else if (categoryId === 'unassigned') {
-      return items.filter(item => !item.category);
-    } else {
-      return items.filter(item => item.category && item.category.id === categoryId);
-    }
-  };
-
-  milestone (items, milestoneId) {
-    return items;
-  };
-
-  all (items, milestoneId, categoryId) { return this.category(this.milestone(items, milestoneId), categoryId); }
-};
 
 const filters = new Filter();
 

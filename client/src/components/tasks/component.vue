@@ -351,8 +351,8 @@ export default {
     },
 
     categorySelected (task, category) {
-      task.category = category.id;
       console.log('select category', { task, category });
+      task.category = category.id;
     },
 
     toggleColorPalette () {
@@ -452,104 +452,7 @@ hr {
   }
 }
 
-.color {
-  &.outline {
-    &.red {
-      color: $red;
-      &:hover {
-        background-color: $red-900;
-        color: $white;
-      }
-    }
-    &.orange {
-      color: $orange;
-      &:hover {
-        background-color: $orange-900;
-        color: $white;
-      }
-    }
-    &.yellow {
-      color: $yellow;
-      &:hover {
-        background-color: $yellow-900;
-        color: $white;
-      }
-    }
-    &.green {
-      color: $green;
-      &:hover {
-        background-color: $green-900;
-        color: $white;
-      }
-    }
-    &.blue {
-      color: $blue;
-      &:hover {
-        background-color: $blue-900;
-        color: $white;
-      }
-    }
-    &.purple {
-      color: $purple;
-      &:hover {
-        background-color: $purple-900;
-        color: $white;
-      }
-    }
-    &.none {
-      color: $secondary;
-      &:hover {
-        background-color: $secondary;
-        color: $white;
-      }
-    }
-  }
-
-  &.fill {
-    &.red {
-      background-color: $red-900;
-      &:hover {
-        background-color: $red;
-      }
-    }
-    &.orange {
-      background-color: $orange-900;
-      &:hover {
-        background-color: $orange;
-      }
-    }
-    &.yellow {
-      background-color: $yellow-900;
-      &:hover {
-        background-color: $yellow;
-      }
-    }
-    &.green {
-      background-color: $green-900;
-      &:hover {
-        background-color: $green;
-      }
-    }
-    &.blue {
-      background-color: $blue-900;
-      &:hover {
-        background-color: $blue;
-      }
-    }
-    &.purple {
-      background-color: $purple-900;
-      &:hover {
-        background-color: $purple;
-      }
-    }
-    &.none {
-      background-color: $light;
-      &:hover {
-        background-color: $secondary;
-      }
-    }
-  }
-}
+@import "@/scss/__color_tags.scss";
 
 // --- custom toggle / checkmark stuff
 .toggle {

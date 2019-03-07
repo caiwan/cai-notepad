@@ -96,13 +96,13 @@ export default {
       archivedNotes: 'archivedItems'
     }),
     ...mapState('Notes', { categoryId: 'categoryFilter', milestoneId: 'milestoneFilter' }),
-    ...mapGetters('Categories', { getCategory: 'getCategory' }),
+    ...mapGetters('Categories', { category: 'category' }),
     hasPinned () { return this.pinnedNotes !== null && this.pinnedNotes.length > 0; },
     hasOthers () { return this.notes !== null && this.notes.length > 0; },
     hasArchived () { return this.archivedNotes !== null && this.archivedNotes.length > 0; },
 
     selectedCategory () {
-      return this.getCategory(this.categoryId);
+      return this.category(this.categoryId);
     }
   },
 
@@ -120,13 +120,13 @@ export default {
         alert('Save editing note first // add confirm dialog plz');
         return;
       }
-      this.newNote.category = this.selectedCategory;
+      this.newNote.category = this.selectedCategory.id;
       this.isCreateNew = true;
     },
 
     clearNewNote () {
       this.newNote = {
-        title: '', content: '', category: this.selectedCategory
+        title: '', content: '', category: this.selectedCategory.id
       };
       this.isCreateNew = false;
     },
