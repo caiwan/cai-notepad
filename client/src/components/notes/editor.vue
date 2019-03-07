@@ -30,7 +30,7 @@
       <div class="footer-bottom-line">
         <!-- CATEGORY SELECTOR  -->
         <category-selector
-          :category="category(note.category)"
+          :selected="category(note.category)"
           v-on:selected="categorySelected"
         />
 
@@ -42,11 +42,12 @@
           :bootstrapStyling="true"
           :input-class="'calendar-input'"
           :clear-button="true"
-          :clear-button-icon="'fa fa-times'"
+          :clear-button-icon="'fa fa-backspace'"
           :calendar-button="true"
           :calendar-button-icon="'fa fa-calendar'"
           :calendar-class="'calendar'"
           :wrapper-class="'calendar-wrapper'"
+          :bootstrap-styling="true"
         />
 
         <!-- FOOTER BUTTONS -->
@@ -135,8 +136,9 @@ export default {
     },
 
     categorySelected (category) {
-      console.log('Category:', [category.name, category.id]);
-      this.note.category = category.id;
+      const categoryId = category ? category.id : null;
+      console.log('select category', { categoryId, category });
+      this.note.category = categoryId;
     },
 
     // dateSelected () {

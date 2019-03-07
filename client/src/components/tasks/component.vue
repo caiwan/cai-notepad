@@ -10,7 +10,7 @@
 
             <div class="input-group-prepend">
               <category-selector
-                :category="category(newTask.category)"
+                :selected="category(newTask.category)"
                 v-on:selected="categorySelected(newTask, $event)"
               />
             </div>
@@ -87,20 +87,22 @@
             </span>
 
             <span
-              class="badge badge-secondary"
-              v-show="task != editingTask && task.due"
+              class="badge badge-secondary color fill"
+              v-show="task != editingTask && task.due_date"
+              :class="colorName(task.color)"
             >
-              {{task.due}}
+              {{task.due_date | formatDate}}
             </span>
 
             <!-- EDIT -->
             <div
-              class="input-group"
+              class="
+              input-group"
               v-show="task == editingTask"
             >
               <category-selector
                 class="input-group-prepend"
-                :category="category(task.category)"
+                :selected="category(task.category)"
                 v-on:selected="categorySelected(task, $event)"
                 v-show="task == editingTask"
               />
@@ -115,8 +117,21 @@
               >
 
               <!-- SCHEDULE  -->
-              <button class="btn btn-outline-secondary input-group-append">
-                <i class="fa fa-clock"></i></button>
+              <!-- <button class="btn btn-outline-secondary input-group-append"> <i class="fa fa-clock"></i></button> -->
+
+              <datepicker
+                v-model="task.due_date"
+                :placeholder="'Due date'"
+                :format="'yyyy-MM-dd'"
+                :bootstrapStyling="true"
+                :input-class="'hidden'"
+                :clear-button="true"
+                :clear-button-icon="'fa fa-backspace'"
+                :calendar-button="true"
+                :calendar-button-icon="'fa fa-calendar'"
+                :calendar-class="'calendar right'"
+                :wrapper-class="'calendar-wrapper'"
+              />
 
               <!-- PRIORITY / COLORIZE  -->
               <div class="category color-palette input-group-append">
@@ -235,6 +250,14 @@
             >
               {{categoryName(task.category)}}
             </span>
+
+            <span
+              class="badge badge-secondary fill color"
+              :class="colorName(task.color)"
+            >
+              {{task.due_date | formatDate}}
+            </span>
+
             <!-- Some button -->
             <button
               class="btn btn-primary"
@@ -254,12 +277,17 @@
 </template>
 
 <script>
+import moment from 'moment';
+
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategorySelector from '../category-selector.vue';
 
+import Datepicker from 'vuejs-datepicker';
+
 export default {
   components: {
-    CategorySelector
+    CategorySelector,
+    Datepicker
   },
 
   created () {
@@ -273,7 +301,12 @@ export default {
         title: '',
         category: null
       },
-      showColorPalette: false
+      showColorPalette: false,
+      datepickerState: {
+        hihlighted: {
+
+        }
+      }
     };
   },
 
@@ -326,6 +359,7 @@ export default {
         categoryId: this.$route.query.category ? this.$route.query.category : 'all',
         milestoneId: this.$route.query.milestone ? this.$route.query.milestone : 'all'
       });
+      this.newTask.category = this.selectedCategory ? this.selectedCategoryId : null;
     },
 
     addNewTask () {
@@ -351,8 +385,9 @@ export default {
     },
 
     categorySelected (task, category) {
-      console.log('select category', { task, category });
-      task.category = category.id;
+      const categoryId = category ? category.id : null;
+      console.log('select category', { task, categoryId, category });
+      task.category = categoryId;
     },
 
     toggleColorPalette () {
@@ -363,12 +398,22 @@ export default {
       this.showColorPalette = false;
       task.color = colorId;
     }
+
   },
 
   filters: {
     pluralize: function (n) {
       return n === 1 ? 'item' : 'itmes';
+    },
+    formatDate (date) {
+      return moment(new Date(date)).calendar(null, {
+        sameDay: '[Today]',
+        sameElse (now) {
+          return `[${this.fromNow()}], YYYY-MM-DD`;
+        }
+      });
     }
+
   },
 
   directives: {
@@ -386,7 +431,6 @@ export default {
     $route (to, from) {
       this._fetchAndUpdate();
       console.log('selected cat', this.selectedCategory, this.selectedCategoryId);
-      this.newTask.category = this.selectedCategory ? this.selectedCategoryId : null;
     }
   }
 };
@@ -422,6 +466,12 @@ hr {
   border: 1px solid $gray-700;
 }
 
+span {
+  &.badge {
+    margin: 0 2px;
+  }
+}
+
 .archived {
   header {
     margin: 8px;
@@ -450,6 +500,10 @@ hr {
       }
     }
   }
+}
+
+.calendar-input {
+  display: none;
 }
 
 @import "@/scss/__color_tags.scss";

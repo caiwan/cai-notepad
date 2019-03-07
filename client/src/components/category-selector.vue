@@ -5,7 +5,7 @@
       type="button"
       @click="dropdown()"
     >
-      <i class="fa fa-folder"></i> <span class="category-name">{{category ? category.name : "Unassigned"}}</span>
+      <i class="fa fa-folder"></i> <span class="category-name">{{selected ? selected.name : "Unassigned"}}</span>
     </button>
     <nav
       v-if="showCategorySelector"
@@ -15,14 +15,18 @@
         class="selector-group"
         @blur="close()"
       >
-        <li class="selector-item zebra">
-          <span @click="selected(null)">Unassigned</span>
+        <li
+          class="selector-item zebra"
+          :class="{selected: selected === null}"
+        >
+          <span @click="itemSelected(null)">Unassigned</span>
         </li>
         <category-item
           v-for="(item, index) in categories"
           :key="index"
-          v-on:itemSelected="selected"
+          v-on:itemSelected="itemSelected"
           :model="item"
+          :selected="selected"
         />
       </ul>
     </nav>
@@ -38,7 +42,7 @@ export default {
   name: 'CategorySelector',
 
   props: {
-    category: { type: Object, default: null }
+    selected: { type: Object, default: null }
   },
 
   components: {
@@ -67,7 +71,7 @@ export default {
     close () {
       this.showCategorySelector = false;
     },
-    selected (category) {
+    itemSelected (category) {
       this.$emit('selected', category);
       this.showCategorySelector = false;
     }
@@ -85,7 +89,7 @@ export default {
 .category {
   .category-name {
     display: none;
-    @include respond-to(md) {
+    @include respond-to(lg) {
       display: inline;
     }
   }

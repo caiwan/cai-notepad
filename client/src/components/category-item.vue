@@ -2,6 +2,7 @@
   <li
     class="selector-item zebra"
     v-if="!maxDepth || lod<maxDepth"
+    :class="{selected: model === selected}"
   >
     <span
       :class="{folder: hasChildren}"
@@ -21,6 +22,7 @@
         :maxDepth="maxDepth"
         v-on:itemSelected="select(item)"
         :lod="lod+1"
+        :selected="selected"
       />
     </ul>
   </li>
@@ -36,7 +38,9 @@ export default {
   props: {
     model: Object,
     maxDepth: Number,
-    lod: { default: 0, type: Number }
+    lod: { default: 0, type: Number },
+    selected: { type: Object, default: null }
+
   },
   data () {
     return {

@@ -98,10 +98,11 @@ export default {
         return;
       }
 
-      if (item.title.trim() === state.beforeEditCache) {
-        state.editingItem = null;
-        return;
-      }
+      // TODO: opt out save when not dirty -> component
+      // if (item.title.trim() === state.beforeEditCache) {
+      //   state.editingItem = null;
+      //   return;
+      // }
 
       item.title = item.title.trim();
       // Remove when we've deleted the title and committed

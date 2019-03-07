@@ -1,3 +1,5 @@
+@import "bootstrap/scss/_variables.scss";
+
 @import "bootsrap_overrides.scss";
 @import "variables.scss";
 @import "mixins.scss";
@@ -22,18 +24,25 @@ body {
 }
 
 // Calendar
+.calendar-wrapper{
+  .input-group{
+    // height: $input-height-base;
+    height:36.5px; // terrible hack
+  }
+  .calendar-input{
+    background-color: teal;
 
-.calendar-input{
-  background-color: teal;
+  }
 
+  .calendar {
+    background-color: $primary;
+    &.right{
+      right: 0px !important;
+    }
+  }
 }
 
-// .calendar-wrapper {
-  // background-color: yellow;
-// }
 
-.calendar {
-  &.vdp-datepicker__calendar{
-    background-color: $primary;
-  }
+.hidden{
+  display: none !important;
 }
