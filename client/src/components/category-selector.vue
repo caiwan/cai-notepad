@@ -5,7 +5,7 @@
       type="button"
       @click="dropdown()"
     >
-      <i class="fa fa-folder"></i> {{category ? category.name : "Unassigned"}}
+      <i class="fa fa-folder"></i> <span class="category-name">{{category ? category.name : "Unassigned"}}</span>
     </button>
     <nav
       v-if="showCategorySelector"
@@ -80,5 +80,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../scss/__category_selector.scss";
+@import "@/scss/_mixins.scss";
+@import "@/scss/__category_selector.scss";
+.category {
+  .category-name {
+    display: none;
+    @include respond-to(md) {
+      display: inline;
+    }
+  }
+}
 </style>

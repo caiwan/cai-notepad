@@ -88,7 +88,7 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import "scss/style.scss";
+@import "@/scss/style.scss";
 
 $transition-speed: 0.5s;
 $drawer-width: 250px;

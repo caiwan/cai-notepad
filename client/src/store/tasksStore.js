@@ -1,7 +1,6 @@
 import io from '@/services/io';
-import common, { Filter } from '@/store/_common';
-
-var filters = new Filter();
+import filters from '@/services/filters';
+import common from '@/store/_common';
 
 export default {
   namespaced: true,
@@ -34,7 +33,7 @@ export default {
     },
 
     updateFilteredItems (state) {
-      state.filteredItems = filters._all(
+      state.filteredItems = filters.filter(
         state.items, state.milestoneFilter, state.categoryFilter
       );
     }

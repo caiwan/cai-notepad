@@ -1,8 +1,7 @@
 import io from '@/services/io';
-import common, { Filter, copyObject } from '@/store/_common';
+import filters from '@/services/filters';
+import common, { copyObject } from '@/store/_common';
 import tags from './notes/tagsStore';
-
-const filters = new Filter();
 
 export default {
   namespaced: true,

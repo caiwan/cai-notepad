@@ -42,7 +42,7 @@ export default {
     rm: (state, item) => {
       state.items.splice(state.items.indexOf(item), 1);
       state.itemMap.splice(state.items.indexOf(item), 1);
-      state.itemTree.splice(state.itemTree.indexOf(item), 1); // ? is it worksfor real?
+      state.itemTree.splice(state.itemTree.indexOf(item), 1); // ? is it works for real?
     }
 
   },

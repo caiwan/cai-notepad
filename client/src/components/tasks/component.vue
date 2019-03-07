@@ -10,7 +10,7 @@
 
             <div class="input-group-prepend">
               <category-selector
-                :category="newTask.category"
+                :category="category(newTask.category)"
                 v-on:selected="categorySelected(newTask, $event)"
               />
             </div>
@@ -264,7 +264,7 @@ export default {
 
   created () {
     this._fetchAndUpdate();
-    this.newTask.category = this.selectedCategory;
+    this.newTask.category = this.selectedCategoryId;
   },
 
   data () {
@@ -281,8 +281,8 @@ export default {
     ...mapState('Tasks', {
       tasks: 'items',
       editingTask: 'editingItem',
-      categoryId: 'categoryFilter',
-      milestoneId: 'milestoneFilter'
+      selectedCategoryId: 'categoryFilter',
+      selectedMilestoneId: 'milestoneFilter'
     }),
     ...mapGetters('Tasks', {
       filteredTasks: 'filtered',
@@ -303,7 +303,7 @@ export default {
     },
 
     selectedCategory () {
-      return this.category(this.categoryId);
+      return this.category(this.selectedCategoryId);
     }
   },
 
@@ -324,7 +324,7 @@ export default {
       await this.$store.dispatch('Tasks/fetchAll');
       this.$store.dispatch('Tasks/updateFilters', {
         categoryId: this.$route.query.category ? this.$route.query.category : 'all',
-        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : 'all'
+        milestoneId: this.$route.query.milestone ? this.$route.query.milestone : 'all'
       });
     },
 
@@ -332,7 +332,7 @@ export default {
       this.$store.dispatch('Tasks/addNew', this.newTask);
       this.newTask = {
         title: '',
-        category: this.selectedCategory
+        category: this.selectedCategory ? this.selectedCategoryId : null
       };
     },
 
@@ -385,15 +385,15 @@ export default {
   watch: {
     $route (to, from) {
       this._fetchAndUpdate();
-      this.newTask.category = this.selectedCategory.id;
-      console.log('selected cat', this.selectedCategory, this.categoryId);
+      console.log('selected cat', this.selectedCategory, this.selectedCategoryId);
+      this.newTask.category = this.selectedCategory ? this.selectedCategoryId : null;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../../scss/_colors.scss";
+@import "@/scss/_colors.scss";
 ul {
   &.task-list {
     list-style: none;
