@@ -16,7 +16,7 @@
             </div>
 
             <input
-              class="form-control add-task"
+              class="form-control input-group-append"
               autofocus
               autocomplete="off"
               v-model="newTask.title"
@@ -25,11 +25,10 @@
               placeholder="What needs to be done?"
               id="new-task-input"
             />
-            <div class="input-group-append"> <button
-                class="btn btn-success"
-                type="button"
-                @click="addNewTask()"
-              ><i class="fa fa-plus"></i></button></div>
+            <button
+              class="btn btn-success input-group-append"
+              @click="addNewTask()"
+            ><i class="fa fa-plus"></i></button>
           </div>
         </div>
       </header>

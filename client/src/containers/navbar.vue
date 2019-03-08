@@ -91,7 +91,7 @@ nav {
       word-break: keep-all;
     }
     .dropdown-menu {
-      z-index: 65536;
+      z-index: 10;
       position: absolute !important;
       display: block !important;
       left: -120px !important;

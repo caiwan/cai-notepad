@@ -7,7 +7,6 @@ $zebra-color-amount: 2;
 $zebra-even-color: lighten($secondary, $zebra-color-amount);
 $zebra-odd-color: darken($secondary, $zebra-color-amount);
 
-
 .category {
   overflow: hidden;
   display: inline-block;
@@ -67,7 +66,7 @@ $zebra-odd-color: darken($secondary, $zebra-color-amount);
           background-color: $zebra-odd-color;
         }
 
-        &.selected{
+        &.selected {
           &.even::after {
             background-color: $primary !important;
           }

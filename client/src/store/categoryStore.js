@@ -22,8 +22,7 @@ export default {
       if (!item.hasOwnProperty('children')) { item['children'] = []; }
       state.itemMap[item.id] = item;
       if (item.parent) {
-        const pid = item.parent.id;
-        state.itemMap[pid].children.push(state.itemMap[item.id]);
+        state.itemMap[item.parent].children.push(state.itemMap[item.id]);
       } else {
         state.itemTree.push(state.itemMap[item.id]);
       }
@@ -74,7 +73,7 @@ export default {
       state.isLoading = true;
 
       const item = await io.categories.add({
-        name, parent
+        name, parent: parent.id
       }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!item) { return; }
 

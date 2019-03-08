@@ -1,5 +1,6 @@
 # coding=utf-8
 import sys
+import json
 
 from playhouse.shortcuts import dict_to_model, model_to_dict
 from playhouse.shortcuts import Value
@@ -26,9 +27,7 @@ class CategoryService(components.Service):
     def create_category(self, item_json):
         parent = None
         if "parent" in item_json:
-            if item_json["parent"] and "id" in item_json["parent"]:
-                id = int(item_json["parent"]["id"])
-                parent = self.read_item(id).get()
+            parent = self.read_item(item_json["parent"])
             del item_json["parent"]
 
         item = dict_to_model(Category, item_json)
@@ -47,8 +46,9 @@ class CategoryService(components.Service):
 
     def edit_category(self, item_json):
         parent = None
-        if "parent" in item_json and "id" in item_json["parent"] and item_json["parent"]["id"]:
-            parent = self.read_item(item_json["parent"])
+        if "parent" in item_json:
+            parent = self.read_item(int(item_json["parent"]))
+            del item_json["parent"]
 
         item = dict_to_model(Category, item_json)
         item.parent = parent
@@ -193,13 +193,10 @@ class CategoryService(components.Service):
                 item_map[id] = item
                 items.append(item)
 
-                # logging.info("Insert item ID: {} item ID {}".format(id, item.id))
-
             for (item_id, parent_id) in parent_map.items():
                 if parent_id:
                     item = item_map[item_id]
                     item.parent = item_map[parent_id]
-                    # logging.info("Attach parent {} <- {}".format(item_id, parent_id))
                     item.save()
 
             self._flatten_tree_order()
@@ -209,18 +206,12 @@ class CategoryService(components.Service):
 
     def serialize_item(self, item):
         try:
-            item_json = model_to_dict(
+            return model_to_dict(
                 item, exclude=[
                     Category.is_deleted,
                     Category.flatten_order,
-                    Category.parent,
                     Category.owner
-                ])
-            # del item_json["is_deleted"]  # Exclude does nothing :(
-            # del item_json["flatten_order"]
-            item_json["parent"] = {
-                "id": item.parent.id} if item.parent else None
-            return item_json
+                ], recurse=False)
         except:
             logging.exception(sys.exc_info()[0])
             raise

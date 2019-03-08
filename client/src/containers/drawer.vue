@@ -36,7 +36,8 @@
 
     <section>
       <header class="navbar-sub">
-        <a>Categories</a> [Edit]
+        <a>Categories</a>
+        [<router-link :to="{name: 'Categories'}">Edit</router-link>]
       </header>
       <!-- category tree -->
       <ul class="tree list-group">
@@ -52,7 +53,7 @@
           :key="index"
           class="item list-group-item"
           :model="category"
-          :maxDepth="0"
+          :maxDepth="2"
           v-on:itemAdded="addCategory"
           v-on:itemEdited="editCategory"
         />

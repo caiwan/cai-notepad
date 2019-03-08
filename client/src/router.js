@@ -5,6 +5,7 @@ import User from '@/components/user/component';
 import Login from '@/components/login/component';
 import Tasks from '@/components/tasks/component';
 import Notes from '@/components/notes/component';
+import Categories from '@/components/categories/component';
 
 Vue.use(Router);
 
@@ -43,7 +44,7 @@ export const router = new Router({
     {
       path: '/categories',
       name: 'Categories',
-      component: Notes
+      component: Categories
     },
     {
       path: '/user',
