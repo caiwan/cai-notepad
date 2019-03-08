@@ -2,32 +2,20 @@
   <li v-if="!maxDepth || lod<maxDepth">
     <span class="item-group">
       <span
-        v-if="!maxDepth || lod+1<maxDepth"
-        @click="toggleOpen"
+        class="folder"
+        v-if="!maxDepth || lod+1<maxDepth && isFolder"
+        @click="toggle"
       >
         <i
           class="fa"
           :class="open ? 'fa-caret-down' : 'fa-caret-right' "
         >&nbsp;</i>
       </span>
-      <span
-        v-if="!isEditing"
-        class="item"
-        @dblclick="startEdit"
-      >
+      <span class="item">
         <router-link :to="{name: routerName, query:{category:model.id}}">
           {{ model.name }}
         </router-link>
       </span>
-      <input
-        class="edit form-control"
-        v-if="isEditing"
-        v-model="model.name"
-        v-focus="isEditing"
-        @blur="cancelEdit"
-        @keyup.enter="doneEdit"
-        @keyup.esc="cancelEdit"
-      />
     </span>
     <ul
       v-if="open"
@@ -40,28 +28,7 @@
         :model="model"
         :maxDepth="maxDepth"
         :lod="lod+1"
-        v-on:itemAdded="itemAdded"
-        v-on:itemEdited="itemEdited"
       />
-      <li>
-        <span
-          class="add"
-          v-if="!isAddingChild"
-          @click="startAddChild"
-        ><i class="fa fa-folder-plus"></i></span>
-        <input
-          autofocus
-          autocomplete="off"
-          placeholder="Category"
-          class="add form-control"
-          v-if="isAddingChild"
-          v-model="newChild"
-          v-focus="isAddingChild"
-          @blur="cancelAddChild"
-          @keyup.enter="doneAddChild"
-          @keyup.esc="cancelAddChild"
-        />
-      </li>
     </ul>
   </li>
 </template>
@@ -77,54 +44,15 @@ export default {
   data () {
     return {
       open: false,
-      isEditing: false,
-      beforeEditCache: null,
-      isAddingChild: false,
-      newChild: '',
       routerName: this.$router.name
     };
   },
   computed: {
+    isFolder () { return this.model.children && this.model.children.length; }
   },
   methods: {
-    toggleOpen () {
+    toggle () {
       this.open = !this.open;
-    },
-    startEdit () {
-      this.isEditing = true;
-      this.beforeEditCache = this.model.name;
-    },
-    doneEdit () {
-      if (!this.isEditing) { return; }
-      this.$emit('itemEdited', this.model);
-      console.log('lolz1');
-      this.isEditing = false;
-      this.beforeEditCache = null;
-    },
-    cancelEdit () {
-      if (!this.isEditing) { return; }
-      this.isEditing = false;
-      this.model.name = this.beforeEditCache;
-    },
-
-    startAddChild () {
-      this.isAddingChild = true;
-    },
-    doneAddChild () {
-      this.$emit('itemAdded', { parent: this.model, name: this.newChild });
-      this.isAddingChild = false;
-      this.newChild = '';
-    },
-    cancelAddChild () {
-      this.isAddingChild = false;
-      this.newChild = '';
-    },
-    itemAdded (parent, name) {
-      console.log('Hello', { parent, name });
-      this.$emit('itemAdded', { parent, name });
-    },
-    itemEdited (model) {
-      this.$emit('itemEdited', model);
     }
   },
   directives: {
@@ -139,6 +67,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.folder {
+  width: 24px;
+  height: 24px;
+  i {
+    padding-left: 6px;
+  }
+}
+
 .item-group {
   display: flex;
   overflow: hidden;

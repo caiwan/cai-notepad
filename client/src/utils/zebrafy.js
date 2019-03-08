@@ -9,7 +9,7 @@ export function isHidden (element) {
 export default function (element) {
   const zebraElements = ([].slice.call(element.getElementsByClassName('zebra')))
     .filter(element => !isHidden(element));
-  var counter = 0;
+  let counter = 0;
   zebraElements.forEach(element => {
     element.classList.remove('even');
     element.classList.remove('odd');

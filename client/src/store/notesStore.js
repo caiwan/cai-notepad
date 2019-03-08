@@ -1,6 +1,6 @@
 import io from '@/services/io';
 import filters from '@/services/filters';
-import common, { copyObject } from '@/store/_common';
+import common from '@/store/_common';
 import tags from './notes/tagsStore';
 
 export default {
@@ -70,7 +70,7 @@ export default {
     },
 
     startEdit ({ dispatch, state }, item) {
-      state.beforeEditCache = copyObject(item, {});
+      state.beforeEditCache = Object.assign(item, {});
       state.editingItem = item;
     },
 
@@ -92,7 +92,7 @@ export default {
     },
 
     cancelEdit ({ dispatch, state }, item) {
-      item = copyObject(state.beforeEditCache, item);
+      item = Object.assign(state.beforeEditCache, item);
       state.editingItem = null;
       this.beforeEditCache = null;
     },

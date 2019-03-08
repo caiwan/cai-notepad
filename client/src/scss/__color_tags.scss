@@ -14,14 +14,14 @@
       color: $orange;
       &:hover {
         background-color: $orange-900;
-        color: $white;
+        color: $black;
       }
     }
     &.yellow {
       color: $yellow;
       &:hover {
         background-color: $yellow-900;
-        color: $white;
+        color: $black;
       }
     }
     &.green {
@@ -66,12 +66,15 @@
       &:hover {
         background-color: $orange;
       }
+      color: $black;
+
     }
     &.yellow {
       background-color: $yellow-900;
       &:hover {
         background-color: $yellow;
       }
+      color: $black;
     }
     &.green {
       background-color: $green-900;

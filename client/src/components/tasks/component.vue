@@ -7,14 +7,12 @@
       <header class="card card bg-light mx-1 my-2">
         <div class="card-body py-2">
           <div class="input-group">
-
             <div class="input-group-prepend">
               <category-selector
                 :selected="category(newTask.category)"
                 v-on:selected="categorySelected(newTask, $event)"
               />
             </div>
-
             <input
               class="form-control input-group-append"
               autofocus
@@ -95,8 +93,7 @@
 
             <!-- EDIT -->
             <div
-              class="
-              input-group"
+              class="input-group"
               v-show="task == editingTask"
             >
               <category-selector
@@ -116,8 +113,6 @@
               >
 
               <!-- SCHEDULE  -->
-              <!-- <button class="btn btn-outline-secondary input-group-append"> <i class="fa fa-clock"></i></button> -->
-
               <datepicker
                 v-model="task.due_date"
                 :placeholder="'Due date'"
@@ -253,11 +248,12 @@
             <span
               class="badge badge-secondary fill color"
               :class="colorName(task.color)"
+              v-if="task.due_date"
             >
               {{task.due_date | formatDate}}
             </span>
 
-            <!-- Some button -->
+            <!-- BUTTONS -->
             <button
               class="btn btn-primary"
               @click="toggleArchive(task)"

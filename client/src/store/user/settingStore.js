@@ -1,5 +1,5 @@
 import io from '@/services/io';
-import common, { copyObject } from '@/store/_common';
+import common from '@/store/_common';
 
 export default {
   namespaced: true,

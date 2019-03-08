@@ -17,7 +17,7 @@ export class BaseIONode {
   async handleFault (v) {
     if (v.ok) { return v; }
 
-    var j = null;
+    let j = null;
     try {
       j = await v.json();
     } catch (e) {

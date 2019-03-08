@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 import sys
 import json
 
@@ -26,7 +27,7 @@ class CategoryService(components.Service):
 
     def create_category(self, item_json):
         parent = None
-        if "parent" in item_json:
+        if "parent" in item_json and item_json["parent"]:
             parent = self.read_item(item_json["parent"])
             del item_json["parent"]
 
@@ -36,17 +37,17 @@ class CategoryService(components.Service):
         item.save()
         return item
 
-    def create_item(self, item_json):
-        # when bulk-inserting multiple items please use create_item
+    def _create_item(self, item_json):
+        # when bulk-inserting multiple items please use _create_item
         # then call _flatten_tree_order() when database structure is ready
         # to avoid unnecessary load
         item = self.create_category(item_json)
         self._flatten_tree_order()
         return item
 
-    def edit_category(self, item_json):
+    def _edit_category(self, item_id, item_json):
         parent = None
-        if "parent" in item_json:
+        if "parent" in item_json and item_json["parent"]:
             parent = self.read_item(int(item_json["parent"]))
             del item_json["parent"]
 
@@ -55,14 +56,14 @@ class CategoryService(components.Service):
         item.save()
         return item
 
-    def edit_item(self, item_json):
-        old_item = self.read_item(item_json["id"])
+    def update_item(self, item_id, item_json):
+        old_item = self.read_item(item_id)
         old_parent_id = None
         if old_item.parent:
             old_parent_id = old_item.parent.id
         old_order = old_item.order
 
-        item = self.edit_category(self, item_json)
+        item = self._edit_category(self, item_json)
 
         # rearrange if structure changed
         if item.order != old_order or (item.parent and item.parent.id != old_parent_id):
@@ -166,7 +167,7 @@ class CategoryService(components.Service):
                 item.save()
         pass
 
-    def bulk_create_items(self, items_json):
+    def bulk__create_items(self, items_json):
         parent_map = dict()
         item_map = dict()
         items = []

@@ -4,7 +4,7 @@ import syncGoogle from './user/syncGoogleStore';
 import io from '../services/io';
 import { router } from '../router';
 
-var user = null;
+let user = null;
 try {
   user = JSON.parse(localStorage.getItem('user'));
 } catch (e) {

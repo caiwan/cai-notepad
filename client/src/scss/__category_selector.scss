@@ -1,4 +1,4 @@
-@import "../scss/_colors.scss";
+@import "@/scss/_colors.scss";
 
 // Common style sheet, Used by editor for category selection and by
 // it's child tree-selector component
@@ -82,3 +82,4 @@ $zebra-odd-color: darken($secondary, $zebra-color-amount);
   /* selector */
 }
 /* category */
+

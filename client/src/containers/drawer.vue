@@ -19,6 +19,9 @@
         <li class="list-group-item">
           <router-link :to="{ name: 'Tasks' }"><i class="fa fa-tasks"></i>Tasks</router-link>
         </li>
+        <!-- <li class="list-group-item">
+          <router-link :to="{ name: 'Categories' }"><i class="fa fa-folder"></i>Categories</router-link>
+        </li> -->
       </ul>
     </section>
 
@@ -27,7 +30,7 @@
 
     <section>
       <header class="navbar-sub">
-        <a>Milestones</a>
+        Milestones [Edit]
       </header>
     </section>
 
@@ -36,7 +39,7 @@
 
     <section>
       <header class="navbar-sub">
-        <a>Categories</a>
+        Categories
         [<router-link :to="{name: 'Categories'}">Edit</router-link>]
       </header>
       <!-- category tree -->
@@ -54,29 +57,8 @@
           class="item list-group-item"
           :model="category"
           :maxDepth="2"
-          v-on:itemAdded="addCategory"
-          v-on:itemEdited="editCategory"
         />
-        <li class="item list-group-item">
-          <span
-            class="add"
-            v-if="!isAddingChild"
-            @click="startAddChild"
-          ><i class="fa fa-folder-plus"></i></span>
 
-          <input
-            autofocus
-            autocomplete="off"
-            placeholder="Category"
-            class="add form-control"
-            v-if="isAddingChild"
-            v-model="newChild"
-            v-focus="isAddingChild"
-            @blur="doneAddChild"
-            @keyup.enter="doneAddChild"
-            @keyup.esc="cancelAddChild"
-          />
-        </li>
       </ul>
     </section>
 
@@ -117,43 +99,19 @@ export default {
   },
 
   methods: {
-    ...mapActions('Categories', {
-      addCategory: 'addNew',
-      removeCategory: 'remove',
-      editCategory: 'edit'
-    }),
     ...mapMutations('UI', {
       toggleUI: 'toggle'
     }),
 
     toggleSidebar () {
       this.toggleUI('showSidebar');
-    },
-
-    startAddChild () {
-      this.isAddingChild = true;
-      this.newChild = '';
-    },
-
-    doneAddChild () {
-      if (!this.isAddingChild) { return; }
-      console.log({ parent: null, name: this.newChild });
-      this.addCategory({ parent: null, name: this.newChild });
-      this.isAddingChild = false;
-      this.newChild = '';
-    },
-
-    cancelAddChild () {
-      this.isAddingChild = false;
-      this.newChild = '';
     }
+
   },
 
   directives: {
     focus: function (el, binding) {
-      if (binding.value) {
-        el.focus();
-      }
+      if (binding.value) { setTimeout(() => { el.focus(); }, 0); }
     }
   }
 

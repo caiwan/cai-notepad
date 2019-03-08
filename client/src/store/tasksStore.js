@@ -8,7 +8,7 @@ export default {
   state: {
     items: [],
     editingItem: null,
-    beforeEditCache: '',
+    beforeEditCache: {},
     visibility: 'all',
     filteredItems: [],
     categoryFilter: 'all',
@@ -89,7 +89,7 @@ export default {
     },
 
     startEdit ({ state }, item) {
-      state.beforeEditCache = item.title;
+      Object.assign(state.beforeEditCache, item);
       state.editingItem = item;
     },
 
@@ -119,9 +119,9 @@ export default {
     },
 
     cancelEdit ({ state }, item) {
-      item.title = state.beforeEditCache;
+      Object.assign(item, state.beforeEditCache);
       state.editingItem = null;
-      state.beforeEditCache = '';
+      state.beforeEditCache = {};
     },
 
     async remove ({ commit, dispatch }, item) {

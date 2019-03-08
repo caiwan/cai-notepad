@@ -3,10 +3,8 @@ const findRoot = which => {
   let ok = false;
   let that = which;
   while (!ok) {
-    // name
-    if (that.$options._componentTag === 'drag-tree') {
+    if (that.$options._componentTag !== 'drag-node') {
       ok = true;
-      //
       break;
     }
     that = that.$parent;
@@ -24,10 +22,7 @@ const hasInclude = (from, to) => {
  */
 const isLinealRelation = (from, to) => {
   let parent = from.$parent;
-
-  //
   let ok = false;
-  //
   let status = false;
   while (!ok) {
     if (parent._uid === to._uid) {
@@ -39,7 +34,6 @@ const isLinealRelation = (from, to) => {
       !parent.$options._componentTag ||
       parent.$options._componentTag === 'drag-tree'
     ) {
-      //
       ok = true;
       break;
     }
@@ -57,18 +51,20 @@ const isLinealRelation = (from, to) => {
  */
 const exchangeData = (rootCom, from, to) => {
   // return;
+
+  // TODO: ...
+
   if (from._uid === to._uid) {
-    return;
+
   }
 
-  const newFrom = Object.assign({}, from.model);
-
+  const newFrom = from.model;
+  // const newFrom = Object.assign({}, from.model);
   if (hasInclude(from, to)) {
-    //
     const tempParent = to.$parent;
     const toModel = to.model;
 
-    if (tempParent.$options._componentTag === 'drag-tree') {
+    if (tempParent.$options._componentTag !== 'drag-node') {
       tempParent.newData.push(newFrom);
       toModel.children = toModel.children.filter(item => item.id !== newFrom.id);
       return;
@@ -80,7 +76,6 @@ const exchangeData = (rootCom, from, to) => {
     return;
   }
 
-  //
   if (isLinealRelation(from, to)) {
     const fromParentModel = from.$parent.model;
     const toModel = to.model;
@@ -93,14 +88,10 @@ const exchangeData = (rootCom, from, to) => {
     return;
   }
 
-  // fromto
   const fromParentModel = from.$parent.model;
   const toModel = to.model;
   // from
-  if (from.$parent.$options._componentTag === 'drag-tree') {
-    /**
-     * drag-tree
-     */
+  if (from.$parent.$options._componentTag !== 'drag-node') {
     from.$parent.newData = from.$parent.newData.filter(
       item => item.id !== newFrom.id
     );

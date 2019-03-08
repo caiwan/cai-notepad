@@ -28,7 +28,8 @@ class Singleton(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
@@ -178,17 +179,19 @@ class Service(metaclass=Singleton):
     def create_item(self, item_json):
         assert self.model_class
         try:
-            item = dict_to_model(self.model_class, self.sanitize_fields(item_json))
+            item = dict_to_model(
+                self.model_class, self.sanitize_fields(item_json))
             item.owner = current_user()
             item.save()
             return item
         except peewee.IntegrityError as ex:
-            raise BadRequestError(payload={"reason":str(ex)})
+            raise BadRequestError(payload={"reason": str(ex)})
 
     def update_item(self, item_id, item_json):
         assert self.model_class
         try:
             user_id = current_user_id()
+            # TODO: Use update
             my_item = self.model_class.select(
                 self.model_class
             ).join(
@@ -205,7 +208,7 @@ class Service(metaclass=Singleton):
             item.save()
             return item
         except peewee.IntegrityError as ex:
-            raise BadRequestError(payload={"reason":str(ex)})
+            raise BadRequestError(payload={"reason": str(ex)})
 
     def delete_item(self, item_id):
         assert self.model_class
@@ -395,7 +398,8 @@ def _database_backup(models):
     backup = {}
     for model in models:
         records = model.select().objects()
-        backup[model.__name__] = [model_to_dict(record, recurse=False) for record in records]
+        backup[model.__name__] = [model_to_dict(
+            record, recurse=False) for record in records]
     return backup
 
 

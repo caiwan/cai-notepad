@@ -1,16 +1,3 @@
-// Does a QnD Shallow copy
-export function copyObject (target, source) {
-  for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      if (typeof source[key] === 'function') continue;
-      else if (typeof source[key] === 'object' && target[key] != null) copyObject(target[key], source[key]); // If there's any loop in there, well ...
-      // TODO Array?
-      else target[key] = source[key];
-    }
-  }
-  return target;
-}
-
 export default {
   mutations: {
     clear: (state) => { state.items = []; },
@@ -25,8 +12,8 @@ export default {
         return elem.id === item.id;
       });
       // we get back a new object, and we need to get setters to be invoked
-      var storedItem = state.items[index];
-      copyObject(storedItem, item);
+      let storedItem = state.items[index];
+      Object.assign(storedItem, item);
     },
 
     rm: (state, item) => state.items.splice(state.items.indexOf(item), 1),
