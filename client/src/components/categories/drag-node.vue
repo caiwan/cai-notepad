@@ -216,7 +216,6 @@ export default {
         return;
       }
       targetNode = this;
-      exchangeData(rootTree, sourceNode, targetNode);
       rootTree.nodeDrop({ sourceNode, targetNode }, this, e);
     },
     dragEnd (e) {

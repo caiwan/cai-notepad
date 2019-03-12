@@ -1,0 +1,47 @@
+
+FIX:
+
+TODO:
+  @file://client/src/components/tag-input.vue
+    ☐ // TODO: Make these configurable in props @file://client/src/components/tag-input.vue#49
+  @file://client/src/store/categoryStore.js
+    ☐ // TODO: Move start, done and cancel editing item to .vue component @file://client/src/store/categoryStore.js#100
+    ☐ // TODO: Sup bro, you sure? @file://client/src/store/categoryStore.js#124
+    ☐ // TODO: re-order items ? @file://client/src/store/categoryStore.js#150
+    ☐ // TODO modify items[] and itemTree[] ? @file://client/src/store/categoryStore.js#151
+    ☐ // TODO: ... @file://client/src/store/categoryStore.js#158
+  @file://client/src/store/notesStore.js
+    ☐ // TODO: save only when document is dirty -> component @file://client/src/store/notesStore.js#81
+  @file://client/src/store/tasksStore.js
+    ☐ // TODO: opt out save when not dirty -> component @file://client/src/store/tasksStore.js#101
+  @file://client/src/store/ui.js
+    ☐ // TODO: We will have a loading-stack which operates on a push-pop manner instead @file://client/src/store/ui.js#12
+    ☐ // TODO: + User Profile + Settings @file://client/src/store/ui.js#15
+    ☐ // TODO: We will have a loading-stack which operates on a push-pop manner instead @file://client/src/store/ui.js#41
+  @file://server/app/auth.py
+    ☐ # TODO Security Check for client id / useragent goez here @file://server/app/auth.py#117
+    ☐ # TODO ... @file://server/app/auth.py#211
+  @file://server/app/categories/__init__.py
+    ☐ # TODO: Celery @file://server/app/categories/__init__.py#162
+  @file://server/app/categories/tests/test_category_crud.py
+    ☐ # TODO: Delete -> Something like a merge of categories @file://server/app/categories/tests/test_category_crud.py#57
+    ☐ # TODO: Delete -> Something like a merge of categories @file://server/app/categories/tests/test_category_crud.py#91
+    ☐ # TODO: ... @file://server/app/categories/tests/test_category_crud.py#173
+  @file://server/app/components.py
+    ☐ # TODO: Use update @file://server/app/components.py#194
+  @file://server/app/notes/tests/test_note_crud.py
+    ☐ # TODO: Test for tags @file://server/app/notes/tests/test_note_crud.py#59
+    ☐ # TODO: Test for tags @file://server/app/notes/tests/test_note_crud.py#130
+  @file://server/app/tags/__init__.py
+    ☐ # TODO: this part sucks for some reason: @file://server/app/tags/__init__.py#84
+  @file://server/app/tests/test_endpoint.py
+    ☐ # TODO + add test Note @file://server/app/tests/test_endpoint.py#43
+    ☐ # TODO + add test Task @file://server/app/tests/test_endpoint.py#44
+    ☐ # TODO + add test Category @file://server/app/tests/test_endpoint.py#45
+  @file://server/app/user/oauth/google.py
+    ☐ # TODO: Refresh token https://www.npmjs.com/package/vue-google-oauth2 @file://./server/app/user/oauth/google.py#16
+    ☐ # TODO @file://server/app/user/oauth/google.py#88
+    ☐ # TODO: RENEW @file://server/app/user/oauth/google.py#108
+  @file://server/app/user/tests/test_user.py
+    ☐ # TODO @file://server/app/user/tests/test_user.py#68
+    ☐ # TODO @file://server/app/user/tests/test_user.py#78

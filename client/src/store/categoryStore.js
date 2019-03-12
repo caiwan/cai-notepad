@@ -15,14 +15,20 @@ export default {
   },
 
   getters: {
-    category: (state) => (id) => id in state.itemMap ? state.itemMap[id] : null,
-    categoryName: (state) => (id) => id in state.itemMap ? state.itemMap[id].name : 'Unassigned'
+    category: (state) => (id) => (id in state.itemMap ? state.itemMap[id] : null),
+    categoryName: (state) => (id) => (id in state.itemMap ? state.itemMap[id].name : 'Unassigned')
   },
 
   mutations: {
-    clear: (state) => { state.items = []; state.itemMap = []; state.itemTree = []; },
+    clear: (state) => {
+      state.items = [];
+      state.itemMap = [];
+      state.itemTree = [];
+    },
     put: (state, item) => {
-      if (!item.hasOwnProperty('children')) { item['children'] = []; }
+      if (!item.hasOwnProperty('children')) {
+        item['children'] = [];
+      }
       state.itemMap[item.id] = item;
       if (item.parent) {
         state.itemMap[item.parent].children.push(state.itemMap[item.id]);
@@ -47,23 +53,26 @@ export default {
       state.itemTree.splice(state.itemTree.indexOf(item), 1); // ? is it works for real?
     },
 
-    set: (state, { property, value }) => { state[property] = value; },
+    set: (state, { property, value }) => {
+      state[property] = value;
+    },
     fetchStart: common.mutations['fetchStart'],
     fetchEnd: common.mutations['fetchEnd']
-
   },
 
   actions: {
-
     async fetchAll ({ commit, dispatch, state }) {
       // Ensure it's loaded only once
-      if (state.isLoaded) { return; }
+      if (state.isLoaded) {
+        return;
+      }
       commit('fetchStart');
-      await io.categories.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }))
+      await io.categories
+        .fetchAll()
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .then((items) => {
           commit('clear');
-          console.log('Fetch Items', items);
-          items.forEach(item => {
+          items.forEach((item) => {
             commit('put', item);
           });
           state.isLoaded = true;
@@ -73,20 +82,25 @@ export default {
 
     async addNew ({ commit, dispatch, state }, { parent, name }) {
       name = name && name.trim();
-      if (!name) {
-        return;
-      }
+      if (!name) { return; }
 
       state.isLoading = true;
 
-      await io.categories.add({
-        name, parent: parent ? parent.id : null
-      })
-        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+      const newItem = {
+        name,
+        parent: parent ? parent.id : null,
+        order: parent ? parent.children.length : state.itemTree.length
+      };
+
+      await io.categories
+        .add(newItem)
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .then((item) => commit('put', item));
 
       state.isLoading = false;
     },
+
+    // TODO: Move start, done and cancel editing item to .vue component
 
     startEdit ({ state }, item) {
       Object.assign(state.beforeEditCache, item);
@@ -114,8 +128,9 @@ export default {
         await io.categories.remove(item);
         commit('remove', item);
       } else {
-        await io.categories.edit(item)
-          .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        await io.categories
+          .edit(item)
+          .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
           .then((edited) => commit('edit', edited));
       }
       state.isLoading = false;
@@ -123,23 +138,27 @@ export default {
 
     async remove ({ commit, state, dispatch }, item) {
       state.isLoading = true;
-      await io.categories.remove(item)
-        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+      await io.categories
+        .remove(item)
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .then((item) => commit('rm', item));
       state.isLoading = false;
     },
 
     async move ({ commit, state, dispatch }, { item, newParent }) {
       item.parent = newParent ? newParent.id : null;
-      await io.categories.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }))
-        // TODO: re-order items ?
-        // TODO modify items[] and itemTree[] ?
-        .then((edited) => { commit('edit', edited); });
+      await io.categories
+        .edit(item)
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
+        .then((edited) => {
+          // TODO: re-order items ?
+          // TODO modify items[] and itemTree[] ?
+          commit('edit', edited);
+        });
     },
 
     async mergeUp ({ commit, state, dispatch }, { item }) {
       // TODO: ...
     }
   }
-
 };

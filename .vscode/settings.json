@@ -10,8 +10,30 @@
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
   "eslint.nodePath": "$NODE_PATH",
-  "vetur.format.defaultFormatter.ts": "vscode-typescript",
-  "vetur.format.defaultFormatter.js": "vscode-typescript",
+  "eslint.validate": [
+    {
+      "language": "vue",
+      "autoFix": true
+    },
+    {
+      "language": "html",
+      "autoFix": true
+    },
+    {
+      "language": "javascript",
+      "autoFix": true
+    }
+  ],
+  "eslint.alwaysShowStatus": true,
+  "eslint.run": "onSave",
+  "eslint.provideLintTask": true,
+  "eslint.options": {
+    "env": { "es6": true }
+  },
+  "editor.insertSpaces": true,
+  "editor.autoIndent": true,
+  "vetur.format.defaultFormatter.ts": "none",
+  "vetur.format.defaultFormatter.js": "none",
   "vetur.format.defaultFormatter.html": "js-beautify-html",
   "files.exclude": {
     "**/__pycache__/": true,
@@ -20,7 +42,7 @@
     "**/*.py[cod]": true,
   },
   "[javascript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.tabSize": 2,
   },
   "[vue]": {
@@ -36,25 +58,7 @@
     "editor.tabSize": 4,
     "editor.autoIndent": true
   },
-  "eslint.validate": [
-    {
-      "language": "vue",
-      "autoFix": true
-    },
-    {
-      "language": "html",
-      "autoFix": true
-    },
-    {
-      "language": "javascript",
-      "autoFix": true
-    }
-  ],
-  "eslint._legacyModuleResolve": true,
-  "eslint.alwaysShowStatus": true,
-  "eslint.run": "onSave",
-  "editor.insertSpaces": true,
-  "editor.autoIndent": true,
+
   "python.unitTest.unittestArgs": [
     "-v",
     "-s",

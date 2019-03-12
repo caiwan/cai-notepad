@@ -159,6 +159,7 @@ class CategoryService(components.Service):
 
         return (len(result), result)
 
+    # TODO: Add Celery task
     def _flatten_tree_order(self):
         (count, items) = self.fetch_subtree_ordered(None)
         with components.DB.atomic():

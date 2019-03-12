@@ -7,7 +7,7 @@ import os
 import sys
 
 
-# fix import paths for internal imports
+# add import paths for internal imports
 cmd_folder = os.path.dirname(os.path.abspath(__file__))
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)

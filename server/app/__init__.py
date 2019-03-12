@@ -48,7 +48,7 @@ logging.info("Loading %s, app version = %s", __name__,
 
 
 # ---
-# fix import paths for internal imports
+# add import paths for internal imports
 APP_ROOT = os.path.dirname(__file__)
 
 
