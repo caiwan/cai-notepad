@@ -4,8 +4,11 @@ import os
 import sys
 import unittest
 
+from tests import test_runner
+
 
 load_dotenv(find_dotenv())
+
 
 # add import paths for internal imports
 cmd_folder = os.path.dirname(os.path.abspath(__file__))
@@ -13,10 +16,7 @@ if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
 
-def runAll():
-    all = unittest.TestLoader().discover(cmd_folder + "/app")
-    unittest.TextTestRunner(verbosity=2).run(all)
-
-
 if __name__ == "__main__":
-    runAll()
+    all = unittest.TestLoader().discover(cmd_folder + "/app")
+    runner = test_runner.TestRunner()
+    runner.run(all)

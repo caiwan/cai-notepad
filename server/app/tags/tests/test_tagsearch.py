@@ -37,7 +37,7 @@ class TestTagsearch(TestUtils, TestCase):
             {
                 "title": "Test",
                 "content": "Contents with unusal but valid tags",
-                "tags": ["This is something we don\"t expect to see, but", "we can have a tag like this", "and it still sohuld be valid", "as well"]
+                "tags": ["This is something we don\"t expect to see, but", "we can have a tag like this", "and it still should be valid", "as well"]
             }
         ]
 

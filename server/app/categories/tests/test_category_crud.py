@@ -156,8 +156,7 @@ class TestCategoryCrud(TestUtils, TestCase):
 
             self.assertEqual(category["id"], category_json["id"])
             self.assertIsNotNone(category_json["parent"])
-            self.assertIsNotNone(category_json["parent"]["id"])
-            self.assertEqual(root_category_json["id"], category_json["parent"]["id"])
+            self.assertEqual(root_category_json["id"], category_json["parent"])
             self.assertEqual(category["name"], category_json["name"])
 
     @skip("Not implemented")

@@ -118,6 +118,6 @@ dmypy.json
 .pyre/
 
 # Local Database
-*.db
-*.db-wal
-*.db-shm
+**/*.db
+**/*.db-wal
+**/*.db-shm

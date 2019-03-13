@@ -51,7 +51,10 @@ class CategoryService(components.Service):
             parent = self.read_item(int(item_json["parent"]))
             del item_json["parent"]
 
+        item_json = self.sanitize_fields(item_json)
+
         item = dict_to_model(Category, item_json)
+        item.id = item_id
         item.parent = parent
         item.save()
         return item
@@ -63,7 +66,7 @@ class CategoryService(components.Service):
             old_parent_id = old_item.parent.id
         old_order = old_item.order
 
-        item = self._edit_category(self, item_json)
+        item = self._edit_category(old_item.id, item_json)
 
         # rearrange if structure changed
         if item.order != old_order or (item.parent and item.parent.id != old_parent_id):
