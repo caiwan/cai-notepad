@@ -24,25 +24,22 @@ body {
 }
 
 // Calendar
-.calendar-wrapper{
-  .input-group{
+.calendar-wrapper {
+  .input-group {
     // height: $input-height-base;
-    height:36.5px; // terrible hack
+    height: 36.5px; // terrible hack
   }
-  .calendar-input{
-    background-color: teal;
-
-  }
-
+  // .calendar-input {
+  // background-color: teal;
+  // }
   .calendar {
     background-color: $primary;
-    &.right{
+    &.right {
       right: 0px !important;
     }
   }
 }
 
-
-.hidden{
+.hidden {
   display: none !important;
 }

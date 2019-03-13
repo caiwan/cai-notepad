@@ -144,7 +144,7 @@ export default {
         newParent = targetNode.model;
       }
       console.log('[Drop]', { item, newParent, component, e });
-      this.moveCategory({ item, newParent });
+      this.moveCategory({ item, newParent, newOrder: item.order - 1 });
     },
 
     nodeStartEdit (model, component, e) {

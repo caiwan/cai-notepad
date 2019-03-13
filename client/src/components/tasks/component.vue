@@ -1,273 +1,145 @@
 <template>
   <section class="container-flex">
-    <!-- <div class="row"> -->
-    <div class="col-md-12">
-
-      <!-- Header / Add new task -->
-      <header class="card card bg-light mx-1 my-2">
-        <div class="card-body py-2">
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <category-selector
-                :selected="category(newTask.category)"
-                v-on:selected="categorySelected(newTask, $event)"
-              />
-            </div>
-            <input
-              class="form-control input-group-append"
-              autofocus
-              autocomplete="off"
-              v-model="newTask.title"
-              v-cloak
-              @keyup.enter="addNewTask()"
-              placeholder="What needs to be done?"
-              id="new-task-input"
+    <!-- Header / Add new task -->
+    <header class="card card bg-light mx-1 my-2">
+      <div class="card-body py-2">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <category-selector
+              :selected="category(newTask.category)"
+              v-on:selected="categorySelected(newTask, $event)"
             />
-            <button
-              class="btn btn-success input-group-append"
-              @click="addNewTask()"
-            ><i class="fa fa-plus"></i></button>
           </div>
-        </div>
-      </header>
-      <!-- -->
-
-      <section
-        class="main"
-        v-show="tasks.length"
-      >
-        <ul
-          class="task-list"
-          v-cloak
-        >
-          <li
-            v-for="task in filteredTasks"
-            :key="task.id"
-            class="task ui-state-default"
-            :class="{completed: task.is_completed}"
+          <input
+            class="form-control input-group-append"
+            autofocus
+            autocomplete="off"
+            v-model="newTask.title"
             v-cloak
-          >
+            @keyup.enter="addNewTask()"
+            placeholder="What needs to be done?"
+            id="new-task-input"
+          />
+          <button
+            class="btn btn-success input-group-append"
+            @click="addNewTask()"
+          ><i class="fa fa-plus"></i></button>
+        </div>
+      </div>
+    </header>
+    <!-- -->
 
-            <div v-show="task != editingTask">
-              <input
-                class="toggle"
-                :id="'check_'+task.id"
-                type="checkbox"
-                v-model="task.is_completed"
-                @click="toggleTask(task)"
-              >
-              <label
-                class="toggle btn btn-secondary fill color"
-                :class="colorName(task.color)"
-                :for="'check_'+task.id"
-              >
-                <i class="checkmark fa fa-check"></i>
-                <span class="placeholder">&nbsp;</span>
-              </label>
-            </div>
-
-            <!--VIEW -->
-
-            <span
-              @dblclick="startEditTask(task)"
-              @click="toggleTask(task)"
-              class="task-title"
-              v-show="task != editingTask"
-            >
-              {{ task.title }}
-            </span>
-            <span
-              class="badge badge-secondary"
-              v-show="task != editingTask"
-            >
-              {{categoryName(task.category)}}
-            </span>
-
-            <span
-              class="badge badge-secondary color fill"
-              v-show="task != editingTask && task.due_date"
-              :class="colorName(task.color)"
-            >
-              {{task.due_date | formatDate}}
-            </span>
-
-            <!-- EDIT -->
-            <div
-              class="input-group"
-              v-show="task == editingTask"
-            >
-              <category-selector
-                class="input-group-prepend"
-                :selected="category(task.category)"
-                v-on:selected="categorySelected(task, $event)"
-                v-show="task == editingTask"
-              />
-              <input
-                class="form-control edit-task input-group-append"
-                type="text"
-                v-model="task.title"
-                v-focus="task == editingTask"
-                v-show="task == editingTask"
-                @keyup.enter="doneEditTask(task)"
-                @keyup.esc="cancelEditTask(task)"
-              >
-
-              <!-- SCHEDULE  -->
-              <datepicker
-                v-model="task.due_date"
-                :placeholder="'Due date'"
-                :format="'yyyy-MM-dd'"
-                :bootstrapStyling="true"
-                :input-class="'hidden'"
-                :clear-button="true"
-                :clear-button-icon="'fa fa-backspace'"
-                :calendar-button="true"
-                :calendar-button-icon="'fa fa-calendar'"
-                :calendar-class="'calendar right'"
-                :wrapper-class="'calendar-wrapper'"
-              />
-
-              <!-- PRIORITY / COLORIZE  -->
-              <div class="category color-palette input-group-append">
-                <button
-                  class="btn btn-outline-secondary outline color"
-                  :class="editingTask ? colorName(editingTask.color) : ''"
-                  @click="toggleColorPalette()"
-                ><i class="fa fa-palette"></i>
-                </button>
-                <nav
-                  class="selector color-palette"
-                  v-if="showColorPalette"
-                >
-                  <ul class="selector-group color-selector">
-                    <li
-                      v-for="(color, index) in colors"
-                      :key="index"
-                    >
-                      <button
-                        class="btn fill color"
-                        :class="color.name"
-                        @click="selectColor(editingTask, color.value)"
-                      ></button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-
-              <!--SAVE/CANCEL  -->
-              <button
-                class="btn btn-secondary input-group-append"
-                @click="cancelEditTask(task)"
-              ><i class=" fa fa-times"></i></button>
-
-              <button
-                class="btn btn-success input-group-append"
-                @click="doneEditTask(task)"
-              ><i class="fa fa-check"></i></button>
-
-            </div>
-
-            <!-- Edit -->
-            <button
-              v-show="task != editingTask"
-              class="btn btn-primary"
-              @click="startEditTask(task)"
-            ><i class="fa fa-edit"></i></button>
-
-            <!-- DELETE -->
-            <button
-              class="btn btn-danger"
-              @click="removeTask(task)"
-            ><i class="fa fa-trash"></i></button>
-
-          </li>
-        </ul>
-      </section>
-
-      <footer
-        class="justify-content-between align-items-center"
-        v-show="tasks.length"
+    <section
+      class="task-list my-2"
+      v-show="tasks.length"
+    >
+      <ul
+        class="task-list"
         v-cloak
       >
-        <span
-          class="mr-auto task-count badge badge-secondary"
-          v-show="remainingTasks"
-        ><strong>{{ remainingTasks }}</strong>
-          {{ remainingTasks | pluralize }} left</span>
-        <span class="gap" />
+        <task
+          v-for="task in filteredTasks"
+          :key="task.id"
+          :task="task"
+          :id="'task_'+task.id"
+          v-on:edited="editTask"
+          v-on:toggle="toggleTask"
+        />
 
-        <button
-          href="#"
-          class="btn btn-outline-primary"
-          @click="setFilterTasks('all')"
-        >All</button>
-        <button
-          href="#"
-          class="btn btn-outline-primary"
-          @click="setFilterTasks('active')"
-        >Active</button>
-        <button
-          href="#"
-          class="btn btn-outline-primary"
-          @click="setFilterTasks('completed')"
-        >Completed</button>
-        <button
-          class="btn btn-warning"
-          type="button"
-          @click="setAllDone()"
-        ><i class="fa fa-check-double"></i></button>
-        <button
-          href="#"
-          class="btn btn-danger"
-          @click="archiveCompleted()"
-        ><i class="fa fa-archive"></i></button>
-      </footer>
-      <!-- -->
+      </ul>
+    </section>
 
-      <!-- Archived tasks -->
-      <hr />
-      <section
-        class="archived"
-        v-if="archivedTaks.length"
-      >
-        <header>Archived</header>
-        <ul class="task-list">
-          <li
-            class="task"
-            v-for="task in archivedTaks"
-            :key="task.id"
-          ><span class="task-title">
-              {{task.title}}</span>
-            <span
-              class="badge badge-secondary fill color"
-              :class="colorName(task.color)"
-            >
-              {{categoryName(task.category)}}
-            </span>
+    <footer
+      class="justify-content-between align-items-center"
+      v-show="tasks.length"
+      v-cloak
+    >
+      <span
+        class="mr-auto task-count badge badge-secondary"
+        v-show="remainingTasks"
+      ><strong>{{ remainingTasks }}</strong>
+        {{ remainingTasks | pluralize }} left</span>
+      <span class="gap" />
 
-            <span
-              class="badge badge-secondary fill color"
-              :class="colorName(task.color)"
-              v-if="task.due_date"
-            >
-              {{task.due_date | formatDate}}
-            </span>
+      <button
+        href="#"
+        class="btn btn-outline-primary"
+        @click="setFilterTasks('all')"
+      >All</button>
+      <button
+        href="#"
+        class="btn btn-outline-primary"
+        @click="setFilterTasks('active')"
+      >Active</button>
+      <button
+        href="#"
+        class="btn btn-outline-primary"
+        @click="setFilterTasks('completed')"
+      >Completed</button>
 
-            <!-- BUTTONS -->
-            <button
-              class="btn btn-primary"
-              @click="toggleArchive(task)"
-            > <i class="fa fa-level-up-alt"></i></button>
-            <!-- DELETE -->
-            <button
-              class="btn btn-danger"
-              @click="removeTask(task)"
-            ><i class="fa fa-trash"></i></button>
-          </li>
-        </ul>
-      </section>
-    </div>
-    <!-- </div> -->
+      <!-- ALL DONE  -->
+      <div>
+        <input
+          class="toggle"
+          type="checkbox"
+          v-model="allDone"
+        >
+        <label class="toggle btn btn-warning">
+          <i class="checkmark fa fa-check-double"></i>
+          <span class="placeholder">&nbsp;</span>
+        </label>
+      </div>
+
+      <button
+        href="#"
+        class="btn btn-danger"
+        @click="archiveCompleted()"
+      ><i class="fa fa-archive"></i></button>
+    </footer>
+    <!-- -->
+
+    <!-- Archived tasks -->
+    <hr />
+    <section
+      class="archived"
+      v-if="archivedTaks.length"
+    >
+      <header>Archived</header>
+      <ul class="task-list">
+        <li
+          class="task"
+          v-for="task in archivedTaks"
+          :key="task.id"
+        ><span class="task-title">
+            {{task.title}}</span>
+          <span
+            class="badge badge-secondary fill color"
+            :class="colorName(task.color)"
+          >
+            {{categoryName(task.category)}}
+          </span>
+
+          <span
+            class="badge badge-secondary fill color"
+            :class="colorName(task.color)"
+            v-if="task.due_date"
+          >
+            {{task.due_date | formatDate}}
+          </span>
+
+          <!-- BUTTONS -->
+          <button
+            class="btn btn-primary"
+            @click="toggleArchive(task)"
+          > <i class="fa fa-level-up-alt"></i></button>
+          <!-- DELETE -->
+          <button
+            class="btn btn-danger"
+            @click="removeTask(task)"
+          ><i class="fa fa-trash"></i></button>
+        </li>
+      </ul>
+    </section>
   </section>
 </template>
 
@@ -276,13 +148,13 @@ import moment from 'moment';
 
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategorySelector from '../category-selector.vue';
-
-import Datepicker from 'vuejs-datepicker';
+import Task from './task.vue';
+// import ArchivedTask from './archived-task.vue';
 
 export default {
   components: {
     CategorySelector,
-    Datepicker
+    Task
   },
 
   created () {
@@ -296,19 +168,14 @@ export default {
         title: '',
         category: null
       },
-      showColorPalette: false,
-      datepickerState: {
-        hihlighted: {
-
-        }
-      }
+      editngTask: null
     };
   },
 
   computed: {
     ...mapState('Tasks', {
       tasks: 'items',
-      editingTask: 'editingItem',
+      // editingTask: 'editingItem', // TODO: Rm from state
       selectedCategoryId: 'categoryFilter',
       selectedMilestoneId: 'milestoneFilter'
     }),
@@ -323,9 +190,10 @@ export default {
 
     allDone: {
       get: function () {
-        return this.remaining === 0;
+        return this.remainingTasks === 0;
       },
       set: function (value) {
+        console.log('CVVV', value);
         this.$store.dispatch('Tasks/setAllDone');
       }
     },
@@ -337,6 +205,8 @@ export default {
 
   methods: {
     ...mapActions('Tasks', {
+      addTask: 'addNew',
+      editTask: 'edit',
       toggleTask: 'toggleCompleted',
       removeTask: 'remove',
       archiveCompleted: 'archiveCompleted',
@@ -358,41 +228,18 @@ export default {
     },
 
     addNewTask () {
-      this.$store.dispatch('Tasks/addNew', this.newTask);
+      // this.$store.dispatch('Tasks/addNew', this.newTask);
+      this.addTask(this.newTask);
       this.newTask = {
         title: '',
         category: this.selectedCategory ? this.selectedCategoryId : null
       };
-    },
-
-    startEditTask (task) {
-      this.showColorPalette = false;
-      this.$store.dispatch('Tasks/startEdit', task);
-    },
-    doneEditTask (task) {
-      this.showColorPalette = false;
-      this.$store.dispatch('Tasks/doneEdit', task);
-    },
-
-    cancelEditTask (task) {
-      this.showColorPalette = false;
-      this.$store.dispatch('Tasks/cancelEdit', task);
-    },
-
-    categorySelected (task, category) {
-      const categoryId = category ? category.id : null;
-      console.log('select category', { task, categoryId, category });
-      task.category = categoryId;
-    },
-
-    toggleColorPalette () {
-      this.showColorPalette = !this.showColorPalette;
-    },
-
-    selectColor (task, colorId) {
-      this.showColorPalette = false;
-      task.color = colorId;
     }
+
+    // doneEditTask (task) {
+    // this.editTask(task);
+    // this.editngTask = null;
+    // }
 
   },
 

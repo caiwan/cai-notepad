@@ -24,6 +24,6 @@ export class BaseIONode {
       throw Error(`${v.status} ${v.statusText}`);
     }
     console.error(`Error: ${v.status} ${v.statusText}`, j);
-    throw Error(`${j.message}`);
+    throw Error(`${j.message} ${j.reason ? 'Reason:' + j.reason : ''}`);
   }
 }

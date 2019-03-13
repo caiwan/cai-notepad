@@ -243,6 +243,8 @@ class Service(metaclass=Singleton):
             del item_json["user_id"]
         if "uuid" in item_json:
             del item_json["uuid"]
+        if "children" in item_json:
+            del item_json["children"]
         return item_json
 
 

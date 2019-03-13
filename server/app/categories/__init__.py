@@ -1,15 +1,12 @@
 # coding=utf-8
 import logging
 import sys
-import json
 
 from playhouse.shortcuts import dict_to_model, model_to_dict
 from playhouse.shortcuts import Value
 
 from app import components
 from app.categories.model import Category
-
-import logging
 
 
 class CategoryService(components.Service):
@@ -51,6 +48,10 @@ class CategoryService(components.Service):
             parent = self.read_item(int(item_json["parent"]))
             del item_json["parent"]
 
+        if parent and parent.id == item_id:
+            raise components.BadRequestError(
+                payload={"reason": "You can't be your own parent, you moron."})
+
         item_json = self.sanitize_fields(item_json)
 
         item = dict_to_model(Category, item_json)
@@ -61,21 +62,33 @@ class CategoryService(components.Service):
 
     def update_item(self, item_id, item_json):
         old_item = self.read_item(item_id)
-        old_parent_id = None
-        if old_item.parent:
-            old_parent_id = old_item.parent.id
+        old_parent_id = old_item.parent.id if old_item.parent else None
         old_order = old_item.order
 
         item = self._edit_category(old_item.id, item_json)
 
         # rearrange if structure changed
-        if item.order != old_order or (item.parent and item.parent.id != old_parent_id):
-            self._flatten_tree_order()
+        # TODO: -> Celery
+        if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
+            user_id = components.current_user_id()
+            self._reorder_branch(
+                user_id=user_id, parent_id=item.parent.id if item.parent else None)
+            if item.parent and item.parent.id != old_parent_id:
+                self._reorder_branch(user_id=user_id, parent_id=old_parent_id)
+
+            self._flatten_tree_order(user_id)
 
         return item
 
     def merge_category(self, src_id, dst_id):
         # TBD
+        # - Merges all the that that belongs to a tasks from src to dst
+        # - Check if dst is not parent of src, neither in it's ancestors
+
+        # Merge notes
+        # Merge tasks
+        # RM Src task
+        # Reload shitz maybe on client?
         pass
 
     def find_by_name(self, query_name):
@@ -93,7 +106,7 @@ class CategoryService(components.Service):
             Category.is_deleted == False,
         )
 
-    def fetch_subtree_ids(self, query_item_id):
+    def fetch_subtree_ids(self, user_id, query_item_id):
         # http://docs.peewee-orm.com/en/latest/peewee/api.html#SelectQuery
         # http://docs.peewee-orm.com/en/latest/peewee/querying.html#common-table-expressions
 
@@ -101,12 +114,14 @@ class CategoryService(components.Service):
         if query_item_id is None:
             root_query = (Category
                           .select(Category.id, Category.order, Value(0).alias("level"))
-                          .where(Category.parent.is_null())
+                          .join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
+                          .where(Category.parent.is_null(), Category.owner.id == user_id)
                           .cte(name="roots", recursive=True))
         else:
             root_query = (Category
                           .select(Category.id, Category.order, Value(0).alias("level"))
-                          .where(Category.parent.id == query_item_id)
+                          .join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
+                          .where(Category.parent.id == query_item_id, Category.owner.id == user_id)
                           .cte(name="roots", recursive=True))
 
         RTerm = Category.alias()
@@ -124,12 +139,12 @@ class CategoryService(components.Service):
 
         return tree_query
 
-    def fetch_subtree(self, query_item_id):
-        tree_query = self.fetch_subtree_ids(query_item_id)
+    def fetch_subtree(self, user_id, query_item_id):
+        tree_query = self.fetch_subtree_ids(user_id, query_item_id)
         return Category.select().where(Category.id << [item.id for item in tree_query])
 
-    def fetch_subtree_ordered(self, query_item_id):
-        result_query = self.fetch_subtree(query_item_id)
+    def fetch_subtree_ordered(self, user_id, query_item_id):
+        result_query = self.fetch_subtree(user_id, query_item_id)
         result_map = dict((item.id, item) for item in result_query)
 
         # build tree
@@ -162,14 +177,33 @@ class CategoryService(components.Service):
 
         return (len(result), result)
 
-    # TODO: Add Celery task
-    def _flatten_tree_order(self):
-        (count, items) = self.fetch_subtree_ordered(None)
+    # TODO: Add as Celery task
+    def _flatten_tree_order(self, user_id):
+        (count, items) = self.fetch_subtree_ordered(user_id, None)
         with components.DB.atomic():
             for (index, item) in zip(range(count), items):
                 item.flatten_order = index
                 item.save()
         pass
+
+    # TODO: Add as Celery task
+    def _reorder_branch(self, user_id=None, parent_id=None):
+        query = None
+        if parent_id:
+            query = (Category.select()
+                     .where(Category.parent.id == parent_id))
+        elif user_id:
+            query = (Category.select().join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
+                     .where(Category.parent.id.is_null(), Category.owner.id == user_id))
+
+        if query is None:
+            raise RuntimeError("No user || parent_id given u=%s p=%s" % (
+                str(user_id), str(parent_id)))
+
+        with components.DB.atomic():
+            for (index, category) in zip(range(query.count()), query.execute()):
+                category.order = 2 * index + 1
+                category.save()
 
     def bulk__create_items(self, items_json):
         parent_map = dict()
@@ -225,6 +259,24 @@ class CategoryService(components.Service):
 
 
 categoryService = CategoryService()
+
+
+def _flatten_all_categories():
+    # Some dirty entity management script
+    with components.DB.atomic():
+        for user in components.BaseUser.select():
+            categoryService._flatten_tree_order(user.id)
+
+        categories = {}
+        for category in Category.select().order_by(Category.flatten_order):
+            if category.parent_id not in categories:
+                categories[category.parent_id] = []
+            categories[category.parent_id].append(category)
+
+        for group in categories.values():
+            for (index, item) in zip(range(len(group)), group):
+                item.order = 2 * index
+                item.save()
 
 
 class Module(components.Module):

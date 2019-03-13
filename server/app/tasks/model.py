@@ -10,7 +10,7 @@ class Task(components.BaseDocumentModel):
     is_completed = peewee.BooleanField(default=False)
     is_archived = peewee.BooleanField(default=False)
     note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
-    category = peewee.ForeignKeyField(Category, null=True)
+    category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
     due_date = peewee.DateTimeField(null=True, default=None)
     color = peewee.IntegerField(null=False, default=0)
     order = peewee.IntegerField(null=False, default=0)

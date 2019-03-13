@@ -7,8 +7,8 @@ export default {
 
   state: {
     items: [],
-    editingItem: null,
-    beforeEditCache: {},
+    // editingItem: null,
+    // beforeEditCache: {},
     visibility: 'all',
     filteredItems: [],
     categoryFilter: 'all',
@@ -88,15 +88,15 @@ export default {
       commit('updateFilteredItems');
     },
 
-    startEdit ({ state }, item) {
-      Object.assign(state.beforeEditCache, item);
-      state.editingItem = item;
-    },
+    // startEdit ({ state }, item) {
+    // Object.assign(state.beforeEditCache, item);
+    // state.editingItem = item;
+    // },
 
-    async doneEdit ({ dispatch, commit, state }, item) {
-      if (!state.editingItem) {
-        return;
-      }
+    async edit ({ dispatch, commit, state }, item) {
+      // if (!state.editingItem) {
+      // return;
+      // }
 
       // TODO: opt out save when not dirty -> component
       // if (item.title.trim() === state.beforeEditCache) {
@@ -118,11 +118,11 @@ export default {
       state.editingItem = null;
     },
 
-    cancelEdit ({ state }, item) {
-      Object.assign(item, state.beforeEditCache);
-      state.editingItem = null;
-      state.beforeEditCache = {};
-    },
+    // cancelEdit ({ state }, item) {
+    // Object.assign(item, state.beforeEditCache);
+    // state.editingItem = null;
+    // state.beforeEditCache = {};
+    // },
 
     async remove ({ commit, dispatch }, item) {
       await io.tasks.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));

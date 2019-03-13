@@ -142,7 +142,7 @@ export default {
   },
 
   computed: {
-    isFolder () { return 'children' in this.model && this.model.children.length; },
+    isFolder () { return this.model.hasOwnProperty('children') && this.model.children.length; },
     increaseDepth () { return this.depth + 1; },
     isDraggable () { return this.allowDrag(this.model, this); },
     isEditing () { return this.editingNode === this.model; }

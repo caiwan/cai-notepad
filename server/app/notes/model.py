@@ -14,7 +14,7 @@ class Note(components.BaseDocumentModel):
     is_archived = peewee.BooleanField(default=False)
     is_pinned = peewee.BooleanField(default=False)
     tags = peewee.ManyToManyField(Tag)
-    category = peewee.ForeignKeyField(Category, null=True, default=None)
+    category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
     due_date = peewee.DateTimeField(null=True, default=None)
     # -> Tasks will have milestones, not the notes that were taken
     # milestone = peewee.ForeignKeyField(Milestone, null=True, default=None)

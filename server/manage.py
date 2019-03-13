@@ -33,6 +33,7 @@ class Runserver(Server):
                       )
 
 
+# User management
 @manager.command
 def adduser(username, password):
     """Adds a new user"""
@@ -100,6 +101,7 @@ def listroles():
         print("{id:<4} {name:<32}".format(**role))
 
 
+# Database maanagement
 @manager.command
 def createdb():
     """Creates the inital database schema and default users"""
@@ -161,6 +163,14 @@ def rollbackmigration(migration_name):
     from app.components import DB
     router = Router(DB)
     router.rollback(migration_name)
+
+
+# Entity management
+@manager.command
+def flattencategories():
+    """ Reorganizes and make catecory trees flatten for all users """
+    from app.categories import _flatten_all_categories
+    _flatten_all_categories()
 
 
 # override the default 127.0.0.1 binding address
