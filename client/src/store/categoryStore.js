@@ -17,9 +17,8 @@ export default {
     itemMap: [],
     itemTree: [],
     isLoading: false,
-    isLoaded: false,
-    beforeEditCache: {},
-    editingItem: null
+    isLoaded: false
+    // editingItem: null
   },
 
   getters: {
@@ -145,25 +144,6 @@ export default {
         .then((item) => commit('put', item));
 
       state.isLoading = false;
-    },
-
-    // TODO: Move start, done and cancel editing item to .vue component
-
-    startEdit ({ state }, item) {
-      Object.assign(state.beforeEditCache, item);
-      state.editingItem = item;
-    },
-
-    async doneEdit ({ state, dispatch }, item) {
-      await dispatch('edit', item);
-      state.beforeEditCache = {};
-      state.editingItem = null;
-    },
-
-    cancelEdit ({ state, commit }, item) {
-      Object.assign(item, state.beforeEditCache);
-      state.beforeEditCache = {};
-      state.editingItem = null;
     },
 
     async edit ({ commit, dispatch, state }, item) {
