@@ -1,10 +1,10 @@
 <script>
-import * as hp from '@/utils/helper-js';
+import * as hp from 'helper-js';
 import * as th from 'tree-helper';
+import * as vf from 'vue-functions';
 import draggableHelper from 'draggable-helper';
 import TreeNode from './TreeNode.vue';
 import autoMoveDragPlaceHolder, { isNodeDraggable, isNodeDroppable } from './autoMoveDragPlaceHolder';
-import * as vf from 'vue-functions';
 
 export default {
   extends: TreeNode,

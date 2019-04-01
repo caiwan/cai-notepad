@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import DraggableTreeNode from './/DraggableTreeNode';
+import DraggableTreeNode from './dragtree/DraggableTreeNode';
 
 export default {
   name: 'TreeNode',

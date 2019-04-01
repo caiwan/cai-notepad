@@ -3,7 +3,7 @@ import * as hp from 'helper-js';
 import * as th from 'tree-helper';
 import DraggableTreeNode from './DraggableTreeNode.vue';
 import Tree from './Tree.vue';
-import * as ut from '../plugins/utils';
+import * as ut from '@/utils';
 
 const trees = []; // for multiple trees
 // DragPlaceHolder, unique

@@ -53,11 +53,13 @@ export default {
     store: {},
     level: { default: 0 } // readonly
   },
+
   data () {
     return {
       vm: this
     };
   },
+
   computed: {
     childrenLevel () {
       return this.level + 1;
@@ -65,7 +67,7 @@ export default {
     isRoot () { return this.data.isRoot; },
     childrenVisible () {
       const { data } = this;
-      return this.isRoot || data.children && data.children.length && data.open;
+      return this.isRoot || (data.children && data.children.length && data.open);
     },
     innerBackStyle () {
       const r = {
@@ -77,6 +79,7 @@ export default {
       return r;
     }
   },
+
   watch: {
     data: {
       immediate: true,
@@ -90,8 +93,6 @@ export default {
       }
     }
   }
-  // methods: {},
-  // created() {},
-  // mounted() {},
+
 };
 </script>

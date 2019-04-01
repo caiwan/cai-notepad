@@ -1,11 +1,10 @@
- <template>
+<template>
   <div>
     <!-- Add new category -->
     <header class="card card bg-light mx-1 my-2">
       <div class="card-body py-2">
         <div class="input-group">
           <div class="btn btn-secondary input-group-prepend">
-
             <i class="fa fa-folder-plus"></i>
           </div>
           <input

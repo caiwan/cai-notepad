@@ -2,12 +2,10 @@ import * as hp from 'helper-js';
 import * as th from 'tree-helper';
 import Cache, {
   attachCache
-} from '../plugins/Cache';
+} from '@/utils/cache';
 import * as vf from 'vue-functions';
 import getTreeByPoint from './temporarily-fix-overlapping-tree-issue';
 
-// actions for drag placeholder
-// 对 drag placeholder进行的操作
 const targets = {
   'nothing': info => {},
   'after': (info) => {
@@ -136,39 +134,22 @@ function findParent (node, handle) {
   }
 }
 const rules = {
-  // 另一节点存在
   'targetNode existed': info => info.targetNode,
-  // 另一节点是拖动占位节点
   'targetNode is placeholder': info => info.targetNode.isDragPlaceHolder,
-  // 另一节点在最上面
   'targetNode at top': info => info.targetAtTop,
-  // 另一节点在最下面
   'targetNode at bottom': info => info.targetAtBottom,
-  // 另一节点是根节点第二个子
   'targetNode is the second child of root': info => info.currentTreeRootSecondChildExcludingDragging === info.targetNode,
-  // 拖动点坐标在任一树中, 同时, 起始树要可拖出, 当前树要可拖入
   'currentTree existed': info => info.currentTree,
-  // 当前树为空(不包括占位节点)
   'currentTree empty': info => !findChild(info, info.currentTree.rootData.children, v => v),
-  // 占位节点存在
   'placeholder existed': info => info.dplhEl,
-  // 占位节点在当前树中
   'placeholder in currentTree': info => info.dplhElInCurrentTree,
-  // 占位节点在最上面
   'placeholder at top': info => info.dplhAtTop,
-  // 另一节点是打开的
   'targetNode is open': info => info.targetNode.open,
-  // 另一节点有子(不包括占位节点)
   'targetNode has children excluding placeholder': info => findChild(info, info.targetNode.children, v => v !== info.dplh),
-  // 另一节点是第一个节点
   'targetNode is 1st child': info => findChild(info, info.targetNode.parent.children, v => v) === info.targetNode,
-  // 另一节点是最后节点
   'targetNode is last child': info => findChild(info, info.targetNode.parent.children, v => v, true) === info.targetNode,
-  // 当前位置在另一节点inner垂直中线上
   'on targetNode middle': info => info.offset.y <= info.tiMiddleY,
-  // 当前位置在另一节点inner左边
   'at left': info => info.offset.x < info.tiOffset.x,
-  // 当前位置在另一节点innner indent位置右边
   'at indent right': info => info.offset.x > info.tiOffset.x + info.currentTree.indent
 };
 
@@ -201,7 +182,6 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
   //
   attachCache(info, new Cache(), {
     // dragging node coordinate
-    // 拖动中的节点相关坐标
     nodeInnerEl () {
       return this.el.querySelector('.tree-node-inner');
     },
@@ -222,7 +202,6 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
     },
     // tree
     currentTree () {
-      // const currentTree = trees.find(tree => hp.isOffsetInEl(this.offset.x, this.offset.y, tree.$el))
       const currentTree = getTreeByPoint(this.offsetToViewPort.x, this.offsetToViewPort.y, trees);
       if (currentTree) {
         const dragStartTree = this.store;
@@ -274,15 +253,13 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
       return Math.abs(this.tiOf4.y2 - this.currentTreeRootOf4.y2) < 5;
     },
     // most related node
-    // 最相关的另一个节点
     targetNode () {
       const {
         currentTree
       } = this;
       if (!currentTree) {
-        throw 'no currentTree';
+        throw Error('no currentTree');
       }
-      //
       const {
         x,
         y
@@ -355,7 +332,6 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
     },
     //
     targetPrevEl () {
-      // tree node 之间不要有其他元素, 否则这里会获取到错误的元素
       let r = this.targetNodeEl.previousSibling;
       if (hp.hasClass(r, 'dragging')) {
         r = r.previousSibling;

@@ -19,7 +19,7 @@ function elementsFromPoint (x, y) {
     }
   } while (parent);
   parents.forEach(function (parent) {
-    return parent.style.pointerEvents = 'all';
+    return parent.style.pointerEvents === 'all';
   });
   return parents;
 }
