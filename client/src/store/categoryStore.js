@@ -31,6 +31,7 @@ export default {
       state.items = [];
       state.itemMap = [];
       state.itemTree = [];
+      state.isLoaded = false;
     },
     put: (state, item) => {
       if (!item.hasOwnProperty('children')) {

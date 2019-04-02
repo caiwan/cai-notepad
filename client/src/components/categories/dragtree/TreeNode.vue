@@ -64,7 +64,7 @@ export default {
     childrenLevel () {
       return this.level + 1;
     },
-    isRoot () { return this.data.isRoot; },
+    isRoot () { return this.data.parent === null; },
     childrenVisible () {
       const { data } = this;
       return this.isRoot || (data.children && data.children.length && data.open);
@@ -86,7 +86,7 @@ export default {
       handler (data) {
         if (data) {
           data._vm = this;
-          if (!data._treeNodePropertiesCompleted && !data.isRoot) {
+          if (!data._treeNodePropertiesCompleted && !this.isRoot) {
             this.store.compeleteNode(data, this.$parent.data);
           }
         }

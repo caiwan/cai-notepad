@@ -160,7 +160,6 @@ export default {
     return {
       pTask: this.task,
       editingTask: null,
-
       showColorPalette: false,
       datepickerState: {
         highlighted: {

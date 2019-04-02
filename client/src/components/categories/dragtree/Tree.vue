@@ -1,5 +1,5 @@
 <template>
-  <div class="he-tree tree">
+  <div class="tree">
     <tree-node
       :data="rootData"
       :store="store"
@@ -74,6 +74,7 @@ export default {
         node._id = `tree_${this._uid}_node_${hp.strRand(this.idLength)}`;
       }
       node._treeNodePropertiesCompleted = true;
+      // console.log('complete node', { t: this, d: this.data });
     },
     // pure node self
     pure (node, withChildren, after) {
@@ -174,8 +175,10 @@ export default {
     deleteNode (node) {
       return hp.arrayRemove(node.parent.children, node);
     }
+  },
+  created () {
+    console.log('data', { d: this.data });
   }
-  // created() {},
   // mounted() {},
 };
 </script>
