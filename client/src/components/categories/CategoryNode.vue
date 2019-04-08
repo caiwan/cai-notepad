@@ -2,17 +2,19 @@
   <section class='tree-node zebra'>
 
     <!-- TOGGLE ICON -->
-    <span class="icon">
-      <span
-        @click="toggle"
-        :class="[isOpen? 'clicked': '', isFolder ? 'folder-icon' : 'folder-icon-placeholder']"
-      ></span></span>
+    <span
+      class="icon"
+      @click="toggle"
+    >
+      <span :class="[isOpen? 'clicked': '', isFolder ? 'folder-icon' : 'folder-icon-placeholder']"></span></span>
 
     <!-- TITLE / EDIT -->
     <div
       v-if="!isEditing"
       :id='model.id'
       class='text-wrap'
+      @click="toggle"
+      @dblclick="doubleClick"
     >
       <span class='text'>{{model.name}}</span>
     </div>
@@ -24,9 +26,8 @@
         autocomplete="off"
         placeholder="Category"
         class="form-control edit input-group-prepend"
-        v-model="model.name"
+        v-model="editingItem.name"
         v-focus="isEditing"
-        @blur="doneEdit"
         @keyup.enter="doneEdit"
         @keyup.esc="cancelEdit"
       />
@@ -43,7 +44,7 @@
       <button
         class="btn btn-danger input-grpup-append"
         @click="mergeParent()"
-      ><i class="fa fa-compress"></i></button>
+      ><i class="fa fa-trash"></i></button>
     </template>
     <!-- Editing -->
     <template v-else>
@@ -72,21 +73,30 @@ export default {
 
   data () {
     return {
+      editingItem: null
     };
   },
 
   computed: {
     isFolder () { return 'children' in this.model && this.model.children.length; },
     isOpen () { return this.model.open; },
-    isEditing () { return this.editingNode === this.model; }
+    isEditing () { return this.editingItem !== null; }
   },
 
   methods: {
-    toggle () {},
-    startEdit (e) { /* rootTree.nodeStartEdit(this.model, this, e); */ },
-    cancelEdit (e) { /* rootTree.nodeCancelEdit(this.model, this, e); */ },
-    doneEdit (e) { /* rootTree.nodeDoneEdit(this.model, this, e); */ },
-    doubleClick (e) { if (/*! this.disableDBClick && */ !this.isEditing) { this.startEdit(e); } },
+    toggle () { this.treeControl.toggleOpen(this.model); },
+    startEdit (e) {
+      const { id, name } = this.model;
+      this.editingItem = { id, name };
+    },
+    cancelEdit (e) { this.editingItem = null; },
+    doneEdit (e) {
+      const { id, name } = this.editingItem;
+      const editedItem = { id, name };
+      this.$emit('edited', editedItem); this.editingItem = null;
+      this.model = Object.assign(this.model, editedItem);
+    },
+    doubleClick (e) { if (!this.isEditing) { this.startEdit(e); } },
     mergeParent () { console.log('Hello'); }
   },
 
@@ -110,15 +120,15 @@ export default {
 <style lang="scss" scoped>
 @import "@/scss/_colors.scss";
 
-$zebra-color-amount: 2.5;
-$zebra-even-color: darken($secondary, 2 * $zebra-color-amount);
-$zebra-odd-color: darken($secondary, $zebra-color-amount);
+$zebra-color-amount: 4.5;
+$zebra-even-color: darken($secondary, $zebra-color-amount);
+$zebra-odd-color: lighten($secondary, $zebra-color-amount);
 
 .tree-node {
   display: flex;
   align-items: baseline;
   .icon {
-    height: auto; // usually 22x22
+    height: 100%; // usually 22x22
     width: auto;
     .folder-icon {
       display: inline-block;

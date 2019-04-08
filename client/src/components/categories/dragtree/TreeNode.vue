@@ -64,7 +64,7 @@ export default {
     childrenLevel () {
       return this.level + 1;
     },
-    isRoot () { return this.data.parent === null; },
+    isRoot () { return this.data && this.data.isRoot; },
     childrenVisible () {
       const { data } = this;
       return this.isRoot || (data.children && data.children.length && data.open);

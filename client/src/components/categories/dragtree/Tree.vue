@@ -1,15 +1,17 @@
 <template>
   <div class="tree">
-    <tree-node
-      :data="rootData"
-      :store="store"
-    ><template slot-scope="props">
-        <slot
-          :data="props.data"
-          :store="store"
-          :vm="props.vm"
-        ></slot>
-      </template></tree-node>
+    <template v-if="data">
+      <tree-node
+        :data="rootData"
+        :store="store"
+      ><template slot-scope="props">
+          <slot
+            :data="props.data"
+            :store="store"
+            :vm="props.vm"
+          ></slot>
+        </template></tree-node>
+    </template>
   </div>
 </template>
 
@@ -39,11 +41,15 @@ export default {
     data: {
       immediate: true,
       handler (data, old) {
-        if (data === old) {
-          return;
-        }
+        if (!data) { return; }
+        if (data === old) { return; }
+
         // make rootData always use a same object
-        this.rootData = this.rootData || { isRoot: true, _id: `tree_${this._uid}_node_root`, children: [] };
+        this.rootData = this.rootData || {
+          isRoot: true,
+          _id: `tree_${this._uid}_node_root`,
+          children: []
+        };
         th.breadthFirstSearch(data, (node, k, parent) => {
           this.compeleteNode(node, parent);
         });
@@ -74,7 +80,6 @@ export default {
         node._id = `tree_${this._uid}_node_${hp.strRand(this.idLength)}`;
       }
       node._treeNodePropertiesCompleted = true;
-      // console.log('complete node', { t: this, d: this.data });
     },
     // pure node self
     pure (node, withChildren, after) {
@@ -175,10 +180,8 @@ export default {
     deleteNode (node) {
       return hp.arrayRemove(node.parent.children, node);
     }
-  },
-  created () {
-    console.log('data', { d: this.data });
   }
+  // created () {}
   // mounted() {},
 };
 </script>

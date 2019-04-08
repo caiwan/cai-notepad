@@ -1,13 +1,5 @@
 import io from '@/services/io';
-import common, { arrayMove } from '@/store/_common';
-
-function reorder (parent) {
-  var count = 0;
-  parent.forEach((element) => {
-    element.order = 2 * count;
-    count++;
-  });
-}
+import common from '@/store/_common';
 
 export default {
   namespaced: true,
@@ -18,7 +10,6 @@ export default {
     itemTree: [],
     isLoading: false,
     isLoaded: false
-    // editingItem: null
   },
 
   getters: {
@@ -39,7 +30,7 @@ export default {
       }
       state.itemMap[item.id] = item;
       if (item.parent) {
-        if (!state.itemMap[item.parent]) { state.itemMap[item.parent] = { children: [] }; }; // :(
+        if (!state.itemMap[item.parent]) { state.itemMap[item.parent] = { children: [] }; };
         state.itemMap[item.parent].children.push(state.itemMap[item.id]);
       } else {
         state.itemTree.push(state.itemMap[item.id]);
@@ -56,40 +47,7 @@ export default {
       }
     },
 
-    reorder: (state, { edited, oldParent, newParent, newOrder }) => {
-      const item = state.itemMap[edited.id]; // Molest the stuff that was already stored
-      const oldChildren = oldParent ? oldParent.children : state.itemTree;
-      const newChildren = newParent ? newParent.children : state.itemTree;
-      const oldId = oldChildren.findIndex((elem) => elem.id === item.id);
-      // 1. Has the parent been moved?
-      if (oldChildren !== newChildren) {
-        oldChildren.splice(oldId, 1);
-        // Ordering starts at -1, the element of the one before ea. node, serves a placeholder
-        // and incremented by 2
-        newChildren.splice(newOrder / 2, 0, item);
-      } else {
-        // 2. Has the order been moved?
-        arrayMove(oldChildren, oldId, newOrder / 2);
-      }
-
-      // When item has children, but
-
-      // itemId = state.
-
-      // Recalc older on client side
-      // if (oldParent !== newParent) {
-      //   let count = 0;
-      //   [
-      //     oldParent || state.itemTree,
-      //     newParent || state.itemTree
-      //   ].forEach(parent => parent.forEach(element => {
-      //     element.order = 2 * count;
-      //     count++;
-      //   }));
-      // } else {
-      //   let count = 0;
-      //   (item.parent ? item.parent.children : state.itemTree).forEach(element => {});
-      // }
+    reorder: (state) => {
     },
 
     rm: (state, item) => {
@@ -125,7 +83,7 @@ export default {
       commit('fetchEnd');
     },
 
-    async addNew ({ commit, dispatch, state }, { parent, name }) {
+    addNew ({ commit, dispatch, state }, { parent, name }) {
       name = name && name.trim();
       if (!name) {
         return;
@@ -139,57 +97,51 @@ export default {
         order: parent ? parent.children.length : state.itemTree.length
       };
 
-      await io.categories
+      return io.categories
         .add(newItem)
+        .then((item) => { commit('put', item); })
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .then((item) => commit('put', item));
-
-      state.isLoading = false;
+        .finally(() => { state.isLoading = false; });
     },
 
-    async edit ({ commit, dispatch, state }, item) {
+    edit ({ commit, dispatch, state }, item) {
       item.name = item.name.trim();
       state.isLoading = true;
 
       if (!item.name) {
         // TODO: Sup bro, you sure?
-        await io.categories.remove(item);
-        commit('remove', item);
-      } else {
-        await io.categories
-          .edit(item)
+        return io.categories.remove(item)
+          .then((item) => commit('re#move', item))
           .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-          .then((edited) => commit('edit', edited));
+          .finally(() => { state.isLoading = false; });
+      } else {
+        return io.categories
+          .edit(item)
+          .then((edited) => commit('edit', edited))
+          .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
+          .finally(() => { state.isLoading = false; });
       }
-      state.isLoading = false;
     },
 
-    async remove ({ commit, state, dispatch }, item) {
+    remove ({ commit, state, dispatch }, item) {
       state.isLoading = true;
-      await io.categories
+      return io.categories
         .remove(item)
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .then((item) => commit('rm', item));
-      state.isLoading = false;
+        .then((item) => commit('rm', item))
+        .finally(() => { state.isLoading = false; });
     },
 
-    async move ({ commit, state, dispatch }, { item, newParent, newOrder }) {
-      let oldParent = item.parent ? state.itemMap[item.parent] : null;
-      // let oldOrder = item.order;
-      item.parent = newParent ? newParent.id : null;
-
-      if (oldParent === newParent || newParent === item || item.order === newOrder) {
-        console.log('You simply can\'t.');
-        return;
-      }
-
-      await io.categories
+    move ({ commit, state, dispatch }, { item, newIndex, newParentId }) {
+      // item.newParentId =
+      return io.categories
         .edit(item)
-        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .then((edited) => {
-          commit('reorder', { edited, oldParent, newParent, newOrder: 0 });
           commit('edit', edited);
-        });
+          commit('reorder', edited);
+        })
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { state.isLoading = false; });
     },
 
     async mergeUp ({ commit, state, dispatch }, { item }) {

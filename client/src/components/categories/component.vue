@@ -17,7 +17,6 @@
             @keyup.enter="doneAddChild()"
             @keyup.esc="cancelAddChild()"
           />
-
           <button
             class="btn btn-success input-group-append"
             @click="doneAddChild()"
@@ -32,13 +31,16 @@
         draggable
         crossTree
         ref="category-editor"
+        class="tree"
         @change="treeChange"
         @drag="ondrag"
-        @drop="ondrop"
+        @nodeOpenChanged="zebra()"
+        @drop="zebra()"
       ><template slot-scope="{ data, store }">
           <category
             :model="data"
             :treeControl="store"
+            @edited="editCategory"
           /> </template>
       </Tree>
     </section>
@@ -47,8 +49,7 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-import * as hp from 'helper-js';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import * as th from 'tree-helper';
 
 import zebrafy from '@/utils/zebrafy';
@@ -64,13 +65,16 @@ export default {
   data () {
     return {
       newChild: '',
-      categories: null
+      categories: []
     };
   },
 
   computed: {
     ...mapState('Categories', {
-      storedCategories: 'itemTree'
+      categoryTree: 'itemTree'
+    }),
+    ...mapGetters('Categories', {
+      category: 'category'
     })
   },
 
@@ -79,73 +83,65 @@ export default {
       addCategory: 'addNew',
       removeCategory: 'remove',
       editCategory: 'edit',
-      startEditCategory: 'startEdit',
-      cancelEditCategory: 'cancelEdit',
-      doneEditCategory: 'doneEdit'
+      moveCategory: 'move'
     }),
+
     treeChange (node, targetTree) {
-      // const data = targetTree.getPureData();
+      const item = this.category(node.id);
+      const index = node.parent.children.indexOf(node);
+      const parentId = node.parent.id || 0;
+      this.moveCategory({ item, index, parentId });
     },
+
     ondrag (node) {
-      const MAX_LEVEL = 0; // 3 == 2
+      // Trinm max level
+      const MAX_LEVEL = 3;
       if (MAX_LEVEL) {
-        // const {maxLevel} = this
         let nodeLevels = 1;
         th.depthFirstSearch(node, (childNode) => {
-          if (childNode._vm.level > nodeLevels) {
-            nodeLevels = childNode._vm.level;
-          }
+          if (childNode._vm.level > nodeLevels) { nodeLevels = childNode._vm.level; }
         });
         nodeLevels = nodeLevels - node._vm.level + 1;
         const childNodeMaxLevel = MAX_LEVEL - nodeLevels;
         //
-        th.depthFirstSearch(this.originalData, (childNode) => {
-          if (childNode === node) {
-            return;
-          }
-          if (!childNode._vm) {
-            console.warn(childNode);
-          }
+        th.depthFirstSearch(this.categories, (childNode) => {
+          if (childNode === node) { return; }
+          if (!childNode._vm) { console.warn(childNode); }
           this.$set(childNode, 'droppable', childNode._vm.level <= childNodeMaxLevel);
         });
       }
-
-      const tree = this.$refs.tree1;
-      tree.nodesTransition = null;
     },
 
-    ondrop () {
+    zebra () {
+      let self = this;
+      setTimeout(() => { zebrafy(self.$el); });
+    },
+
+    refreshView () {
+      let self = this;
+      setTimeout(() => {
+        self.categories = JSON.parse(JSON.stringify(self.categoryTree));
+        zebrafy(self.$el);
+      });
     },
 
     cancelAddChild () {
       this.newChild = '';
-      // this.categories = Object.assign({}, this.storedCategories);
     },
+
     doneAddChild () {
-      // ... + store add func
+      this.addCategory({ parent: null, name: this.newChild });
       this.newChild = '';
-      // this.categories = Object.assign({}, this.storedCategories);
     }
 
   },
 
   updated () {
-    let el = this.$el;
-    setTimeout(() => { zebrafy(el); });
+    this.zebra();
   },
 
   created () {
-    this.$store.dispatch('Categories/clear');
-    this.$store.dispatch('Categories/fetchAll');
-
-    console.log('ugromokus', { s: this.storedCategories });
-
-    this.categories = Object.assign([], this.storedCategories);
-
-    console.log('Hapci', { s: this.storedCategories, c: this.categories });
-
-    let self = this;
-    setTimeout(() => { zebrafy(self.$el); });
+    this.refreshView();
   },
 
   directives: {
@@ -153,6 +149,12 @@ export default {
       if (binding.value) {
         setTimeout(() => { el.focus(); }, 0);
       }
+    }
+  },
+
+  watch: {
+    categoryTree () {
+      this.refreshView();
     }
   }
 
@@ -162,13 +164,16 @@ export default {
 <style lang="scss" scoped>
 @import "@/scss/__category_selector.scss";
 @import "@/scss/_colors.scss";
+.tree {
+  margin: 0 4px;
 
-.zebra {
-  &.even {
-    background-color: $zebra-even-color;
-  }
-  &.odd {
-    background-color: $zebra-odd-color;
+  .zebra {
+    &.even {
+      background-color: $zebra-even-color;
+    }
+    &.odd {
+      background-color: $zebra-odd-color;
+    }
   }
 }
 </style>
