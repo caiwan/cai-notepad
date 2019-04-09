@@ -17,6 +17,6 @@ if cmd_folder not in sys.path:
 
 
 if __name__ == "__main__":
-    all = unittest.TestLoader().discover(cmd_folder + "/app")
+    all = unittest.TestLoader().discover(cmd_folder + "/app/tests")
     runner = test_runner.TestRunner()
     runner.run(all)

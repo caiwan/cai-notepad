@@ -52,34 +52,6 @@ class TestCategoryCrud(TestUtils, TestCase):
         self.assertEqual(updated_category["name"], category_json["name"])
         pass
 
-
-    def test_delete(self):
-        # Given
-        # - one category created by an user
-        category = {
-            "name": "Category",
-            "parent": None
-        }
-        category_json = self._insert_category(category)
-        self._validate_fields(category_json)
-        category_id = category_json["id"]
-
-        # When
-        # - attempt delete it with another user
-        self.response(self.app.delete(
-            self.CATEGORY_LIST.format(id=category_id),
-            **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
-        ))
-
-        # Then
-        # - Error should be given
-        category_json = self.response(self.app.get(
-            self.CATEGORY_GET.format(id=category_id),
-            **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
-        ), status=404)
-
     # Permissions
     def test_update_rights(self):
         # Given
@@ -109,28 +81,6 @@ class TestCategoryCrud(TestUtils, TestCase):
         # - Error should be given
         self.assertTrue("message" in error_json)
 
-    def test_delete_rights(self):
-        # Given
-        # - one category created by an user
-        category = {
-            "name": "Category",
-            "parent": None
-        }
-        category_json = self._insert_category(category)
-        self._validate_fields(category_json)
-        category_id = category_json["id"]
-
-        # When
-        # - attempt delete it with another user
-        error_json = self.response(self.app.delete(
-            self.CATEGORY_LIST.format(id=category_id),
-            **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
-        ), status=404)
-
-        # Then
-        # - Error should be given
-        self.assertTrue("message" in error_json)
 
     # Parents
     def test_add_category_wo_parent(self):
