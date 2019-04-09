@@ -202,7 +202,7 @@ class CategoryService(components.Service):
 
         with components.DB.atomic():
             for (index, category) in zip(range(query.count()), query.execute()):
-                category.order = 2 * index + 1
+                category.order = index
                 category.save()
 
     def bulk__create_items(self, items_json):
@@ -275,7 +275,7 @@ def _flatten_all_categories():
 
         for group in categories.values():
             for (index, item) in zip(range(len(group)), group):
-                item.order = 2 * index
+                item.order = index
                 item.save()
 
 

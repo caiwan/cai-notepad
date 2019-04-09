@@ -52,10 +52,33 @@ class TestCategoryCrud(TestUtils, TestCase):
         self.assertEqual(updated_category["name"], category_json["name"])
         pass
 
-    @skip("Not implemented")
+
     def test_delete(self):
-        # TODO: Delete -> Something like a merge of categories
-        pass
+        # Given
+        # - one category created by an user
+        category = {
+            "name": "Category",
+            "parent": None
+        }
+        category_json = self._insert_category(category)
+        self._validate_fields(category_json)
+        category_id = category_json["id"]
+
+        # When
+        # - attempt delete it with another user
+        self.response(self.app.delete(
+            self.CATEGORY_LIST.format(id=category_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ))
+
+        # Then
+        # - Error should be given
+        category_json = self.response(self.app.get(
+            self.CATEGORY_GET.format(id=category_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=404)
 
     # Permissions
     def test_update_rights(self):
@@ -86,10 +109,28 @@ class TestCategoryCrud(TestUtils, TestCase):
         # - Error should be given
         self.assertTrue("message" in error_json)
 
-    @skip("Not implemented")
     def test_delete_rights(self):
-        # TODO: Delete -> Something like a merge of categories
-        pass
+        # Given
+        # - one category created by an user
+        category = {
+            "name": "Category",
+            "parent": None
+        }
+        category_json = self._insert_category(category)
+        self._validate_fields(category_json)
+        category_id = category_json["id"]
+
+        # When
+        # - attempt delete it with another user
+        error_json = self.response(self.app.delete(
+            self.CATEGORY_LIST.format(id=category_id),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=404)
+
+        # Then
+        # - Error should be given
+        self.assertTrue("message" in error_json)
 
     # Parents
     def test_add_category_wo_parent(self):
@@ -159,26 +200,66 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.assertEqual(root_category_json["id"], category_json["parent"])
             self.assertEqual(category["name"], category_json["name"])
 
-    @skip("Not implemented")
-    def test_add_category_w_nonexistent_parent():
-        pass
+    def test_add_category_w_nonexistent_parent(self):
+        # given
+        # non existing category id
+        root_id = 2
 
-    @skip("Not implemented")
-    def test_add_category_w_parent_rights():
-        pass
+        category_json = {
+            "name": "Child Category " + str(i),
+            "parent": {"id": root_id}
+        }
+        # when,
+        # - check parent-child relationship
+        error_json = self.response(self.app.post(
+            self.CATEGORY_LIST,
+            data=json.dumps(category_json),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=403)
+
+        # then
+        # - Error should be given
+        self.assertTrue("message" in error_json)
+
+    def test_add_category_w_parent_rights(self):
+        # given
+        # - Category inserted as a user
+        root_category = {
+            "name": "Root Category",
+            "parent": None
+        }
+        root_category_json = self._insert_category(root_category)
+        root_id = root_category_json["id"]
+
+        child_json = {
+            "name": "Child Category " + str(i),
+            "parent": {"id": root_id}
+        }
+
+        # when
+        # - append child categories as anothert user
+        error_json = self.response(self.app.post(
+            self.CATEGORY_LIST,
+            data=json.dumps(child_json),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+        ), status=201)
+
+        # then
+        # - Insertion should fail
+        self.assertTrue("message" in error_json)
 
     # Test ordering / reordering
-
     # TODO: ...
 
     def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
-        category_json = self.response(self.app.post(
+        return self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),
             **self.post_args,
             **self.create_user_header(mock_user)
         ), status=201)
-        return category_json
 
     def _validate_fields(self, category_json):
         self.assertTrue("flatten_order" not in category_json)
