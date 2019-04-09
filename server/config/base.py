@@ -25,13 +25,8 @@ CSRF_ENABLED = True
 APP_INTEGRATIONS = {
     "oauth-google": {
         "enabled": False,
-        "client_id": "",
-        # "project_id": "",
-        # "auth_uri": "",
-        # "token_uri": "",
-        # "auth_provider_x509_cert_url": "",
-        "client_secret": "",
-        # "javascript_origins": [""],
+        "client_id": "<client_id>",
+        "client_secret": "<client_secret>",
         "scope": "profile email",
     },
     "oauth-twitter": {

@@ -1,14 +1,33 @@
 version: '3'
 services:
-  app:
+  database:
+    image: postgres:11-alpine
+    restart: always
+    # volumes?
+    # environment:
+      # POSTGRES_PASSWORD:
+      # POSTGRES_USER:
+      # POSTGRES_DB:
+  backend:
     build: ./
     restart: always
     ports:
       - 8001:8001
     links:
       - "database:database"
-    # volumes of static assets?
-  database:
-    image: postgresql:11-alpine
-    restart: always
+    depends_on:
+      - database
+    env_file:
+      - backend.env
     # volumes?
+  frontend:
+    build: ./docker/frontend
+    restart: always
+    ports:
+      - 8001:8001
+    links:
+      - "backend:backend"
+    # volumes of static assets?
+    depends_on:
+      - backend
+
