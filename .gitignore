@@ -144,3 +144,7 @@ fabric.properties
 .idea/modules.xml
 .idea/vcs.xml
 .idea/inspectionProfiles/Project_Default.xml
+
+*.db
+*.db*
+

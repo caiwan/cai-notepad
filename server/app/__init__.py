@@ -63,7 +63,8 @@ class MyConfig(object):
         import config
         flask_app.config.from_object(config)
         if APP_ROOT not in sys.path:
-            sys.path.insert(0, APP_ROOT)
+            sys.path.insert(0, os.path.dirname(APP_ROOT + "/../"))
+
         config = "config.production" if PRODUCTION else "config.local"
         try:
             cfg = importlib.import_module(config)

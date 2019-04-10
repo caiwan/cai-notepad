@@ -2,6 +2,8 @@
 import logging
 import sys
 
+from datetime import datetime
+
 from playhouse.shortcuts import dict_to_model, model_to_dict
 from playhouse.shortcuts import Value
 
@@ -25,7 +27,10 @@ class CategoryService(components.Service):
     def create_category(self, item_json):
         parent = None
         if "parent" in item_json and item_json["parent"]:
-            parent = self.read_item(item_json["parent"])
+            try:
+                parent = self.read_item(item_json["parent"])
+            except Category.DoesNotExist:
+                raise components.BadRequestError()
             del item_json["parent"]
 
         item = dict_to_model(Category, item_json)
@@ -34,23 +39,25 @@ class CategoryService(components.Service):
         item.save()
         return item
 
-    def _create_item(self, item_json):
+    def create_item(self, item_json):
         # when bulk-inserting multiple items please use _create_item
         # then call _flatten_tree_order() when database structure is ready
         # to avoid unnecessary load
         item = self.create_category(item_json)
-        self._flatten_tree_order()
+        self._flatten_tree_order(components.current_user_id())
         return item
 
     def _edit_category(self, item_id, item_json):
         parent = None
         if "parent" in item_json and item_json["parent"]:
-            parent = self.read_item(int(item_json["parent"]))
+            if item_json["parent"] == item_id:
+                raise components.BadRequestError(
+                    payload={"reason": "You can't be your own parent, you moron."})
+            try:
+                parent = self.read_item(item_json["parent"])
+            except Category.DoesNotExist:
+                raise components.BadRequestError()
             del item_json["parent"]
-
-        if parent and parent.id == item_id:
-            raise components.BadRequestError(
-                payload={"reason": "You can't be your own parent, you moron."})
 
         item_json = self.sanitize_fields(item_json)
 
@@ -80,16 +87,79 @@ class CategoryService(components.Service):
 
         return item
 
-    def merge_category(self, src_id, dst_id):
-        # TBD
-        # - Merges all the that that belongs to a tasks from src to dst
-        # - Check if dst is not parent of src, neither in it's ancestors
+    def delete_item(self, item_id):
+        from app.notes.model import Note
+        from app.tasks.model import Task
+        from app.milestones.model import Milestone
+        # from app.worklog.model import Worklog
 
-        # Merge notes
-        # Merge tasks
-        # RM Src task
-        # Reload shitz maybe on client?
-        pass
+        # --- delete -> merge all the stuff to its parents
+
+        category = None
+        try:
+            category = self.read_item(item_id)
+            # if category.parent:
+            # parent = self.read_item(category.parent)
+        except Category.DoesNotExist:
+            raise components.ResourceNotFoundError()
+
+        parent = category.parent
+
+        # merge
+        # We need to have an event dispatch-thingy to notify all the depending modules to move around
+        user_id = components.current_user_id()
+        with components.DB.atomic():
+            for clazz in [Note, Task, Milestone]:
+                # Why can't you just simply update?
+                # clazz.update(
+                #     category=parent,  # parent.id if parent else None,
+                #     edited=datetime.now()
+                # ).where(
+                #     clazz.category == category,  # under normal circumstances, it can't be None
+                # ).execute()
+                for obj in clazz.select(
+                    clazz
+                ).join(
+                    components.BaseUser, on=(clazz.owner == components.BaseUser.id)
+                ).join(
+                    Category, on=(clazz.category == Category.id)
+                ).where(
+                    clazz.category.id == category.id,  # under normal circumstances, it can't be None
+                    clazz.owner.id == user_id
+                ):
+                    obj.category = parent
+                    obj.changed()
+                    obj.save()  # :/
+
+            # Why can't you simply update?
+            # Category.update(
+            #     parent_id=parent.id,
+            #     edited=datetime.now()
+            # ).where(
+            #     Category.parent == category,
+            # ).execute()
+
+            Parent = Category.alias()
+            for child in Category.select(
+                Category
+            ).join(
+                components.BaseUser, on=(Category.owner == components.BaseUser.id)
+            ).join(
+                Parent, on=(Category.parent == Parent.id)
+            ).where(
+                Parent.id == category.id,  # under normal circumstances, it can't be None
+                Category.owner.id == user_id
+            ):
+                child.parent = parent
+                child.changed()
+                child.save()
+
+            category.is_deleted = True
+            category.changed()
+            category.save()
+
+            self._flatten_tree_order(user_id)
+            return category
 
     def find_by_name(self, query_name):
         try:

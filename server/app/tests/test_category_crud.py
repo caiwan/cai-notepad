@@ -53,7 +53,7 @@ class TestCategoryCrud(TestUtils, TestCase):
         pass
 
     # Permissions
-    def test_update_rights(self):
+    def test_update_wo_rights(self):
         # Given
         # - one category created by an user
         category = {
@@ -80,7 +80,6 @@ class TestCategoryCrud(TestUtils, TestCase):
         # Then
         # - Error should be given
         self.assertTrue("message" in error_json)
-
 
     # Parents
     def test_add_category_wo_parent(self):
@@ -120,7 +119,7 @@ class TestCategoryCrud(TestUtils, TestCase):
 
         child_categories = [{
             "name": "Child Category " + str(i),
-            "parent": {"id": root_id}
+            "parent": root_id
         } for i in range(3)]
 
         # when
@@ -153,11 +152,9 @@ class TestCategoryCrud(TestUtils, TestCase):
     def test_add_category_w_nonexistent_parent(self):
         # given
         # non existing category id
-        root_id = 2
-
         category_json = {
-            "name": "Child Category " + str(i),
-            "parent": {"id": root_id}
+            "name": "Child Category",
+            "parent": 999999999
         }
         # when,
         # - check parent-child relationship
@@ -166,13 +163,13 @@ class TestCategoryCrud(TestUtils, TestCase):
             data=json.dumps(category_json),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_USER)
-        ), status=403)
+        ), status=400)
 
         # then
         # - Error should be given
         self.assertTrue("message" in error_json)
 
-    def test_add_category_w_parent_rights(self):
+    def test_add_category_w_parent_wo_rights(self):
         # given
         # - Category inserted as a user
         root_category = {
@@ -183,25 +180,50 @@ class TestCategoryCrud(TestUtils, TestCase):
         root_id = root_category_json["id"]
 
         child_json = {
-            "name": "Child Category " + str(i),
-            "parent": {"id": root_id}
+            "name": "Child Category ",
+            "parent": root_id
         }
 
         # when
-        # - append child categories as anothert user
+        # - append child categories as another user
         error_json = self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(child_json),
             **self.post_args,
             **self.create_user_header(TestUtils.REGULAR_ALT_USER)
-        ), status=201)
+        ), status=400)
 
         # then
         # - Insertion should fail
         self.assertTrue("message" in error_json)
 
-    # Test ordering / reordering
-    # TODO: ...
+    def test_assign_to_self(self):
+        # Given
+        # - one category
+        category = {
+            "name": "Category",
+            "parent": None
+        }
+        category_json = self._insert_category(category)
+        self._validate_fields(category_json)
+        category_id = category_json["id"]
+
+        # When
+        # - update it with new data
+        updated_category = {
+            "name": "Updated Category",
+            "parent": category_id
+        }
+        error_json = self.response(self.app.put(
+            self.CATEGORY_GET.format(id=category_id),
+            data=json.dumps(updated_category),
+            **self.post_args,
+            **self.create_user_header(TestUtils.REGULAR_USER)
+        ), status=400)
+
+        # then
+        # - Insertion should fail
+        self.assertTrue("message" in error_json)
 
     def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
         return self.response(self.app.post(
