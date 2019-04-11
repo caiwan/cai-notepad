@@ -22,7 +22,7 @@ class CategoryService(components.Service):
         ).where(
             Category.is_deleted == False,
             components.BaseUser.id == user_id
-        ).order_by(Category.flatten_order)
+        ).order_by(Category.global_order)
 
     def create_category(self, item_json):
         parent = None
@@ -33,9 +33,23 @@ class CategoryService(components.Service):
                 raise components.BadRequestError()
             del item_json["parent"]
 
+        user = components.current_user()
+        count = 0
+        if parent:
+            count = len(parent.children)
+        else:
+            count = Category.select().join(
+                components.BaseUser, on=(Category.owner == components.BaseUser.id)
+            ).where(
+                Category.parent.is_null(),
+                Category.is_deleted == False,
+                components.BaseUser.id == user.id
+            ).count()
+
         item = dict_to_model(Category, item_json)
         item.parent = parent
-        item.owner = components.current_user()
+        item.order = count
+        item.owner = user
         item.save()
         return item
 
@@ -68,22 +82,26 @@ class CategoryService(components.Service):
         return item
 
     def update_item(self, item_id, item_json):
-        old_item = self.read_item(item_id)
+        old_item = None
+        try:
+            old_item = self.read_item(item_id)
+        except Category.DoesNotExist:
+            raise components.ResourceNotFoundError()
         old_parent_id = old_item.parent.id if old_item.parent else None
         old_order = old_item.order
 
-        item = self._edit_category(old_item.id, item_json)
+        item = self._edit_category(item_id, item_json)
 
         # rearrange if structure changed
         # TODO: -> Celery
-        if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
-            user_id = components.current_user_id()
-            self._reorder_branch(
-                user_id=user_id, parent_id=item.parent.id if item.parent else None)
-            if item.parent and item.parent.id != old_parent_id:
-                self._reorder_branch(user_id=user_id, parent_id=old_parent_id)
+        # if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
+        # user_id = components.current_user_id()
+        #     self._reorder_branch(
+        #         user_id=user_id, parent_id=item.parent.id if item.parent else None)
+        #     if item.parent and item.parent.id != old_parent_id:
+        #         self._reorder_branch(user_id=user_id, parent_id=old_parent_id)
 
-            self._flatten_tree_order(user_id)
+        # self._flatten_tree_order(user_id)s
 
         return item
 
@@ -94,7 +112,6 @@ class CategoryService(components.Service):
         # from app.worklog.model import Worklog
 
         # --- delete -> merge all the stuff to its parents
-
         category = None
         try:
             category = self.read_item(item_id)
@@ -252,7 +269,7 @@ class CategoryService(components.Service):
         (count, items) = self.fetch_subtree_ordered(user_id, None)
         with components.DB.atomic():
             for (index, item) in zip(range(count), items):
-                item.flatten_order = index
+                item.global_order = index
                 item.save()
         pass
 
@@ -318,7 +335,7 @@ class CategoryService(components.Service):
             return model_to_dict(
                 item, exclude=[
                     Category.is_deleted,
-                    Category.flatten_order,
+                    Category.global_order,
                     Category.owner
                 ], recurse=False)
         except:
@@ -338,7 +355,7 @@ def _flatten_all_categories():
             categoryService._flatten_tree_order(user.id)
 
         categories = {}
-        for category in Category.select().order_by(Category.flatten_order):
+        for category in Category.select().order_by(Category.global_order):
             if category.parent_id not in categories:
                 categories[category.parent_id] = []
             categories[category.parent_id].append(category)

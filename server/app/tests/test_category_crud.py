@@ -234,6 +234,6 @@ class TestCategoryCrud(TestUtils, TestCase):
         ), status=201)
 
     def _validate_fields(self, category_json):
-        self.assertTrue("flatten_order" not in category_json)
+        self.assertTrue("global_order" not in category_json)
         self.assertTrue("id" in category_json)
         self.assertIsNotNone(category_json["id"])

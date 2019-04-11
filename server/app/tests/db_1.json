@@ -236,7 +236,7 @@
       "is_archived": false,
       "is_protected": false,
       "order": 0,
-      "flatten_order": 0,
+      "global_order": 0,
       "parent": null
     },
     {
@@ -250,7 +250,7 @@
       "is_archived": false,
       "is_protected": false,
       "order": 1,
-      "flatten_order": 0,
+      "global_order": 0,
       "parent": null
     },
     {
@@ -264,7 +264,7 @@
       "is_archived": false,
       "is_protected": false,
       "order": 2,
-      "flatten_order": 0,
+      "global_order": 0,
       "parent": null
     }
   ],
