@@ -101,7 +101,9 @@ class CategoryService(components.Service):
         #     if item.parent and item.parent.id != old_parent_id:
         #         self._reorder_branch(user_id=user_id, parent_id=old_parent_id)
 
-        # self._flatten_tree_order(user_id)s
+        # self._flatten_tree_order(user_id)
+
+
 
         return item
 

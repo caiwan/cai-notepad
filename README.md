@@ -28,6 +28,8 @@ For development instuctions see below.
 
 ### Manual setup
 
+  TBD
+
 1. Prerequisites
 
     To build manually you'll need the following packages installed:
@@ -39,14 +41,15 @@ For development instuctions see below.
 
 1. Build client (frontend)
 
-    ```
+    ```bash
     cd client
     npm i && npm build
     cd ..
     ```
 
 2. Install server dependencies
-    ```
+
+    ```bash
     cd server
     pip install Cython
     pip install -r requirements.txt
@@ -54,7 +57,8 @@ For development instuctions see below.
     ```
 
 3. Copy static files from client
-    ```
+
+    ```bash
     cp client/dist server/static
     ```
 
@@ -64,9 +68,10 @@ For development instuctions see below.
 
 3. Configure your server with uWSGI
 
-    ```
+    ```bash
     cp ./docker/uwsgi.ini /server/wusgi.ini
     ```
+
     See Flask's [uWSGI documentation](http://flask.pocoo.org/docs/1.0/deploying/uwsgi/) for further details
 
 3. Configure your server app
@@ -78,7 +83,8 @@ For development instuctions see below.
 4. Run the server with uwsgi:
 
     ***TODO:*** *This needs to be defined and tested well*
-    ```
+
+    ```bash
     uwsgi -s /tmp/wimm2.sock --manage-script-name --mount /wimm=server:app
     ```
 
@@ -87,7 +93,7 @@ For development instuctions see below.
 TBD, See `SPECS.md` for rough details
 
 
-## Setup for development
+## Setup and launcing app for development
 
 1. Prerequisites
 
@@ -96,17 +102,31 @@ TBD, See `SPECS.md` for rough details
     - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
     - **Node 11.7** and **NPM 6.5** for client (frontend)
 
-2. Using virtualenv (optional)
+2. Start client (frontend)
 
-    **TBD**
+    ```bash
+    cd client
+    npm i
+    npm run dev
+    ```
 
-3. Compile client (frontend)
+3. Start server (backend)
 
-    **TBD**
+    ```bash
+    cd server
+    pip install -r requirements-dev.txt
+    python manage,py createdb
+    cp dev.env .env
+    python manage.py runserver
+    ```
 
-4. Compile server (backend)
+4. Integrated Development Environment
 
-    **TBD**
+  We prefer Visual Studio code. Therefore an environemnt config is already supplied with the repo, altogether with different `.*rc` files. The following configuration / linting and quality tools are used:
+
+  - **flake8** (Recommended VSCode plugins: Python, Test Explorer UI, Python Test Explorer)
+  - **eslint** (Recommended VSCode plugins: vue, vetur, eslint, beautifyrc)
+  - **editorconfig** (Recommended VSCode plugins: editorconfig)
 
 ## Contribution
 
@@ -117,17 +137,13 @@ there isn't any developer guideline set at this moment.
 
 ## Running tests
 
+Make sure that requirements for development has been installed `pip install -r requirements-dev.txt`
+
 1. Server (backend)
 
-    ```
+    ```bash
     cd server/
     python tests.py
-    ```
-
-    or via `manage.py`
-    ```
-    cd server/
-    python manage.py runtests
     ```
 
 2. Client (frontend)
