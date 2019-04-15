@@ -22,11 +22,6 @@ DEBUG = True
 CSRF_SESSION_KEY = "qWmODTwKC95EpJHp5zmW7Ui9DkraYLUa"
 CSRF_ENABLED = True
 
-RESTFUL_JSON = {
-    "indent": 0,
-    "sort_keys": False
-}
-
 APP_INTEGRATIONS = {
     "oauth-google": {
         "enabled": False,

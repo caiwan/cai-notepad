@@ -55,7 +55,8 @@ APP_ROOT = os.path.dirname(__file__)
 class MyConfig(object):
     RESTFUL_JSON = {
         "cls": app.components.MyJsonEncoder,
-        "indent": 0 if PRODUCTION else 2
+        "indent": 0 if PRODUCTION else 2,
+        "sort_keys": False
     }
 
     @staticmethod
@@ -82,7 +83,6 @@ API = Api(APP)
 CORS = CORS(APP)
 
 app.auth.principal.init_app(APP)
-
 
 # setup all the message handlers
 @app.auth.error_handler
