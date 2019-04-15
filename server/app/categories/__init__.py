@@ -94,16 +94,13 @@ class CategoryService(components.Service):
 
         # rearrange if structure changed
         # TODO: -> Celery
-        # if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
-        # user_id = components.current_user_id()
-        #     self._reorder_branch(
-        #         user_id=user_id, parent_id=item.parent.id if item.parent else None)
-        #     if item.parent and item.parent.id != old_parent_id:
-        #         self._reorder_branch(user_id=user_id, parent_id=old_parent_id)
+        if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
+            user_id = components.current_user_id()
+            self._reorder_branch(item, user_id=user_id, parent_id=item.parent.id if item.parent else None)
+            if item.parent and item.parent.id != old_parent_id:
+                self._reorder_branch(None, user_id=user_id, parent_id=old_parent_id)
 
-        # self._flatten_tree_order(user_id)
-
-
+            self._flatten_tree_order(user_id)
 
         return item
 
@@ -276,7 +273,10 @@ class CategoryService(components.Service):
         pass
 
     # TODO: Add as Celery task
-    def _reorder_branch(self, user_id=None, parent_id=None):
+    def _reorder_branch(self, item, user_id=None, parent_id=None):
+        if item:
+            pass
+
         query = None
         if parent_id:
             query = (Category.select()
