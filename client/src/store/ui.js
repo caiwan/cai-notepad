@@ -5,13 +5,15 @@ export default {
     showSidebar: false,
     showSnackbar: false,
     showUserMenu: false,
-    snackbarMessages: []
+    snackbarMessages: [],
+    loading: 0
   },
 
   getters: {
     // TODO: We will have a loading-stack which operates on a push-pop manner instead
     isLoading (state, getters, rootState) {
-      return rootState.App.isInitializing ||
+      return !!state.loading ||
+        rootState.App.isInitializing ||
         // TODO: + User Profile + Settings
         rootState.User.isLoading || rootState.User.Authenticators.isLoading ||
         rootState.Categories.isLoading ||
@@ -30,21 +32,17 @@ export default {
     pullSnackbar (state) {
       state.snackbarMessages = [];
       state.showSnackbar = false;
-    }
+    },
+    pushLoad (state) { state.loading++; },
+    popLoad (state) { state.loading--; }
   },
 
   actions: {
     pushIOError ({ commit }, error) {
       console.error(error);
       commit('pushSnackbar', `${error}`);
-    },
-    // TODO: We will have a loading-stack which operates on a push-pop manner instead
-    pushLoad () {
-      // ...
-    },
-    popLoad () {
-      // ...
     }
+
   }
 
 };

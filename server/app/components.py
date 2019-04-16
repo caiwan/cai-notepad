@@ -406,11 +406,16 @@ def _database_backup(models):
 
 
 def _database_restore(models, data):
+    DB.drop_tables(models)
+    DB.create_tables(models, safe=True)
     model_map = dict((m.__name__, m) for m in models)
     with DB.atomic():
         for table, records in data.items():
-            model = model_map[table]
-            model.insert_many(records)
+            if records:
+                model = model_map[table]
+                # this doesn't work this way, because we'll need to insert all the FKs later some way
+                model.insert_many(records).on_conflict_ignore(True).execute()
+                logging.info("Resoted db: %s" % (model.__name__))
 
 
 # Module descriptor

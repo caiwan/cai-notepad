@@ -2,7 +2,7 @@ import * as hp from 'helper-js';
 import * as th from 'tree-helper';
 import Cache, {
   attachCache
-} from '@/utils/cache';
+} from '@/utils/Cache';
 import * as vf from 'vue-functions';
 import getTreeByPoint from './temporarily-fix-overlapping-tree-issue';
 
@@ -179,7 +179,7 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
       store: dhStore
     }
   };
-  //
+    //
   attachCache(info, new Cache(), {
     // dragging node coordinate
     nodeInnerEl () {
@@ -357,7 +357,7 @@ export default function autoMoveDragPlaceHolder (draggableHelperInfo) {
         r = e;
         try {
           if (process.env.DEVELOPE_SELF) {
-          // only visible when develop its self
+            // only visible when develop its self
             console.warn(`failed to execute rule '${ruleId}'`, e);
           }
         } catch (e2) {}
