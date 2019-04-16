@@ -18,21 +18,6 @@ import app
 
 manager = Manager(app.APP)
 
-
-class Runserver(Server):
-    def run(self):
-        self.__call__(app.APP,
-                      self.port,
-                      self.host,
-                      self.use_debugger,
-                      self.use_reloader,
-                      self.threaded,
-                      self.process,
-                      self.passthrough_errors,
-                      (self.ssl_crt, self.ssl_key)
-                      )
-
-
 # User management
 @manager.command
 def adduser(username, password):
@@ -174,7 +159,7 @@ def flattencategories():
 
 
 # override the default 127.0.0.1 binding address
-manager.add_command("runserver", Server(host="0.0.0.0", port=5000))
+manager.add_command("runserver", Server(host="0.0.0.0", use_reloader=False, port=5000))
 
 if __name__ == "__main__":
     manager.run()

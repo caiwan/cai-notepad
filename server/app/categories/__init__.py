@@ -92,8 +92,6 @@ class CategoryService(components.Service):
 
         item = self._edit_category(item_id, item_json)
 
-        # rearrange if structure changed
-        # TODO: -> Celery
         if (item.order != old_order) or (item.parent and item.parent.id != old_parent_id):
             user_id = components.current_user_id()
             self._reorder_branch(item, user_id=user_id, parent_id=item.parent.id if item.parent else None)
@@ -274,27 +272,30 @@ class CategoryService(components.Service):
 
     # TODO: Add as Celery task
     def _reorder_branch(self, item, user_id=None, parent_id=None):
-        if item:
-            pass
-
         query = None
         if parent_id:
-            query = (Category.select()
-                     .where(Category.parent.id == parent_id))
+            query = (Category.select().where(Category.parent.id == parent_id))
+        elif not parent_id and item:
+            query = (Category.select().where(Category.parent.id == item.parent.id, Category.id != item.id))
         elif user_id:
             query = (Category.select().join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
                      .where(Category.parent.id.is_null(), Category.owner.id == user_id))
 
         if query is None:
-            raise RuntimeError("No user || parent_id given u=%s p=%s" % (
+            raise RuntimeError("No item || user || parent_id given u=%s p=%s" % (
                 str(user_id), str(parent_id)))
 
+        categories = [category for category in query.execute()]
+        if item:
+            categories.insert(item.order, item)
+
         with components.DB.atomic():
-            for (index, category) in zip(range(query.count()), query.execute()):
+            for (index, category) in zip(range(len(categories)), categories):
                 category.order = index
                 category.save()
 
-    def bulk__create_items(self, items_json):
+    def bulk_create_items(self, items_json):
+        # TODO: this one is not used atm.
         parent_map = dict()
         item_map = dict()
         items = []

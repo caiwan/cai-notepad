@@ -152,3 +152,8 @@ Make sure that requirements for development has been installed `pip install -r r
 ### Future development
 
 TBD
+
+### Known issues
+
+- On some enviromnent live reload of the backend app simply doens't work, and stuck.
+- DB restore script doesn't work due foreign key issues on insertion.

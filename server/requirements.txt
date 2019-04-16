@@ -13,6 +13,7 @@ Peewee-Migrate>=1.1.5
 python-slugify
 python-Levenshtein
 pyjwt==1.4.2
+watchdog
 
 oauth2client==4.1.3
 google-auth==1.6.3
