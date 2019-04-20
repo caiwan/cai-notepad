@@ -194,8 +194,10 @@ class CategoryService(components.Service):
         # http://docs.peewee-orm.com/en/latest/peewee/api.html#SelectQuery
         # http://docs.peewee-orm.com/en/latest/peewee/querying.html#common-table-expressions
 
+        # TODO: Place order In the recursive query
+
         root_query = None
-        if query_item_id is None:
+        if not query_item_id:
             root_query = (Category
                           .select(Category.id, Category.order, Value(0).alias("level"))
                           .join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
@@ -218,7 +220,7 @@ class CategoryService(components.Service):
 
         tree_query = (cte
                       .select_from(cte.c.id, cte.c.order, cte.c.level)
-                      .order_by(cte.c.id)
+                      .order_by(cte.c.order)
                       )
 
         return tree_query
@@ -273,16 +275,64 @@ class CategoryService(components.Service):
     # TODO: Add as Celery task
     def _reorder_branch(self, item, user_id=None, parent_id=None):
         query = None
-        if parent_id:
-            query = (Category.select().where(Category.parent.id == parent_id))
-        elif not parent_id and item:
-            query = (Category.select().where(Category.parent.id == item.parent.id, Category.id != item.id))
-        elif user_id:
-            query = (Category.select().join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
-                     .where(Category.parent.id.is_null(), Category.owner.id == user_id))
+        # :/ This w=query sucks all the way through
+        # if item:
+        # if not item and parent_id:
+        # elif user_id:
+        #     query = (Category.select().join(components.BaseUser, on=(Category.owner == components.BaseUser.id))
+        #              .where(Category.parent.id.is_null(), Category.owner.id == user_id))
+
+        if item:
+            # scenario #1: if
+            # - item was given and it was put into a category
+            # then
+            # - select all the categories from its parent, except the given one
+            Parent = Category.alias()
+            query = Category.select(
+                Category
+            ).join(
+                Parent, on=(Category.parent == Parent.id)
+            )
+            # - either category has parent or is at the root
+            if (item.parent):
+                query = query.where(
+                    Parent.id == item.parent.id,
+                    Category.id != item.id,
+                    Category.is_deleted == False
+                )
+            else:
+                query = query.where(
+                    Parent.id.is_null(),
+                    Category.id != item.id,
+                    Category.is_deleted == False
+                )
+            pass
+        else:
+            if parent_id:
+                # scenario #2: if
+                # - item is none, but a parent id was given
+                # then
+                # - select all the items from that category
+                query = (Category.select().where(
+                    Category.parent.id == parent_id,
+                    Category.is_deleted == False
+                ))
+            elif user_id:
+                # scenario #3: if
+                # - item is none, and parent is none, but user is given
+                # then
+                # - select all the root items
+                query = (Category.select().join(
+                    components.BaseUser, on=(Category.owner == components.BaseUser.id)
+                ).where(
+                    Category.parent.id.is_null(),
+                    Category.owner.id == user_id,
+                    Category.is_deleted == False
+                ))
+                pass
 
         if query is None:
-            raise RuntimeError("No item || user || parent_id given u=%s p=%s" % (
+            raise ValueError("No item || user || parent_id given u=%s p=%s" % (
                 str(user_id), str(parent_id)))
 
         categories = [category for category in query.execute()]
@@ -293,6 +343,7 @@ class CategoryService(components.Service):
             for (index, category) in zip(range(len(categories)), categories):
                 category.order = index
                 category.save()
+        pass
 
     def bulk_create_items(self, items_json):
         # TODO: this one is not used atm.

@@ -68,6 +68,7 @@ class TestCategoryMove(TestUtils, TestCase):
         self.assertEqual(category["id"], category_tree[4]["id"])
 
     # - move within the same parent - within first and last
+    @skip("Not implemented")
     def test_move_inbetween(self):
         # given
         # - a category with parent
@@ -86,6 +87,10 @@ class TestCategoryMove(TestUtils, TestCase):
 
     # - move to another parent
     # - note that access rights are already tested here
+
+    @skip("Not implemented")
+    def test_move_to_root(self):
+        pass
 
     # --- UTILS
     def _insert_categories(self):
