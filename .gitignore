@@ -148,3 +148,5 @@ fabric.properties
 *.db
 *.db*
 
+.venv/
+

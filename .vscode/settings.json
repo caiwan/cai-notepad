@@ -60,20 +60,34 @@
     "editor.tabSize": 4,
     "editor.autoIndent": true
   },
-  "python.unitTest.unittestArgs": [
+  // -- Python settings
+  "python.envFile": "${workspaceFolder}/server/dev.env",
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  // New python settings
+  "python.testing.unittestArgs": [
     "-v",
     "-s",
     "${workspaceFolder}/server/",
     "-p",
     "test_*.py"
   ],
-  "python.unitTest.unittestEnabled": true,
+  "python.testing.cwd": "${workspaceFolder}/server",
+  "python.testing.unittestEnabled": true,
+  "python.testing.pyTestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
   "pythonTestExplorer.testFramework": "unittest",
-  "python.unitTest.cwd": "${workspaceFolder}/server",
-  "python.envFile": "${workspaceFolder}/server/dev.env",
-  "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": false,
-  "python.unitTest.pyTestEnabled": false,
-  "python.unitTest.nosetestsEnabled": false,
+  // Old settings
+  // "python.unitTest.unittestArgs": [
+  //   "-v",
+  //   "-s",
+  //   "${workspaceFolder}/server/",
+  //   "-p",
+  //   "test_*.py"
+  // ],
+  // "python.unitTest.cwd": "${workspaceFolder}/server",
+  // "python.unitTest.pyTestEnabled": false,
+  // "python.unitTest.nosetestsEnabled": false,
+  // "python.unitTest.unittestEnabled": true,
 }

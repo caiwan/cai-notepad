@@ -51,28 +51,27 @@ For development instuctions see below.
 
     ```bash
     cd server
-    pip install Cython
-    pip install -r requirements.txt
+    pip install Cython && pip install -r requirements.txt
     cd ..
     ```
 
 3. Copy static files from client
 
-    ```bash
-    cp client/dist server/static
-    ```
+  ```bash
+  cp client/dist server/static
+  ```
 
 3. Install and Configure Nginx:
 
-    TBD
+  TBD
 
 3. Configure your server with uWSGI
 
-    ```bash
-    cp ./docker/uwsgi.ini /server/wusgi.ini
-    ```
+  ```bash
+  cp ./docker/uwsgi.ini /server/wusgi.ini
+```
 
-    See Flask's [uWSGI documentation](http://flask.pocoo.org/docs/1.0/deploying/uwsgi/) for further details
+See Flask's [uWSGI documentation](http://flask.pocoo.org/docs/1.0/deploying/uwsgi/) for further details
 
 3. Configure your server app
 
@@ -82,43 +81,45 @@ For development instuctions see below.
 
 4. Run the server with uwsgi:
 
-    ***TODO:*** *This needs to be defined and tested well*
+  ***TODO:*** *This needs to be defined and tested well*
 
-    ```bash
-    uwsgi -s /tmp/wimm2.sock --manage-script-name --mount /wimm=server:app
-    ```
+  ```bash
+  uwsgi -s /tmp/notes.sock --manage-script-name --mount /notes=server:app
+  ```
 
 ## Features
 
 TBD, See `SPECS.md` for rough details
 
 
-## Setup and launcing app for development
+## Setup and launching app for development
 
 1. Prerequisites
 
-    To build manually you'll need the following packages installed:
+  To build manually you'll need the following packages installed:
 
-    - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
-    - **Node 11.7** and **NPM 6.5** for client (frontend)
+  - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
+  - **Node 11.7** and **NPM 6.5** for client (frontend)
 
 2. Start client (frontend)
 
-    ```bash
-    cd client
-    npm i
-    npm run dev
-    ```
+  ```bash
+  cd client
+  npm i
+  npm run dev
+  ```
 
 3. Start server (backend)
 
-    ```bash
-    cd server
-    pip install -r requirements-dev.txt
-    python manage,py createdb
-    cp dev.env .env
-    python manage.py runserver
-    ```
+  Install all the dependencies:
+
+  ```bash
+  cd server
+  pip install Cython && pip install -r requirements.txt && pip install -r requirements-dev.txt
+  python manage,py createdb
+  cp dev.env .env
+  python manage.py runserver
+  ```
 
 4. Integrated Development Environment
 

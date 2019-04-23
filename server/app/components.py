@@ -191,7 +191,6 @@ class Service(metaclass=Singleton):
         assert self.model_class
         try:
             user_id = current_user_id()
-            # TODO: Use update
             my_item = self.model_class.select(
                 self.model_class
             ).join(
@@ -205,6 +204,7 @@ class Service(metaclass=Singleton):
             item = dict_to_model(self.model_class, item_json)
             item.id = my_item.id
             item.changed()
+            # item.save(only=item.dirty_fields)
             item.save()
             return item
         except peewee.IntegrityError as ex:
