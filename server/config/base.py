@@ -4,7 +4,7 @@ import os
 
 SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-# Generate it with manage.py gensalt. You should get something liket this:
+# Generate it with manage.py gensalt. You should get something like this:
 SECRET_KEY = b'$2b$12$4KQgT9MsGuHCQ2i3aA05Cu'
 FLASH_MESSAGES = True
 
