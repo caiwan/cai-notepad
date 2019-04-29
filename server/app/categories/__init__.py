@@ -8,6 +8,8 @@ from playhouse.shortcuts import Value
 from app import components
 from app.categories.model import Category
 
+from app import utils
+
 
 class CategoryService(components.Service):
     name = "categories"
@@ -209,7 +211,7 @@ class CategoryService(components.Service):
 
         items = [item.order for item in tree_query]
         items.reverse()
-        path = ".".join(str(item) for item in items)
+        path = ".".join("{:0>4}".format(utils.str_base(item, 32)) for item in items)
         logging.debug("Path: id=%d %s" % (item_id, path))
         return path
 
