@@ -47,7 +47,26 @@ export default {
       }
     },
 
-    reorder: (state) => {
+    reorder: (state, item) => {
+      // find the parent where the item was
+      const oldItem = state.itemMap[item.id];
+      const oldParent = !oldItem.parent ? state.itemTree : state.itemMap[oldItem.parent].children;
+      // find the parent where the item is supposed to be
+      const newParent = !item.patent ? state.itemTree : state.itemMap[item.parent].children;
+      // rewrite order in the new parent
+      newParent.forEach((elem, index) => { elem.order = index; });
+      // if parent changed rewrite order in the old parent
+      if (oldItem.parent !== item.parent) oldParent.forEach((elem, index) => { elem.order = index; });
+
+      // Recalc spantree
+      let newItems = [];
+      let stack = [...state.itemTree];
+      while (stack.length) {
+        const top = stack.pop();
+        newItems.push(top);
+        stack.concat(newItems.children);
+      }
+      state.items = newItems;
     },
 
     rm: (state, item) => {
@@ -142,10 +161,7 @@ export default {
         })
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => { state.isLoading = false; });
-    },
-
-    async mergeUp ({ commit, state, dispatch }, { item }) {
-      // TODO: ...
     }
+
   }
 };
