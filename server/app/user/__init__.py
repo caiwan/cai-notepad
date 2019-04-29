@@ -8,6 +8,7 @@ from app import auth
 from app.user.model import User
 from app.auth import TOKEN_EXPIRATION
 
+
 class UserService(components.Service):
     name = "users"
     model_class = User
@@ -26,7 +27,7 @@ class UserService(components.Service):
 
     def create_item(self, user_json):
         user_json = self.sanitize_fields(user_json)
-        if "name" not in user_json or "password" not in user_json[""]:
+        if "name" not in user_json or "password" not in user_json:
             raise components.BadRequestError("Username or password missing")
         user_json["password"] = auth.hash_password(user_json["password"])
         item = dict_to_model(User, user_json)

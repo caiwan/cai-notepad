@@ -46,19 +46,19 @@ class TestUser(TestUtils, TestCase):
             "password": self.REGULAR_PW
         }
 
-        # when login
+        # when send login credentials
         response = self.app.post(self.LOGIN, data=json.dumps(credentials), **self.post_args)
         response_json = self.response(response)
 
-        # then a valid login token shall be given
+        # then a valid login jwt token shall be given
         self.assertTrue("token" in response_json, msg="no token was given")
-        token_id = response_json["token"]
+        token = response_json["token"]
 
         try:
-            token = Token.get(Token.id == UUID(token_id))
+            token = Token.get(Token.jwt == token)
             self.assertEqual(self.REGULAR_USER, token.user.name)
         except Token.DoesNotExist as e:
-            logging.exception(token_id + " " + str(e))
+            logging.exception(token + " " + str(e))
             self.fail("No valid token was saved")
 
         pass
@@ -89,18 +89,18 @@ class TestUser(TestUtils, TestCase):
         response = self.app.post(self.LOGIN, data=json.dumps(credentials), **self.post_args)
         response_json = self.response(response)
         self.assertTrue("token" in response_json, msg="no token was given")
-        token_id = response_json["token"]
+        token = response_json["token"]
 
         # when
         # - logout
         response = self.app.get(self.LOGOUT, **self.post_args, headers={
-            "Authorization": "Bearer %s" % token_id
+            "Authorization": "Bearer %s" % token
         })
 
         # then
         # - an access token shall be removed
         try:
-            token = Token.get(Token.id == UUID(token_id))
-            self.fail("No token ws deleted, still active %s" % token.id)
+            token = Token.get(Token.jwt == token)
+            self.fail("No token was deleted, still active %s" % token.id)
         except Token.DoesNotExist:
             pass

@@ -345,6 +345,8 @@ class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
             return int(obj.strftime("%s"))
         if isinstance(obj, UUID):
             return str(obj)
+        if type(obj) is bytes:
+            return obj.decode("utf-8")
         return json.JSONEncoder.default(self, obj)
 
 

@@ -4,7 +4,7 @@ import logging
 from datetime import datetime, timedelta
 import jwt
 import bcrypt
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import peewee
 from playhouse.shortcuts import model_to_dict
@@ -45,56 +45,51 @@ class User(components.BaseUser):
 Permission = User.permissions.through_model
 
 
-def token_expiration_time():
+def calc_token_expiration_time():
     return datetime.now() + timedelta(seconds=TOKEN_EXPIRATION)
 
 
-# def token_gen_id():
-    # return "".join(random.choice("1234567890qwertyuiopasdfghjklzxcvbnmMNBVCXZLKJHGFDSAPOIUYTREWQ") for _ in range(32))
-
-
 class Token(components.BaseModel):
-    id = peewee.UUIDField(primary_key=True, default=uuid4)
     user = peewee.ForeignKeyField(User)
-    expiration = peewee.DateTimeField(
-        null=False, default=token_expiration_time)
-    payload = peewee.TextField(null=False)
+    issued_at = peewee.DateTimeField(null=False, default=datetime.now)
+    expiration = peewee.DateTimeField(null=False, default=calc_token_expiration_time)
+    jwt = peewee.TextField(null=False)
 
 
 class TokenService(metaclass=components.Singleton):
-    def get(self, id):
+    def get(self, jwt):
         try:
-            if not id:
+            if not jwt:
                 return None
             token = Token.get(
-                Token.id == UUID(id), Token.expiration >= datetime.now())
+                Token.jwt == jwt, Token.expiration >= datetime.now())
             return token
         except Token.DoesNotExist:
             return None
 
     def create(self, user):
-        token = Token(
-            payload=self._encode(user.user_ref_id),
-            user=user
-        )
+        jwt = self._encode(user.user_ref_id)
+        token = Token(jwt=jwt, user=user)
         token.save(force_insert=True)
-        return token.id
+        return jwt
         pass
 
-    def renew(self, id):
+    def renew(self, jwt):
         with components.DB.atomic():
             try:
-                token = Token.get(Token.id == UUID(id))
-                token.payload = self._encode(token.user.user_ref_id)
+                # TODO: Connect user here
+                token = Token.get(Token.jwt == jwt)
+                token.jwt = self._encode(token.user.user_ref_id, iat=token.issued_at)
+                token.exception = calc_token_expiration_time()
                 token.save()
                 return True
             except Token.DoesNotExist:
                 return False
         pass
 
-    def revoke(self, id):
+    def revoke(self, jwt):
         try:
-            token = Token.get(Token.id == UUID(id))
+            token = Token.get(Token.jwt == jwt)
             token.delete_instance()
         except Token.DoesNotExist:
             # Avoid exception when try delete the same twice
@@ -102,19 +97,16 @@ class TokenService(metaclass=components.Singleton):
             pass
         pass
 
-    def verify(self, token_id):
-        token = self.get(token_id)
+    def verify(self, jwt):
+        token = self.get(jwt)
         if not token:
             logging.debug("no valid token")
             return None
 
-        (user_ref_id, client_info) = self._decode(token.payload)
-        if not user_ref_id or not client_info:
-            logging.debug("Token has no ref_id or client %s %s" %
-                          (user_ref_id, client_info))
+        user_ref_id = self._decode(token.jwt)
+        if not user_ref_id:
+            logging.debug("Token has no ref_id or client %s" % (user_ref_id))
             return None
-
-        # TODO Security Check for client id / useragent goez here
 
         user = User.get(User.user_ref_id == user_ref_id,
                         User.is_deleted == False, User.is_active == True)
@@ -122,15 +114,13 @@ class TokenService(metaclass=components.Singleton):
             return user if user.is_active else None
         return None
 
-    def _encode(self, user_ref_id):
+    def _encode(self, user_ref_id, iat=None):
         try:
             # Store some client info (ip, agent, etc ... ) to avoid token/session theft
-            client_info = "Some client id will go here at some point"
             payload = {
                 "exp": datetime.utcnow() + timedelta(days=0, seconds=TOKEN_EXPIRATION),
-                "iat": datetime.utcnow(),
+                "iat": iat if iat else datetime.utcnow(),
                 "sub": str(user_ref_id),
-                "client_info": client_info
             }
             return jwt.encode(
                 payload,
@@ -143,14 +133,14 @@ class TokenService(metaclass=components.Singleton):
     def _decode(self, auth_token):
         try:
             payload = jwt.decode(auth_token, self.get_secret_key())
-            return (payload["sub"], payload["client_info"])
+            return payload["sub"]
         except jwt.ExpiredSignatureError:
             logging.debug("no signature %s" % auth_token)
-            return (None, None)
+            return None
 
         except jwt.InvalidTokenError:
             logging.debug("iv token %s" % auth_token)
-            return (None, None)
+            return None
 
     def get_secret_key(self):
         return current_app.config["SECRET_KEY"]
@@ -225,9 +215,9 @@ loginService = LoginService()
 
 
 @auth_api.verify_token
-def verify_token(id):
+def verify_token(jwt_token):
     # logging.info("Token %s", str(id))
-    user = tokenService.verify(id)
+    user = tokenService.verify(jwt_token)
     if not user:
         g.current_user = None
         return False
@@ -281,7 +271,7 @@ def hash_password(password):
     )
 
 
-# For maintanance only
+# For maintenance only
 def _adduser(username, password):
     user = User(
         name=username,

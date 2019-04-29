@@ -141,11 +141,11 @@ class TestUtils:
 
     def _gentoken(self, user):
         token = Token(
-            payload=self._encode_jwt(user.user_ref_id),
+            jwt=self._encode_jwt(user.user_ref_id),
             user=user
         )
         token.save(force_insert=True)
-        return str(token.id)
+        return token.jwt.decode("utf-8")
 
     def _encode_jwt(self, user_ref_id):
         try:
@@ -153,7 +153,6 @@ class TestUtils:
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=9999),
                 "iat": datetime.datetime.utcnow(),
                 "sub": str(user_ref_id),
-                "client_info": "Testing"  # Client id / identifier (ip, agent, etc ... )
             }
             return jwt.encode(
                 payload,
