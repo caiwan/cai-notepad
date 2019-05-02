@@ -1,93 +1,81 @@
 {
-  "python.autoComplete.extraPaths": [
-    "${workspaceFolder}/server/",
-    "${workspaceFolder}/server/app"
-  ],
-  "editor.formatOnSave": true,
-  "files.insertFinalNewline": true,
-  "files.eol": "\n",
-  "csv-preview.separator": ",",
-  "eslint.enable": true,
-  "eslint.autoFixOnSave": true,
-  "eslint.nodePath": "$NODE_PATH",
-  "eslint.validate": [
-    {
-      "language": "vue",
-      "autoFix": true
-    },
-    {
-      "language": "html",
-      "autoFix": true
-    },
-    {
-      "language": "javascript",
-      "autoFix": true
-    }
-  ],
-  "eslint.alwaysShowStatus": true,
-  "eslint.run": "onSave",
-  "eslint.provideLintTask": true,
-  "eslint.options": {
-    "env": {
-      "es6": true
-    }
-  },
-  "editor.insertSpaces": true,
-  "editor.autoIndent": true,
-  "vetur.format.defaultFormatter.ts": "none",
-  "vetur.format.defaultFormatter.js": "none",
-  "vetur.format.defaultFormatter.html": "js-beautify-html",
-  "files.exclude": {
-    "**/__pycache__/": true,
-    "**/.DS_Store": true,
-    "**/.git": true,
-    "**/*.py[cod]": true,
-  },
-  "[javascript]": {
-    "editor.formatOnSave": false,
-    "editor.tabSize": 2,
-  },
-  "[vue]": {
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/server/",
+        "${workspaceFolder}/server/app"
+    ],
     "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-  },
-  "[jsonc]": {
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-  },
-  "[python]": {
-    "editor.formatOnSave": false,
-    "editor.tabSize": 4,
-    "editor.autoIndent": true
-  },
-  // -- Python settings
-  "python.envFile": "${workspaceFolder}/server/dev.env",
-  "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": false,
-  // New python settings
-  "python.testing.unittestArgs": [
-    "-v",
-    "-s",
-    "${workspaceFolder}/server/",
-    "-p",
-    "test_*.py"
-  ],
-  "python.testing.cwd": "${workspaceFolder}/server",
-  "python.testing.unittestEnabled": true,
-  "python.testing.pyTestEnabled": false,
-  "python.testing.nosetestsEnabled": false,
-  "pythonTestExplorer.testFramework": "unittest",
-  // Old settings
-  // "python.unitTest.unittestArgs": [
-  //   "-v",
-  //   "-s",
-  //   "${workspaceFolder}/server/",
-  //   "-p",
-  //   "test_*.py"
-  // ],
-  // "python.unitTest.cwd": "${workspaceFolder}/server",
-  // "python.unitTest.pyTestEnabled": false,
-  // "python.unitTest.nosetestsEnabled": false,
-  // "python.unitTest.unittestEnabled": true,
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
+    "csv-preview.separator": ",",
+    "eslint.enable": true,
+    "eslint.autoFixOnSave": true,
+    "eslint.nodePath": "$NODE_PATH",
+    "eslint.validate": [{
+            "language": "vue",
+            "autoFix": true
+        },
+        {
+            "language": "html",
+            "autoFix": true
+        },
+        {
+            "language": "javascript",
+            "autoFix": true
+        }
+    ],
+    "eslint.alwaysShowStatus": true,
+    "eslint.run": "onSave",
+    "eslint.provideLintTask": true,
+    "eslint.options": {
+        "env": {
+            "es6": true
+        }
+    },
+    "editor.insertSpaces": true,
+    "editor.autoIndent": true,
+    "vetur.format.defaultFormatter.ts": "none",
+    "vetur.format.defaultFormatter.js": "none",
+    "vetur.format.defaultFormatter.html": "js-beautify-html",
+    "files.exclude": {
+        "**/__pycache__/": true,
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/*.py[cod]": true,
+    },
+    "[javascript]": {
+        "editor.formatOnSave": false,
+        "editor.tabSize": 2,
+    },
+    "[vue]": {
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+    },
+    "[jsonc]": {
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+    },
+    "[python]": {
+        "editor.formatOnSave": false,
+        "editor.tabSize": 4,
+        "editor.autoIndent": true
+    },
+    // -- Python settings
+    "python.envFile": "${workspaceFolder}/server/dev.env",
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    // New python settings
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "${workspaceFolder}/server/",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.cwd": "${workspaceFolder}/server",
+    "python.testing.unittestEnabled": true,
+    "python.testing.pyTestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "pythonTestExplorer.testFramework": "unittest",
+
 }
