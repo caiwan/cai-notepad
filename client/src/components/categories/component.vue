@@ -54,7 +54,7 @@ import * as th from 'tree-helper';
 
 import zebrafy from '@/utils/zebrafy';
 
-import Tree from './dragtree/DraggableTree';
+import Tree from '@/containers/dragtree/DraggableTree';
 import Category from './CategoryNode.vue';
 
 export default {

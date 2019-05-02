@@ -200,7 +200,6 @@ export default {
       } else {
         this.note.due_date = null;
       }
-      console.log('Sup bro', this.note.due_date);
     }
 
   },
