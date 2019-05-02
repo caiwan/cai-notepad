@@ -52,7 +52,7 @@
       <button
         class="btn btn-secondary input-grpup-append"
         @click="cancelEdit"
-      ><i class=" fa fa-times"></i></button>
+      ><i class="fa fa-times"></i></button>
       <button
         class="btn btn-success input-grpup-append"
         @click="doneEdit"

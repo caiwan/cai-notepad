@@ -87,9 +87,9 @@ export default {
     }),
 
     treeChange (node, targetTree) {
-      const item = this.category(node.id);
+      const item = Object.assign({}, this.category(node.id));
       const index = node.parent.children.indexOf(node);
-      const parentId = node.parent.id || 0;
+      const parentId = node.parent.id || null;
       this.moveCategory({ item, index, parentId });
     },
 

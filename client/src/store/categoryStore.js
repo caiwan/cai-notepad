@@ -47,16 +47,22 @@ export default {
       }
     },
 
-    reorder: (state, item) => {
+    reorder: (state, { item, oldParentId, oldOrder }) => {
+      const editedItem = state.itemMap[item.id];
       // find the parent where the item was
-      const oldItem = state.itemMap[item.id];
-      const oldParent = !oldItem.parent ? state.itemTree : state.itemMap[oldItem.parent].children;
+      const oldParent = !oldParentId ? state.itemTree : state.itemMap[oldParentId].children;
       // find the parent where the item is supposed to be
-      const newParent = !item.patent ? state.itemTree : state.itemMap[item.parent].children;
-      // rewrite order in the new parent
-      newParent.forEach((elem, index) => { elem.order = index; });
+      const newParent = !item.parent ? state.itemTree : state.itemMap[item.parent].children;
+
+      // Take item out from the old parent
+      oldParent.splice(oldOrder, 1);
+      // Assign it to the new one in order
+      newParent.splice(item.order, 0, editedItem);
+
       // if parent changed rewrite order in the old parent
-      if (oldItem.parent !== item.parent) oldParent.forEach((elem, index) => { elem.order = index; });
+      if (oldParent !== newParent) oldParent.forEach((elem, index) => { elem.order = index; });
+      // then rewrite order in the new parent
+      newParent.forEach((elem, index) => { elem.order = index; });
 
       // Recalc spantree
       let newItems = [];
@@ -151,13 +157,16 @@ export default {
         .finally(() => { state.isLoading = false; });
     },
 
-    move ({ commit, state, dispatch }, { item, newIndex, newParentId }) {
-      // item.newParentId =
+    move ({ commit, state, dispatch }, { item, index, parentId }) {
+      const oldParentId = item.parent;
+      const oldOrder = item.order;
+      item.parent = parentId;
+      item.order = index;
       return io.categories
         .edit(item)
         .then((edited) => {
           commit('edit', edited);
-          commit('reorder', edited);
+          commit('reorder', { item: edited, oldParentId, oldOrder });
         })
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => { state.isLoading = false; });
