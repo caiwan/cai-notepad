@@ -43,7 +43,7 @@
       <!-- Merge up -->
       <button
         class="btn btn-danger input-grpup-append"
-        @click="mergeParent()"
+        @click="remove()"
       ><i class="fa fa-trash"></i></button>
     </template>
     <!-- Editing -->
@@ -97,7 +97,7 @@ export default {
       this.model = Object.assign(this.model, editedItem);
     },
     doubleClick (e) { if (!this.isEditing) { this.startEdit(e); } },
-    mergeParent () { console.log('Hello'); }
+    remove () { this.$emit('remove', this.model); this.editingItem = null; }
   },
 
   updated () {

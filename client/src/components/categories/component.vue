@@ -41,6 +41,7 @@
             :model="data"
             :treeControl="store"
             @edited="editCategory"
+            @remove="removeCategory"
           /> </template>
       </Tree>
     </section>

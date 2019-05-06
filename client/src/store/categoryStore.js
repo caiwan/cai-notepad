@@ -64,21 +64,44 @@ export default {
       // then rewrite order in the new parent
       newParent.forEach((elem, index) => { elem.order = index; });
 
-      // Recalc spantree
+      // Recalc flatten tree
       let newItems = [];
       let stack = [...state.itemTree];
       while (stack.length) {
         const top = stack.pop();
         newItems.push(top);
-        stack.concat(newItems.children);
+        stack.concat(top.children);
       }
       state.items = newItems;
     },
 
     rm: (state, item) => {
-      state.items.splice(state.items.indexOf(item), 1);
-      state.itemMap.splice(state.items.indexOf(item), 1);
-      state.itemTree.splice(state.itemTree.indexOf(item), 1); // ? is it works for real?
+      if (!state.itemMap[item.id]) {
+        console.warning('No such item ', item.id);
+        return;
+      }
+      // Find the old element
+      const oldItem = state.itemMap[item.id];
+      const parent = !oldItem.parent ? state.itemTree : state.itemMap[oldItem.parent].children;
+      const itemIndex = parent.findIndex((elem) => elem.id === item.id);
+      // Take it's children
+      const children = oldItem.children;
+      // Remove old element from the tree && from map
+      parent.splice(itemIndex, 1);
+      delete state.itemMap[item.id];
+      // Place old elements children them where the old element was
+      parent.splice(itemIndex, 0, ...children);
+      // recalculate order
+      parent.forEach((elem, index) => { elem.order = index; });
+      // Recalculate flatten tree
+      let newItems = [];
+      let stack = [...state.itemTree];
+      while (stack.length) {
+        const top = stack.pop();
+        newItems.push(top);
+        stack.concat(top.children);
+      }
+      state.items = newItems;
     },
 
     set: (state, { property, value }) => {
@@ -152,8 +175,8 @@ export default {
       state.isLoading = true;
       return io.categories
         .remove(item)
+        .then(() => commit('rm', item))
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .then((item) => commit('rm', item))
         .finally(() => { state.isLoading = false; });
     },
 
