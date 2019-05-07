@@ -7,7 +7,7 @@
           <div class="input-group-prepend">
             <category-selector
               :selected="category(newTask.category)"
-              v-on:selected="newTaskCategorySelected(newTask, $event)"
+              v-on:selected="newTaskCategorySelected"
             />
           </div>
           <input
@@ -160,8 +160,8 @@ export default {
   },
 
   created () {
-    this._fetchAndUpdate();
-    this.lastSelecedCategory = this.selectedCategoryId;
+    this._fetchAndUpdate(this.$route);
+    this.lastSelecedCategory = this.selectedCategory ? this.selectedCategory.id : null;
     this.newTask.category = this.lastSelecedCategory;
   },
 
@@ -196,7 +196,7 @@ export default {
         return this.remainingTasks === 0;
       },
       set: function (value) {
-        console.log('CVVV', value);
+        console.log('toggle all', value);
         this.$store.dispatch('Tasks/setAllDone');
       }
     },
@@ -221,13 +221,18 @@ export default {
       setFilterTasks: 'show'
     }),
 
-    async _fetchAndUpdate () {
+    async _fetchAndUpdate (route) {
       await this.$store.dispatch('Tasks/fetchAll');
       this.$store.dispatch('Tasks/updateFilters', {
-        categoryId: this.$route.query.category ? this.$route.query.category : 'all',
-        milestoneId: this.$route.query.milestone ? this.$route.query.milestone : 'all'
+        categoryId: route.query.category ? route.query.category : 'all',
+        milestoneId: route.query.milestone ? route.query.milestone : 'all'
       });
-      this.newTask.category = this.lastSelecedCategory;
+      const self = this;
+      setTimeout(() => {
+        self.lastSelecedCategory = self.selectedCategory ? self.selectedCategory.id : null;
+        self.newTask.category = self.lastSelecedCategory;
+        console.log('filtering', self.selectedCategory, self.selectedCategoryId);
+      });
     },
 
     addNewTask () {
@@ -275,8 +280,7 @@ export default {
 
   watch: {
     $route (to, from) {
-      this._fetchAndUpdate();
-      console.log('selected cat', this.selectedCategory, this.selectedCategoryId);
+      this._fetchAndUpdate(to);
     }
   }
 };
