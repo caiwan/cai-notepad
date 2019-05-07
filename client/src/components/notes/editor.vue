@@ -141,10 +141,6 @@ export default {
       this.note.category = categoryId;
     },
 
-    // dateSelected () {
-    //   console.log('Sup bro', { date: this.pDate });
-    // },
-
     done () {
       this.note.tags = this.pTags.slice();
       this.$emit('doneEdit');

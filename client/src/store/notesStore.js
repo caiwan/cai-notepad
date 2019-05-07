@@ -78,7 +78,6 @@ export default {
       if (!state.editingItem) {
         return;
       }
-      // TODO: save only when document is dirty -> component
       item.title = item.title.trim();
       const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!edited) return;

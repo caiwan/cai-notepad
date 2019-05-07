@@ -73,6 +73,7 @@ export default {
         stack.concat(top.children);
       }
       state.items = newItems;
+      state.isLoaded = false; // Force reload on next view change
     },
 
     rm: (state, item) => {
@@ -102,6 +103,7 @@ export default {
         stack.concat(top.children);
       }
       state.items = newItems;
+      state.isLoaded = false; // Force reload on next view change
     },
 
     set: (state, { property, value }) => {

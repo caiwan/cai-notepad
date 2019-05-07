@@ -74,7 +74,7 @@ export default {
   },
 
   created () {
-    this._fetchAndUpdate();
+    this._fetchAndUpdate(this.$route);
   },
 
   data () {
@@ -85,7 +85,8 @@ export default {
         content: '',
         is_pinned: false,
         category: null
-      }
+      },
+      lastSelectedCategory: null
     };
   },
 
@@ -112,11 +113,17 @@ export default {
   },
 
   methods: {
-    async _fetchAndUpdate () {
+    async _fetchAndUpdate (route) {
       await this.$store.dispatch('Notes/fetchAll');
       this.$store.dispatch('Notes/updateFilters', {
-        categoryId: this.$route.query.category ? this.$route.query.category : 'all',
-        milestoneId: this.$route.query.milesonte ? this.$route.query.milesonte : 'all'
+        categoryId: route.query.category ? route.query.category : 'all',
+        milestoneId: route.query.milesonte ? route.query.milesonte : 'all'
+      });
+      const self = this;
+      setTimeout(() => {
+        self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;
+        self.newNote.category = self.lastSelectedCategory;
+        console.log('filtering', self.selectedCategory, self.selectedCategoryId);
       });
     },
 
@@ -144,7 +151,7 @@ export default {
 
   watch: {
     $route (to, from) {
-      this._fetchAndUpdate(this);
+      this._fetchAndUpdate(to);
     }
   }
 

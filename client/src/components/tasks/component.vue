@@ -161,8 +161,6 @@ export default {
 
   created () {
     this._fetchAndUpdate(this.$route);
-    this.lastSelecedCategory = this.selectedCategory ? this.selectedCategory.id : null;
-    this.newTask.category = this.lastSelecedCategory;
   },
 
   data () {
@@ -172,7 +170,7 @@ export default {
         category: null
       },
       editngTask: null,
-      lastSelecedCategory: null
+      lastSelectedCategory: null
     };
   },
 
@@ -229,8 +227,8 @@ export default {
       });
       const self = this;
       setTimeout(() => {
-        self.lastSelecedCategory = self.selectedCategory ? self.selectedCategory.id : null;
-        self.newTask.category = self.lastSelecedCategory;
+        self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;
+        self.newTask.category = self.lastSelectedCategory;
         console.log('filtering', self.selectedCategory, self.selectedCategoryId);
       });
     },
@@ -239,7 +237,7 @@ export default {
       this.addTask(this.newTask);
       this.newTask = {
         title: '',
-        category: this.lastSelecedCategory
+        category: this.lastSelectedCategory
 
       };
     },
@@ -248,7 +246,7 @@ export default {
       const categoryId = category ? category.id : null;
       console.log('select category', { categoryId, category });
       this.newTask.category = categoryId;
-      this.lastSelecedCategory = categoryId;
+      this.lastSelectedCategory = categoryId;
     }
   },
 
