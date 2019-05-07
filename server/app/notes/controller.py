@@ -13,8 +13,10 @@ class NoteListController(components.Controller):
 
     @auth.login_required
     def get(self):
-        return self._fetch_all()
-    
+        category_filter = request.args.get("category", default="all", type=str)
+        milestone_filter = request.args.get("milestone", default="all", type=str)
+        return self._fetch_all(category_filter, milestone_filter)
+
     @auth.login_required
     def post(self):
         return self._create(request.json)

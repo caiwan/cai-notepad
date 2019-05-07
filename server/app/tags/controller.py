@@ -14,7 +14,6 @@ class TagAutoCompleteController(components.Controller):
 
     @auth.login_required
     def get(self):
-        search_query = request.args.get("q")
-        result_limit = request.args.get("l")
-        result_limit = 0 if not result_limit else int(result_limit)
+        search_query = request.args.get("q", default="", type=str)
+        result_limit = request.args.get("l", default=0, type=int)
         return self._fetch_all(search_query, result_limit)
