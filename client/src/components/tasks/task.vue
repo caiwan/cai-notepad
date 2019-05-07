@@ -50,7 +50,7 @@
         <category-selector
           class="input-group-prepend"
           :selected="category(editingTask.category)"
-          v-on:selected="categorySelected($event)"
+          v-on:selected="categorySelected"
           v-show="isEditing"
         />
         <input
@@ -59,8 +59,8 @@
           v-model="editingTask.title"
           v-focus="isEditing"
           v-show="isEditing"
-          @keyup.enter="doneEdit(editingTask)"
-          @keyup.esc="cancelEdit(editingTask)"
+          @keyup.enter="doneEdit"
+          @keyup.esc="cancelEdit"
         >
 
         <!-- SCHEDULE  -->
@@ -84,7 +84,7 @@
           <button
             class="btn btn-outline-secondary outline color"
             :class="editingTask ? colorName(editingTask.color) : ''"
-            @click="toggleColorPalette()"
+            @click="toggleColorPalette"
           ><i class="fa fa-palette"></i>
           </button>
           <nav
@@ -109,12 +109,12 @@
         <!--SAVE/CANCEL  -->
         <button
           class="btn btn-secondary input-group-append"
-          @click="cancelEdit()"
+          @click="cancelEdit"
         ><i class=" fa fa-times"></i></button>
 
         <button
           class="btn btn-success input-group-append"
-          @click="doneEdit()"
+          @click="doneEdit"
         ><i class="fa fa-check"></i></button>
 
       </div>
@@ -130,7 +130,7 @@
     <!-- DELETE -->
     <button
       class="btn btn-danger"
-      @click="removeTask()"
+      @click="removeTask"
     ><i class="fa fa-trash"></i></button>
 
   </li>
@@ -185,13 +185,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('Tasks', {
-    }),
-
-    ...mapMutations('Tasks', {
-      setFilterTasks: 'show'
-    }),
-
     startEdit () {
       this.showColorPalette = false;
       this.editingTask = Object.assign({}, this.task);
@@ -225,6 +218,12 @@ export default {
     selectColor (task, colorId) {
       this.showColorPalette = false;
       task.color = colorId;
+    },
+
+    removeTask () {
+      this.$emit('remove', this.task);
+      this.showColorPalette = false;
+      this.editingTask = null;
     }
 
   },

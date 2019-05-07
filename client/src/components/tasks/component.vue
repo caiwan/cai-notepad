@@ -7,7 +7,7 @@
           <div class="input-group-prepend">
             <category-selector
               :selected="category(newTask.category)"
-              v-on:selected="categorySelected(newTask, $event)"
+              v-on:selected="newTaskCategorySelected(newTask, $event)"
             />
           </div>
           <input
@@ -44,6 +44,7 @@
           :id="'task_'+task.id"
           v-on:edited="editTask"
           v-on:toggle="toggleTask"
+          v-on:remove="removeTask"
         />
 
       </ul>
@@ -99,6 +100,7 @@
     <!-- -->
 
     <!-- Archived tasks -->
+    <!-- TODO: move to separate component -->
     <hr />
     <section
       class="archived"
@@ -159,7 +161,8 @@ export default {
 
   created () {
     this._fetchAndUpdate();
-    this.newTask.category = this.selectedCategoryId;
+    this.lastSelecedCategory = this.selectedCategoryId;
+    this.newTask.category = this.lastSelecedCategory;
   },
 
   data () {
@@ -168,14 +171,14 @@ export default {
         title: '',
         category: null
       },
-      editngTask: null
+      editngTask: null,
+      lastSelecedCategory: null
     };
   },
 
   computed: {
     ...mapState('Tasks', {
       tasks: 'items',
-      // editingTask: 'editingItem', // TODO: Rm from state
       selectedCategoryId: 'categoryFilter',
       selectedMilestoneId: 'milestoneFilter'
     }),
@@ -224,23 +227,24 @@ export default {
         categoryId: this.$route.query.category ? this.$route.query.category : 'all',
         milestoneId: this.$route.query.milestone ? this.$route.query.milestone : 'all'
       });
-      this.newTask.category = this.selectedCategory ? this.selectedCategoryId : null;
+      this.newTask.category = this.lastSelecedCategory;
     },
 
     addNewTask () {
-      // this.$store.dispatch('Tasks/addNew', this.newTask);
       this.addTask(this.newTask);
       this.newTask = {
         title: '',
-        category: this.selectedCategory ? this.selectedCategoryId : null
+        category: this.lastSelecedCategory
+
       };
+    },
+
+    newTaskCategorySelected (category) {
+      const categoryId = category ? category.id : null;
+      console.log('select category', { categoryId, category });
+      this.newTask.category = categoryId;
+      this.lastSelecedCategory = categoryId;
     }
-
-    // doneEditTask (task) {
-    // this.editTask(task);
-    // this.editngTask = null;
-    // }
-
   },
 
   filters: {
