@@ -3,8 +3,14 @@ import { BaseIONode } from './_BaseIONode';
 /* global fetch */
 
 export class Notes extends BaseIONode {
-  fetchAll () {
-    return fetch(`${this.root}/notes/`, {
+  fetchAll (filter) {
+    const filterQuery = [];
+    Object.keys(filter).forEach(function (key) { filterQuery.push(`${key}=${filter[key]}`); });
+    const filterQueryString = filterQuery ? `?${filterQuery.join('&')}` : '';
+
+    console.log('fetchAllNotes', filterQueryString);
+
+    return fetch(`${this.root}/notes/${filterQueryString}`, {
       method: 'GET',
       credentials: 'same-origin',
       headers: this.io.headers

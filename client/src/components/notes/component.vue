@@ -114,11 +114,11 @@ export default {
 
   methods: {
     async _fetchAndUpdate (route) {
-      await this.$store.dispatch('Notes/fetchAll');
       this.$store.dispatch('Notes/updateFilters', {
         categoryId: route.query.category ? route.query.category : 'all',
         milestoneId: route.query.milesonte ? route.query.milesonte : 'all'
       });
+      await this.$store.dispatch('Notes/fetchAll'); // Things will happen on server side from now on
       const self = this;
       setTimeout(() => {
         self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;

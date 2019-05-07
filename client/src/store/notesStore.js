@@ -31,27 +31,35 @@ export default {
     ...common.mutations,
     bump: (state, item) => state.items.sort((a, b) => a === item ? -1 : b === item ? 1 : 0),
     updateFilteredItems (state) {
-      state.filteredItems = filters.all(
-        state.items, state.milestoneFilter, state.categoryFilter
-      );
+      // state.filteredItems = filters.all(
+      // state.items, state.milestoneFilter, state.categoryFilter
+      // );
+      // TODO: rm this later
+      state.filteredItems = state.items;
     }
   },
 
   actions: {
-    async fetchAll ({ commit, dispatch }) {
+    async fetchAll ({ commit, dispatch, state }) {
       commit('fetchStart');
-      const items = await io.notes.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (items) {
-        commit('clear');
-        commit('putAll', items);
-      }
-      commit('fetchEnd');
+      await io.notes.fetchAll({
+        category: state.categoryFilter,
+        milestone: state.milestoneFilter
+      })
+        .then((items) => {
+          commit('clear');
+          commit('putAll', items);
+          commit('updateFilteredItems'); // TODO rm this later
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => {
+          commit('fetchEnd'); // TODO: rm this later
+        });
     },
 
     updateFilters ({ commit, state }, { categoryId, milestoneId }) {
       commit('set', { property: 'categoryFilter', value: categoryId });
       commit('set', { property: 'milestoneFilter', value: milestoneId });
-      commit('updateFilteredItems');
     },
 
     async addNew ({ commit, dispatch }, value) {
