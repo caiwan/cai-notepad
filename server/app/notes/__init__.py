@@ -27,17 +27,17 @@ class NoteService(components.Service):
         # )
 
         category_select = []
-        if (category_filter == "all"):
-            pass
-        elif (category_filter == "unassigned"):
-            category_select = [Note.category_id.is_null()]
-            pass
-        else:
+        if(str.isdigit(category_filter)):
             category_tree = categoryService.fetch_subtree(user_id, int(category_filter))
             if not category_tree:
                 raise components.ResourceNotFoundError()
             category_select = [Note.category_id << category_tree]
-            pass
+        elif (category_filter == "unassigned"):
+            category_select = [Note.category_id.is_null()]
+        elif (category_filter != "all"):
+            raise components.BadRequestError()
+
+        logging.debug("----- filter: %s" % category_filter)
 
         milestone_select = []
         # milestone_filter == "all"

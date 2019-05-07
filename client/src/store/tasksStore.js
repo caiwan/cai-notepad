@@ -7,8 +7,6 @@ export default {
 
   state: {
     items: [],
-    // editingItem: null,
-    // beforeEditCache: {},
     visibility: 'all',
     filteredItems: [],
     categoryFilter: 'all',
@@ -33,9 +31,10 @@ export default {
     },
 
     updateFilteredItems (state) {
-      state.filteredItems = filters.filter(
-        state.items, state.milestoneFilter, state.categoryFilter
-      );
+      // state.filteredItems = filters.filter(
+      // state.items, state.milestoneFilter, state.categoryFilter
+      // );
+      state.filteredItems = state.items; // TODO: rm later
     }
   },
 
@@ -43,17 +42,23 @@ export default {
 
     async fetchAll ({ state, commit, dispatch, getters }) {
       commit('fetchStart');
-      const items = await io.tasks.fetchAll().catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (items) {
-        commit('clear');
-        commit('putAll', items);
-      }
+      await io.tasks.fetchAll({
+        category: state.categoryFilter,
+        milestone: state.milestoneFilter
+      })
+        .then((items) => {
+          commit('clear');
+          commit('putAll', items);
+          commit('updateFilteredItems');
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => {
+          commit('fetchEnd'); // TODO: rm later
+        });
 
       getters.colors.forEach((color) => {
         state.colorMap[color.value] = color.name;
       });
-
-      commit('fetchEnd');
     },
 
     updateFilters ({ state, commit }, { categoryId, milestoneId }) {
@@ -88,11 +93,6 @@ export default {
       commit('updateFilteredItems');
     },
 
-    // startEdit ({ state }, item) {
-    // Object.assign(state.beforeEditCache, item);
-    // state.editingItem = item;
-    // },
-
     async edit ({ dispatch, commit, state }, item) {
       // if (!state.editingItem) {
       // return;
@@ -117,12 +117,6 @@ export default {
       }
       state.editingItem = null;
     },
-
-    // cancelEdit ({ state }, item) {
-    // Object.assign(item, state.beforeEditCache);
-    // state.editingItem = null;
-    // state.beforeEditCache = {};
-    // },
 
     async remove ({ commit, dispatch }, item) {
       await io.tasks.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
