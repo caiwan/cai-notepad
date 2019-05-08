@@ -12,8 +12,8 @@ export default {
 
   state: {
     items: [],
-    editingItem: null,
-    beforeEditCache: null,
+    // editingItem: null,
+    // beforeEditCache: null,
     isDirty: false,
     categoryFilter: 'all',
     milestoneFilter: 'all',
@@ -32,9 +32,10 @@ export default {
   },
 
   actions: {
-    async fetchAll ({ commit, dispatch, state }) {
-      commit('fetchStart');
-      await io.notes.fetchAll({
+    ...common.actions,
+    fetchAll ({ commit, dispatch, state }) {
+      dispatch('pushLoad');
+      return io.notes.fetchAll({
         category: state.categoryFilter,
         milestone: state.milestoneFilter
       })
@@ -44,7 +45,7 @@ export default {
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => {
-          commit('fetchEnd'); // TODO: rm this later
+          dispatch('popLoad');
         });
     },
 
@@ -53,65 +54,68 @@ export default {
       commit('set', { property: 'milestoneFilter', value: milestoneId });
     },
 
-    async addNew ({ commit, dispatch }, value) {
-      value.title = value.title && value.title.trim();
-      value.content = value.content && value.content.trim();
-      if (!value.title && !value.content) {
+    async addNew ({ commit, dispatch }, newItem) {
+      newItem.title = newItem.title && newItem.title.trim();
+      newItem.content = newItem.content && newItem.content.trim();
+      if (!newItem.title && !newItem.content) {
         return;
       }
-      const item = await io.notes.add({
-        ...value
-      }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (!item) return;
-      commit('putFront', item);
+      dispatch('pushLoad');
+      await io.notes.add({
+        ...newItem
+      })
+        .then((item) => { commit('putFront', item); })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => {
+          dispatch('popLoad');
+        });
     },
 
-    startEdit ({ dispatch, state }, item) {
-      state.beforeEditCache = Object.assign(item, {});
-      state.editingItem = item;
-    },
-
-    async doneEdit ({ commit, dispatch, state }, item) {
-      if (!state.editingItem) {
-        return;
-      }
-      item.title = item.title.trim();
-      const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (!edited) return;
-      commit('edit', edited);
-
-      state.editingItem = null;
-
-      // bring my post up
-      commit('bump', item);
-    },
-
-    cancelEdit ({ dispatch, state }, item) {
-      item = Object.assign(state.beforeEditCache, item);
-      state.editingItem = null;
-      this.beforeEditCache = null;
+    async edit ({ commit, dispatch, state }, editedItem) {
+      editedItem.title = editedItem.title.trim();
+      dispatch('pushLoad');
+      await io.notes.edit(editedItem)
+        .then((item) => {
+          commit('edit', item);
+          commit('bump', editedItem);
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => dispatch('popLoad'));
     },
 
     async remove ({ dispatch, commit }, item) {
-      await io.notes.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      commit('rm', item);
+      dispatch('pushLoad');
+      await io.notes.remove(item)
+        .then((item) => {
+          commit('rm', item);
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => dispatch('popLoad'));
     },
 
     async togglePin ({ commit, dispatch, state }, item) {
       item.is_pinned = !item.is_pinned;
       if (state.editingItem !== item) {
-        const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-        if (!edited) return;
-        commit('edit', edited);
+        dispatch('pushLoad');
+        await io.notes.edit(item)
+          .then((item) => {
+            commit('edit', item);
+          })
+          .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+          .finally(() => dispatch('popLoad'));
       }
     },
 
     async toggleArchive ({ commit, dispatch, state }, item) {
       item.is_archived = !item.is_archived;
       if (state.editingItem !== item) {
-        const edited = await io.notes.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-        if (!edited) return;
-        commit('edit', edited);
+        dispatch('pushLoad');
+        await io.notes.edit(item)
+          .then((item) => {
+            commit('edit', item);
+          })
+          .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+          .finally(() => dispatch('popLoad'));
       }
     }
   }

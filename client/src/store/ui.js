@@ -13,12 +13,12 @@ export default {
     // TODO: We will have a loading-stack which operates on a push-pop manner instead
     isLoading (state, getters, rootState) {
       return !!state.loading ||
-        rootState.App.isInitializing ||
-        // TODO: + User Profile + Settings
-        rootState.User.isLoading || rootState.User.Authenticators.isLoading ||
-        rootState.Categories.isLoading ||
-        rootState.Notes.isLoading ||
-        rootState.Tasks.isLoading
+        rootState.App.isInitializing
+      //   // TODO: + User Profile + Settings
+      //   rootState.User.isLoading || rootState.User.Authenticators.isLoading ||
+      //   rootState.Categories.isLoading ||
+      //   rootState.Notes.isLoading ||
+      //   rootState.Tasks.isLoading
       ;
     }
   },
@@ -32,16 +32,16 @@ export default {
     pullSnackbar (state) {
       state.snackbarMessages = [];
       state.showSnackbar = false;
-    },
-    pushLoad (state) { state.loading++; },
-    popLoad (state) { state.loading--; }
+    }
   },
 
   actions: {
     pushIOError ({ commit }, error) {
       console.error(error);
       commit('pushSnackbar', `${error}`);
-    }
+    },
+    pushLoad (state) { state.loading++; },
+    popLoad (state) { state.loading--; }
 
   }
 

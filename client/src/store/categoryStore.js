@@ -8,7 +8,6 @@ export default {
     items: [],
     itemMap: [],
     itemTree: [],
-    isLoading: false,
     isLoaded: false
   },
 
@@ -108,29 +107,30 @@ export default {
 
     set: (state, { property, value }) => {
       state[property] = value;
-    },
-    fetchStart: common.mutations['fetchStart'],
-    fetchEnd: common.mutations['fetchEnd']
+    }
   },
 
   actions: {
+    pushLoad: common.actions['pushLoad'],
+    popLoad: common.actions['popLoad'],
+
     async fetchAll ({ commit, dispatch, state }) {
       // Ensure it's loaded only once
       if (state.isLoaded) {
         return;
       }
-      commit('fetchStart');
+      dispatch('pushLoad');
       await io.categories
         .fetchAll()
-        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
         .then((items) => {
           commit('clear');
           items.forEach((item) => {
             commit('put', item);
           });
           state.isLoaded = true;
-        });
-      commit('fetchEnd');
+        })
+        .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => dispatch('popLoad'));
     },
 
     addNew ({ commit, dispatch, state }, { parent, name }) {
@@ -138,55 +138,54 @@ export default {
       if (!name) {
         return;
       }
-
-      state.isLoading = true;
-
       const newItem = {
         name,
         parent: parent ? parent.id : null,
         order: parent ? parent.children.length : state.itemTree.length
       };
-
+      dispatch('pushLoad');
       return io.categories
         .add(newItem)
         .then((item) => { commit('put', item); })
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .finally(() => { state.isLoading = false; });
+        .finally(() => dispatch('popLoad'));
     },
 
     edit ({ commit, dispatch, state }, item) {
       item.name = item.name.trim();
-      state.isLoading = true;
 
       if (!item.name) {
         // TODO: Sup bro, you sure?
+        dispatch('pushLoad');
         return io.categories.remove(item)
           .then((item) => commit('re#move', item))
           .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-          .finally(() => { state.isLoading = false; });
+          .finally(() => dispatch('popLoad'));
       } else {
+        dispatch('pushLoad');
         return io.categories
           .edit(item)
           .then((edited) => commit('edit', edited))
           .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-          .finally(() => { state.isLoading = false; });
+          .finally(() => dispatch('popLoad'));
       }
     },
 
     remove ({ commit, state, dispatch }, item) {
-      state.isLoading = true;
+      dispatch('pushLoad');
       return io.categories
         .remove(item)
         .then(() => commit('rm', item))
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .finally(() => { state.isLoading = false; });
+        .finally(() => dispatch('popLoad'));
     },
 
-    move ({ commit, state, dispatch }, { item, index, parentId }) {
+    move ({ commit, dispatch }, { item, index, parentId }) {
       const oldParentId = item.parent;
       const oldOrder = item.order;
       item.parent = parentId;
       item.order = index;
+      dispatch('pushLoad');
       return io.categories
         .edit(item)
         .then((edited) => {
@@ -194,7 +193,7 @@ export default {
           commit('reorder', { item: edited, oldParentId, oldOrder });
         })
         .catch((error) => dispatch('UI/pushIOError', error, { root: true }))
-        .finally(() => { state.isLoading = false; });
+        .finally(() => dispatch('popLoad'));
     }
 
   }

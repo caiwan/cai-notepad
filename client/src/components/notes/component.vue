@@ -7,7 +7,7 @@
           <section class="card bg-light mx-1 my-2">
             <div class="card-body py-2">
               <button
-                @click="createNewNote()"
+                @click="createNewNote"
                 class="btn btn-primary btn-raised"
               >New note</button></div>
           </section>
@@ -16,8 +16,8 @@
           <note-editor
             :note="newNote"
             :isCreating="true"
-            v-on:doneEdit="addNewNote()"
-            v-on:cancelEdit="clearNewNote()"
+            v-on:doneEdit="addNewNote"
+            v-on:cancelEdit="clearNewNote"
           ></note-editor>
         </template>
       </header>
@@ -46,6 +46,11 @@
         v-for="note in notes"
         :key="note.id"
         :note="note"
+        :isCreateNew="isCreateNew"
+        :editingNote="editingNote"
+        v-on:startEdit="startEdit"
+        v-on:doneEdit="doneEdit"
+        v-on:cancelEdit="cancelEdit"
       />
     </section>
     <!-- ARCHIVED -->
@@ -86,6 +91,7 @@ export default {
         is_pinned: false,
         category: null
       },
+      editingNote: null,
       lastSelectedCategory: null
     };
   },
@@ -113,14 +119,13 @@ export default {
   },
 
   methods: {
-    async _fetchAndUpdate (route) {
+    _fetchAndUpdate (route) {
       this.$store.dispatch('Notes/updateFilters', {
         categoryId: route.query.category ? route.query.category : 'all',
         milestoneId: route.query.milesonte ? route.query.milesonte : 'all'
       });
-      await this.$store.dispatch('Notes/fetchAll'); // Things will happen on server side from now on
       const self = this;
-      setTimeout(() => {
+      this.$store.dispatch('Notes/fetchAll').then(() => {
         self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;
         self.newNote.category = self.lastSelectedCategory;
         console.log('filtering', self.selectedCategory, self.selectedCategoryId);
@@ -129,8 +134,9 @@ export default {
 
     createNewNote () {
       if (this.editingNote) {
-        alert('Save editing note first // add confirm dialog plz');
-        return;
+        if (!confirm('Previous changes will lost. Are you sure?')) {
+          return;
+        }
       }
       this.newNote.category = this.selectedCategoryId;
       this.isCreateNew = true;
@@ -143,9 +149,30 @@ export default {
       this.isCreateNew = false;
     },
 
-    async addNewNote () {
+    addNewNote () {
       this.$store.dispatch('Notes/addNew', this.newNote);
       this.clearNewNote();
+    },
+
+    startEdit (note) {
+      console.log('a');
+      if (this.isCreateNew || this.editingNote) {
+        if (!confirm('Previous changes will lost. Are you sure?')) {
+          return;
+        }
+      }
+      this.editingNote = Object.assign({}, note);
+    },
+    doneEdit (note) {
+      console.log('b');
+      if (!this.editingNote) return;
+      this.$store.dispatch('Notes/edit', this.editingNote);
+      this.editingNote = null;
+    },
+    cancelEdit (note) {
+      console.log('c');
+      if (!this.editingNote) return;
+      this.editingNote = null;
     }
   },
 

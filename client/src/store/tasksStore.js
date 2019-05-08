@@ -24,17 +24,15 @@ export default {
 
   mutations: {
     ...common.mutations,
-
     show (state, filterName) {
       if (filters.hasOwnProperty(filterName)) { state.visibility = filterName; }
     }
-
   },
 
   actions: {
-
+    ...common.actions,
     async fetchAll ({ state, commit, dispatch, getters }) {
-      commit('fetchStart');
+      dispatch('pushLoad');
       await io.tasks.fetchAll({
         category: state.categoryFilter,
         milestone: state.milestoneFilter
@@ -45,7 +43,7 @@ export default {
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => {
-          commit('fetchEnd'); // TODO: rm later
+          dispatch('popLoad');
         });
 
       getters.colors.forEach((color) => {
@@ -84,16 +82,6 @@ export default {
     },
 
     async edit ({ dispatch, commit, state }, item) {
-      // if (!state.editingItem) {
-      // return;
-      // }
-
-      // TODO: opt out save when not dirty -> component
-      // if (item.title.trim() === state.beforeEditCache) {
-      //   state.editingItem = null;
-      //   return;
-      // }
-
       item.title = item.title.trim();
       // Remove when we've deleted the title and committed
       if (!item.title) {

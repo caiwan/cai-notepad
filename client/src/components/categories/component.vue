@@ -82,7 +82,7 @@ export default {
   methods: {
     ...mapActions('Categories', {
       addCategory: 'addNew',
-      removeCategory: 'remove',
+      // removeCategory: 'remove',
       editCategory: 'edit',
       moveCategory: 'move'
     }),
@@ -133,6 +133,12 @@ export default {
     doneAddChild () {
       this.addCategory({ parent: null, name: this.newChild });
       this.newChild = '';
+    },
+
+    removeCategory (category) {
+      if (!confirm('Deleting a category will merge everything assigned to it to its parent. However it cannnot be undone. Are you sure?')) {
+        this.$store.dispatch('Categories/remove', category);
+      }
     }
 
   },

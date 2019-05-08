@@ -1,14 +1,14 @@
 <template>
   <article class="notes form-group">
-    <div v-if="editingNote == note">
+    <div v-if="isEditing">
       <note-editor
-        :note="note"
+        :note="editingNote"
         :isCreating="false"
-        v-on:doneEdit="doneEditNote(note)"
-        v-on:cancelEdit="cancelEditNote(note)"
-        v-on:pinNote="togglePinNote(note)"
-        v-on:removeNote="removeNote(note)"
-        v-on:archiveNote="toggleArchiveNote(note)"
+        v-on:doneEdit="doneEditNote"
+        v-on:cancelEdit="cancelEditNote"
+        v-on:pinNote="togglePinNote"
+        v-on:removeNote="removeNote"
+        v-on:archiveNote="toggleArchiveNote"
       >
       </note-editor>
     </div>
@@ -16,10 +16,10 @@
     <div v-else>
       <note
         :note="note"
-        v-on:editNote="startEditNote(note)"
-        v-on:pinNote="togglePinNote(note)"
-        v-on:archiveNote="toggleArchiveNote(note)"
-        v-on:removeNote="removeNote(note)"
+        v-on:editNote="startEditNote"
+        v-on:pinNote="togglePinNote"
+        v-on:archiveNote="toggleArchiveNote"
+        v-on:removeNote="removeNote"
       ></note>
     </div>
 
@@ -46,39 +46,31 @@ export default {
   components: {
     Note, NoteEditor
   },
-  props: ['note'],
+  props: ['note', 'editingNote'],
   computed: {
-    ...mapState('Notes', { editingNote: 'editingItem' })
+    isEditing () { return this.editingNote && this.editingNote.id === this.note.id; }
   },
 
   methods: {
     ...mapActions('Notes', {
-      startEditNote: 'startEdit',
-      doneEditNote: 'doneEdit',
-      cancelEditNote: 'cancelEdit',
       toggleArchiveNote: 'toggleArchive'
     }),
 
-    removeNote (note) {
+    removeNote () {
       if (confirm('Are you sure?')) {
-        if (this.editingNote === note) {
-          this.cancelEditNote(note);
+        if (this.isEditing) {
+          this.cancelEditNote();
         }
-        this.$store.dispatch('Notes/remove', note);
+        this.$store.dispatch('Notes/remove', this.note);
       }
     },
 
-    togglePinNote (note) {
-      this.$store.dispatch('Notes/togglePin', note);
-    },
+    togglePinNote () { this.$store.dispatch('Notes/togglePin', this.note); },
 
-    startEditNote (note) {
-      if (this.isCreateNew) {
-        alert('Save new note first // add confirm dialog plz');
-        return;
-      }
-      this.$store.dispatch('Notes/startEdit', note);
-    }
+    startEditNote () { this.$emit('startEdit', this.note); },
+    doneEditNote () { this.$emit('doneEdit'); },
+    cancelEditNote () { this.$emit('cancelEdit'); }
+
   }
 };
 </script>

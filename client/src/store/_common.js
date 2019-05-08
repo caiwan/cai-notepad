@@ -19,9 +19,11 @@ export default {
     rm: (state, item) => state.items.splice(state.items.indexOf(item), 1),
 
     toggle: (state, property) => { state[property] = !state[property]; },
-    set: (state, { property, value }) => { state[property] = value; },
-    fetchStart: (state) => { state.isLoading = true; },
-    fetchEnd: (state) => { state.isLoading = false; }
+    set: (state, { property, value }) => { state[property] = value; }
+  },
+  actions: {
+    pushLoad: ({ dispatch }) => dispatch('UI/pushLoad', {}, { root: true }),
+    popLoad: ({ dispatch }) => dispatch('UI/popLoad', {}, { root: true })
   }
 };
 
