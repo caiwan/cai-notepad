@@ -8,7 +8,6 @@ export default {
   state: {
     items: [],
     visibility: 'all',
-    filteredItems: [],
     categoryFilter: 'all',
     milestoneFilter: 'all',
     isLoading: false,
@@ -16,9 +15,9 @@ export default {
   },
 
   getters: {
-    filtered: state => filters[state.visibility](state.filteredItems),
-    remaining: state => filters.active(state.filteredItems).length,
-    archived: state => state.filteredItems.filter(item => item.is_archived),
+    filtered: state => filters[state.visibility](state.items),
+    remaining: state => filters.active(state.items).length,
+    archived: state => state.items.filter(item => item.is_archived),
     colors: () => io.settings['tasks']['priority_colors'] || [],
     colorName: (state) => (name) => state.colorMap[name] || 'none'
   },
@@ -28,14 +27,8 @@ export default {
 
     show (state, filterName) {
       if (filters.hasOwnProperty(filterName)) { state.visibility = filterName; }
-    },
-
-    updateFilteredItems (state) {
-      // state.filteredItems = filters.filter(
-      // state.items, state.milestoneFilter, state.categoryFilter
-      // );
-      state.filteredItems = state.items; // TODO: rm later
     }
+
   },
 
   actions: {
@@ -49,7 +42,6 @@ export default {
         .then((items) => {
           commit('clear');
           commit('putAll', items);
-          commit('updateFilteredItems');
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => {
@@ -64,7 +56,6 @@ export default {
     updateFilters ({ state, commit }, { categoryId, milestoneId }) {
       commit('set', { property: 'categoryFilter', value: categoryId });
       commit('set', { property: 'milestoneFilter', value: milestoneId });
-      commit('updateFilteredItems');
     },
 
     async addNew ({ commit, dispatch }, value) {
@@ -79,7 +70,6 @@ export default {
       }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!item) return;
       commit('put', item);
-      commit('updateFilteredItems');
     },
 
     async toggleCompleted ({ commit, dispatch }, item) {
@@ -113,7 +103,6 @@ export default {
         const edited = await io.tasks.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
         if (!edited) return;
         commit('edit', edited);
-        commit('updateFilteredItems');
       }
       state.editingItem = null;
     },
@@ -121,7 +110,6 @@ export default {
     async remove ({ commit, dispatch }, item) {
       await io.tasks.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       commit('rm', item);
-      commit('updateFilteredItems');
     },
 
     async toggleArchive ({ commit, dispatch }, item) {

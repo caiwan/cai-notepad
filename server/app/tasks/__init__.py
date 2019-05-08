@@ -3,6 +3,7 @@
 from app import components
 from app.tasks.model import Task
 
+from app.categories import categoryService
 
 class TaskService(components.Service):
     name = "tasks"
@@ -22,6 +23,22 @@ class TaskService(components.Service):
 
     def __init__(self):
         super().__init__()
+
+    def fetch_all_items(self, category_filter, milestone_filter):
+        user_id = components.current_user_id()
+        category_select = categoryService.category_filter_helper(Task, user_id, category_filter)
+        milestone_select = []
+        # milestone_filter == "all"
+        # milestone_filter == "unassigned"
+        # else ...
+
+        return Task.select(Task).where(
+            Task.is_deleted == False,
+            *category_select,
+            *milestone_select,
+            Task.owner_id == user_id
+        ).order_by(Task.order.asc())
+        pass
 
 
 taskService = TaskService()

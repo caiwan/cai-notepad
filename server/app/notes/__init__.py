@@ -21,30 +21,13 @@ class NoteService(components.Service):
 
     def fetch_all_items(self, category_filter, milestone_filter):
         user_id = components.current_user_id()
-        query = Note.select(Note)
-        # .join(
-        #   components.BaseUser, on=(Note.owner == components.BaseUser.id)
-        # )
 
-        category_select = []
-        if(str.isdigit(category_filter)):
-            category_tree = categoryService.fetch_subtree(user_id, int(category_filter))
-            if not category_tree:
-                raise components.ResourceNotFoundError()
-            category_select = [Note.category_id << category_tree]
-        elif (category_filter == "unassigned"):
-            category_select = [Note.category_id.is_null()]
-        elif (category_filter != "all"):
-            raise components.BadRequestError()
-
-        logging.debug("----- filter: %s" % category_filter)
-
+        category_select = categoryService.category_filter_helper(Note, user_id, category_filter)
         milestone_select = []
         # milestone_filter == "all"
         # milestone_filter == "unassigned"
         # else ...
-
-        return query.where(
+        return Note.select(Note).where(
             Note.is_deleted == False,
             *category_select,
             *milestone_select,

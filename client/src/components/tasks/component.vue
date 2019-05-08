@@ -220,11 +220,11 @@ export default {
     }),
 
     async _fetchAndUpdate (route) {
-      await this.$store.dispatch('Tasks/fetchAll');
       this.$store.dispatch('Tasks/updateFilters', {
         categoryId: route.query.category ? route.query.category : 'all',
         milestoneId: route.query.milestone ? route.query.milestone : 'all'
       });
+      await this.$store.dispatch('Tasks/fetchAll');
       const self = this;
       setTimeout(() => {
         self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;

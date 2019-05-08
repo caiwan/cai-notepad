@@ -355,6 +355,18 @@ class CategoryService(components.Service):
 
         pass
 
+    def category_filter_helper(self, clazz, user_id, category_filter):
+        if(str.isdigit(category_filter)):
+            category_tree = self.fetch_subtree(user_id, int(category_filter))
+            if not category_tree:
+                raise components.ResourceNotFoundError()
+            return [clazz.category_id << category_tree]
+        elif (category_filter == "unassigned"):
+            return [clazz.category_id.is_null()]
+        elif (category_filter != "all"):
+            raise components.BadRequestError()
+        return []
+
 
 categoryService = CategoryService()
 
