@@ -38,7 +38,7 @@ class NoteService(components.Service):
         (item_json, tags) = self._select_and_sanitize_tags(item_json)
 
         # Check if user has ownership over the category given
-        if (item_json["category"] and not categoryService.read_item(item_json["category"])):
+        if ("category" in item_json and item_json["category"] and not categoryService.read_item(item_json["category"])):
             raise components.BadRequestError()
 
         item = dict_to_model(Note, item_json)

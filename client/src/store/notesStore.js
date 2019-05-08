@@ -15,28 +15,20 @@ export default {
     editingItem: null,
     beforeEditCache: null,
     isDirty: false,
-    filteredItems: [],
     categoryFilter: 'all',
     milestoneFilter: 'all',
     isLoading: false
   },
 
   getters: {
-    pinnedItems: state => state.filteredItems.filter(item => item.is_archived === false && item.is_pinned === true),
-    defaultItems: state => state.filteredItems.filter(item => item.is_archived === false && item.is_pinned === false),
-    archivedItems: state => state.filteredItems.filter(item => item.is_archived === true)
+    pinnedItems: state => state.items.filter(item => item.is_archived === false && item.is_pinned === true),
+    defaultItems: state => state.items.filter(item => item.is_archived === false && item.is_pinned === false),
+    archivedItems: state => state.items.filter(item => item.is_archived === true)
   },
 
   mutations: {
     ...common.mutations,
-    bump: (state, item) => state.items.sort((a, b) => a === item ? -1 : b === item ? 1 : 0),
-    updateFilteredItems (state) {
-      // state.filteredItems = filters.all(
-      // state.items, state.milestoneFilter, state.categoryFilter
-      // );
-      // TODO: rm this later
-      state.filteredItems = state.items;
-    }
+    bump: (state, item) => state.items.sort((a, b) => a === item ? -1 : b === item ? 1 : 0)
   },
 
   actions: {
@@ -49,7 +41,6 @@ export default {
         .then((items) => {
           commit('clear');
           commit('putAll', items);
-          commit('updateFilteredItems'); // TODO rm this later
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }))
         .finally(() => {
@@ -72,9 +63,7 @@ export default {
         ...value
       }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       if (!item) return;
-
       commit('putFront', item);
-      commit('updateFilteredItems');
     },
 
     startEdit ({ dispatch, state }, item) {
@@ -95,7 +84,6 @@ export default {
 
       // bring my post up
       commit('bump', item);
-      commit('updateFilteredItems');
     },
 
     cancelEdit ({ dispatch, state }, item) {
@@ -107,7 +95,6 @@ export default {
     async remove ({ dispatch, commit }, item) {
       await io.notes.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
       commit('rm', item);
-      commit('updateFilteredItems');
     },
 
     async togglePin ({ commit, dispatch, state }, item) {
