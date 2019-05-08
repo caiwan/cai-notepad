@@ -30,13 +30,10 @@
     <!-- -->
 
     <section
-      class="task-list my-2"
-      v-show="tasks.length"
+      class="task-list"
+      v-if="tasks.length"
     >
-      <ul
-        class="task-list"
-        v-cloak
-      >
+      <ul v-cloak>
         <task
           v-for="task in filteredTasks"
           :key="task.id"
@@ -107,40 +104,42 @@
       v-if="archivedTaks.length"
     >
       <header>Archived</header>
-      <ul class="task-list">
-        <li
-          class="task"
-          v-for="task in archivedTaks"
-          :key="task.id"
-        ><span class="task-title">
-            {{task.title}}</span>
-          <span
-            class="badge badge-secondary fill color"
-            :class="colorName(task.color)"
-          >
-            {{categoryName(task.category)}}
-          </span>
+      <section class="task-list">
+        <ul>
+          <li
+            class="task"
+            v-for="task in archivedTaks"
+            :key="task.id"
+          ><span class="task-title">
+              {{task.title}}</span>
+            <span
+              class="badge badge-secondary fill color"
+              :class="colorName(task.color)"
+            >
+              {{categoryName(task.category)}}
+            </span>
 
-          <span
-            class="badge badge-secondary fill color"
-            :class="colorName(task.color)"
-            v-if="task.due_date"
-          >
-            {{task.due_date | formatDate}}
-          </span>
+            <span
+              class="badge badge-secondary fill color"
+              :class="colorName(task.color)"
+              v-if="task.due_date"
+            >
+              {{task.due_date | formatDate}}
+            </span>
 
-          <!-- BUTTONS -->
-          <button
-            class="btn btn-primary"
-            @click="toggleArchive(task)"
-          > <i class="fa fa-level-up-alt"></i></button>
-          <!-- DELETE -->
-          <button
-            class="btn btn-danger"
-            @click="removeTask(task)"
-          ><i class="fa fa-trash"></i></button>
-        </li>
-      </ul>
+            <!-- BUTTONS -->
+            <button
+              class="btn btn-primary"
+              @click="toggleArchive(task)"
+            > <i class="fa fa-level-up-alt"></i></button>
+            <!-- DELETE -->
+            <button
+              class="btn btn-danger"
+              @click="removeTask(task)"
+            ><i class="fa fa-trash"></i></button>
+          </li>
+        </ul>
+      </section>
     </section>
   </section>
 </template>
@@ -286,9 +285,11 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/scss/_colors.scss";
-ul {
-  &.task-list {
+.task-list {
+  margin: 4px;
+  ul {
     list-style: none;
+    margin: 0px;
     margin: 0px;
     padding: 0px;
     .task {
