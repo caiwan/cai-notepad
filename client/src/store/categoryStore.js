@@ -155,7 +155,6 @@ export default {
       item.name = item.name.trim();
 
       if (!item.name) {
-        // TODO: Sup bro, you sure?
         dispatch('pushLoad');
         return io.categories.remove(item)
           .then((item) => commit('re#move', item))

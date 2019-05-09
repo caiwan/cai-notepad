@@ -1,5 +1,4 @@
 import io from '@/services/io';
-import filters from '@/services/filters';
 import common from '@/store/_common';
 import tags from './notes/tagsStore';
 
@@ -12,8 +11,6 @@ export default {
 
   state: {
     items: [],
-    // editingItem: null,
-    // beforeEditCache: null,
     isDirty: false,
     categoryFilter: 'all',
     milestoneFilter: 'all',

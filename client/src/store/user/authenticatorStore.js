@@ -1,4 +1,5 @@
 import io from '@/services/io';
+import common from '@/store/_common';
 
 export default {
   namespaced: true,
@@ -22,32 +23,36 @@ export default {
   },
 
   actions: {
+    pushLoad: common.actions['pushLoad'],
+    popLoad: common.actions['popLoad'],
+
     async fetchAll ({ commit, dispatch, state }) {
-      state.isLoading = true;
+      dispatch('pushLoad');
       await io.authenticators.fetchAll()
         .then((items) => {
           commit('clear');
           items.forEach((item) => commit('put', item));
         })
-        .catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      state.isLoading = false;
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     async signIn ({ dispatch, state }, { service, tokens }) {
-      state.isLoading = true;
-
+      dispatch('pushLoad');
       await io.authenticators.add(service, tokens)
         .then(dispatch('fetchAll'))
-        .catch(error => dispatch('UI/pushIOError', error, { root: true }));
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
+
       state.isLoading = false;
     },
 
     async signOut ({ dispatch, state }, item) {
-      state.isLoading = false;
+      dispatch('pushLoad');
       await io.authenticators.remove(item.id)
         .then(dispatch('fetchAll'))
-        .catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      state.isLoading = false;
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     }
 
   }

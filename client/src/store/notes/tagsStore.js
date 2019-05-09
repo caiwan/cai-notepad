@@ -7,7 +7,8 @@ export default {
   namespaced: true,
 
   state: {
-    items: []
+    items: [],
+    isLoading: false
   },
 
   mutations: {
@@ -15,15 +16,16 @@ export default {
   },
 
   actions: {
-    async queryAutocomplete ({
-      commit
-    }, query) {
+    async queryAutocomplete ({ state, commit }, query) {
       if (query.length < 3) { return; }
-      const items = await io.tags.queryAutocomplete(query, TAGS_MAX);
-      if (items) {
-        commit('clear');
-        commit('putAll', items);
-      }
+      // This loading sequence will handled separately, inside the component
+      state.isLoading = true;
+      await io.tags.queryAutocomplete(query, TAGS_MAX)
+        .then((items) => {
+          commit('clear');
+          commit('putAll', items);
+        })
+        .finally(() => { state.isLoading = false; });
     }
   }
 

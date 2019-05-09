@@ -4,6 +4,8 @@ import syncGoogle from './user/syncGoogleStore';
 import io from '../services/io';
 import { router } from '../router';
 
+import common from '@/store/_common';
+
 let user = null;
 try {
   user = JSON.parse(localStorage.getItem('user'));
@@ -23,47 +25,29 @@ export default {
 
   state: {
     status: { loggedIn: !!user },
-    user,
-    isLoading: false
+    user
   },
 
   getters:
   {
-    isLoggedIn (state) {
-      return state.status && state.status.loggedIn;
-    }
+    isLoggedIn: (state) => state.status && state.status.loggedIn
   },
 
   mutations:
   {
-    // loginRequest (state, user) {
-    // state.status = { loggingIn: true };
-    // state.user = user;
-    // },
     loginSuccess (state, user) {
       state.status = { loggedIn: true };
       state.user = user;
     },
-    // loginFailure (state) {
-    // state.status = {};
-    // state.user = null;
-    // },
     logout (state) {
       state.status = { loggedIn: false };
       state.user = null;
     }
-    // registerRequest (state, user) {
-    //   state.status = { registering: true };
-    // },
-    // registerSuccess (state, user) {
-    //   state.status = {};
-    // },
-    // registerFailure (state, error) {
-    //   state.status = {};
-    // }
   },
 
   actions: {
+    pushLoad: common.actions['pushLoad'],
+    popLoad: common.actions['popLoad'],
 
     async fetchProfile ({ dispatch, commit, getters, state }) {
       if (!getters.isLoggedIn) {
@@ -71,7 +55,7 @@ export default {
         localStorage.removeItem('user');
         return;
       }
-      state.isLoading = true;
+      dispatch('pushLoad');
       await io.user.fetchProfile()
         .then(user => {
           localStorage.setItem('user', JSON.stringify(user));
@@ -83,15 +67,14 @@ export default {
           localStorage.removeItem('user');
           commit('logout');
           router.push('/login');
-        });
-      state.isLoading = false;
+        })
+        .finally(() => { dispatch('popLoad'); });
     },
 
     login ({ dispatch, commit }, { username, password }) {
       if (!username || !password) { return; }
-      // commit('loginRequest', { username });
-
-      io.user.login(username, password)
+      dispatch('pushLoad');
+      return io.user.login(username, password)
         .then(response => { localStorage.setItem('token', response.token); })
         .then(() => { io.updateHeader(); })
         .then(() => { return io.user.fetchProfile(); })
@@ -106,38 +89,25 @@ export default {
           localStorage.removeItem('user');
           commit('logout');
           router.push('/login');
-        });
+        })
+        .finally(() => { dispatch('popLoad'); });
     },
 
-    logout ({ dispatch, commit, getters }) {
-      io.user.logout().catch(error => dispatch('UI/pushIOError', error, { root: true }))
+    logout ({ dispatch, commit }) {
+      dispatch('pushLoad');
+      return io.user.logout()
         .then(() => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         })
         .then(() => { commit('logout'); })
-        .then(() => { router.push('/login'); });
+        .then(() => { router.push('/login'); })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     register ({ dispatch, commit }, user) {
-      // commit('registerRequest', user);
-
-      // io.user.register(user)
-      //   .then(
-      //     user => {
-      //       commit('registerSuccess', user);
-      //       router.push('/login');
-      //       setTimeout(() => {
-      //         // display success message after route change completes
-      //         dispatch('alert/success', 'Registration successful', { root: true });
-      //       });
-      //     },
-      //     error => {
-      //       commit('registerFailure', error);
-      //       dispatch('alert/error', error, { root: true });
-      //     }
-      //   );
-      console.error('OvO');
+      alert('OvO');
     }
   }
 };

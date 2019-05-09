@@ -10,24 +10,15 @@ export default {
   },
 
   getters: {
-    // TODO: We will have a loading-stack which operates on a push-pop manner instead
-    isLoading (state, getters, rootState) {
-      return !!state.loading ||
-        rootState.App.isInitializing
-      //   // TODO: + User Profile + Settings
-      //   rootState.User.isLoading || rootState.User.Authenticators.isLoading ||
-      //   rootState.Categories.isLoading ||
-      //   rootState.Notes.isLoading ||
-      //   rootState.Tasks.isLoading
-      ;
-    }
+    isLoading (state, getters, rootState) { return !!state.loading || rootState.App.isInitializing; }
   },
 
   mutations: {
     toggle: (state, property) => { state[property] = !state[property]; },
-    pushSnackbar (state, message) {
+    pushSnackbar ({ dispatch, state }, message) {
       state.snackbarMessages.push(message);
       state.showSnackbar = true;
+      setTimeout(() => { dispatch('pullSnackbar'); }, 3000);
     },
     pullSnackbar (state) {
       state.snackbarMessages = [];
@@ -40,9 +31,8 @@ export default {
       console.error(error);
       commit('pushSnackbar', `${error}`);
     },
-    pushLoad (state) { state.loading++; },
-    popLoad (state) { state.loading--; }
-
+    pushLoad ({ state }) { ++state.loading; },
+    popLoad ({ state }) { --state.loading; if (state.loading < 0) { console.error('loading queue underflows'); state.loading = 0; } }
   }
 
 };

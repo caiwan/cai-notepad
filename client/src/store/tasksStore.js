@@ -40,15 +40,11 @@ export default {
         .then((items) => {
           commit('clear');
           commit('putAll', items);
+          getters.colors.forEach((color) => { state.colorMap[color.value] = color.name; });
+          return items;
         })
         .catch(error => dispatch('UI/pushIOError', error, { root: true }))
-        .finally(() => {
-          dispatch('popLoad');
-        });
-
-      getters.colors.forEach((color) => {
-        state.colorMap[color.value] = color.name;
-      });
+        .finally(() => { dispatch('popLoad'); });
     },
 
     updateFilters ({ state, commit }, { categoryId, milestoneId }) {
@@ -61,13 +57,16 @@ export default {
       if (!value.title) {
         return;
       }
-      const item = await io.tasks.add({
+      dispatch('pushLoad');
+      await io.tasks.add({
         title: value.title,
         is_completed: false,
         category: value.category
-      }).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (!item) return;
-      commit('put', item);
+      }).then((item) => {
+        commit('put', item);
+      })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     async toggleCompleted ({ commit, dispatch }, item) {
@@ -75,47 +74,66 @@ export default {
         return;
       }
       item.is_completed = !item.is_completed;
-      const edited = await io.tasks.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (!edited) return;
-      commit('edit', edited);
-      commit('updateFilteredItems');
+      dispatch('pushLoad');
+      await io.tasks.edit(item)
+        .then((edited) => {
+          commit('edit', edited);
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     async edit ({ dispatch, commit, state }, item) {
       item.title = item.title.trim();
       // Remove when we've deleted the title and committed
       if (!item.title) {
-        await dispatch('remove', item); // this will update filters anyway
+        dispatch('remove', item); // this will update filters anyway
       } else {
         // Save otherwise
-        const edited = await io.tasks.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-        if (!edited) return;
-        commit('edit', edited);
+        dispatch('pushLoad');
+        await io.tasks.edit(item)
+          .then((edited) => {
+            commit('edit', edited);
+          })
+          .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+          .finally(() => { dispatch('popLoad'); });
       }
-      state.editingItem = null;
     },
 
     async remove ({ commit, dispatch }, item) {
-      await io.tasks.remove(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      commit('rm', item);
+      await io.tasks.remove(item)
+        .then(() => {
+          commit('rm', item);
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     async toggleArchive ({ commit, dispatch }, item) {
       item.is_archived = !item.is_archived;
       // completed && archived -> not completed && not archived
       item.is_completed = !item.is_archived ? false : item.is_completed;
-      const edited = await io.tasks.edit(item).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-      if (!edited) { return; }
-      commit('edit', edited);
+      dispatch('pushLoad');
+      await io.tasks.edit(item)
+        .then((edited) => {
+          commit('edit', edited);
+        })
+        .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+        .finally(() => { dispatch('popLoad'); });
     },
 
     archiveCompleted ({ commit, dispatch, state }) {
+      // TODO: Might be a good idea if it would be a server-side task
       state.items.forEach(async element => {
         if (element.is_completed) {
           element.is_archived = true;
-          const edited = await io.tasks.edit(element).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-          if (!edited) return;
-          commit('edit', edited);
+          dispatch('pushLoad');
+          await io.tasks.edit(element)
+            .then((edited) => {
+              commit('edit', edited);
+            })
+            .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+            .finally(() => { dispatch('popLoad'); });
         }
       });
     },
@@ -123,10 +141,15 @@ export default {
     setAllDone ({ commit, dispatch, state }) {
       state.items.forEach(async element => {
         if (!element.is_completed) {
+          // TODO: Might be a good idea if it would be a server-side task
           element.is_completed = true;
-          const edited = await io.tasks.edit(element).catch(error => dispatch('UI/pushIOError', error, { root: true }));
-          if (!edited) return;
-          commit('edit', edited);
+          dispatch('pushLoad');
+          await io.tasks.edit(element)
+            .then((edited) => {
+              commit('edit', edited);
+            })
+            .catch(error => dispatch('UI/pushIOError', error, { root: true }))
+            .finally(() => { dispatch('popLoad'); });
         }
       });
     }
