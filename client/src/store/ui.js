@@ -6,6 +6,7 @@ export default {
     showSnackbar: false,
     showUserMenu: false,
     snackbarMessages: [],
+    snackbarTimeout: null,
     loading: 0
   },
 
@@ -15,21 +16,23 @@ export default {
 
   mutations: {
     toggle: (state, property) => { state[property] = !state[property]; },
-    pushSnackbar ({ dispatch, state }, message) {
+    pushSnackbar (state, message) {
       state.snackbarMessages.push(message);
       state.showSnackbar = true;
-      setTimeout(() => { dispatch('pullSnackbar'); }, 3000);
     },
     pullSnackbar (state) {
       state.snackbarMessages = [];
       state.showSnackbar = false;
+      state.snackbarTimeout = null;
     }
   },
 
   actions: {
-    pushIOError ({ commit }, error) {
-      console.error(error);
+    pushIOError ({ state, commit }, error) {
+      console.error('snackbar', error);
       commit('pushSnackbar', `${error}`);
+      if (state.snackbarTimeout) clearTimeout(state.snackbarTimeout);
+      state.snackbarTimeout = setTimeout(() => { commit('pullSnackbar'); }, 3000);
     },
     pushLoad ({ state }) { ++state.loading; },
     popLoad ({ state }) { --state.loading; if (state.loading < 0) { console.error('loading queue underflows'); state.loading = 0; } }
