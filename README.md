@@ -6,7 +6,7 @@ Yet another self-hosted note taking app and TODO list manager.
 
 ## Setup for hosting
 
-For development instuctions see below.
+For development instructions see below.
 
 ### Using Docker
 
@@ -24,11 +24,19 @@ For development instuctions see below.
 
     For further configuration see `docker-compose.yaml` and
     `Dockerimage` files in the source root, and other configuration
-    files in `docker/` folder.
+    files in `docker/` folder. Detailed in [docker.md](docker.md).
+
+    Note that you also can create your individual Docker images via
+
+    - `dokcer build -t notes-backend -f docker/backend/Dockerfile .`
+    - `dokcer build -t notes-frontend -f docker/frontend/Dockerfile .`
+
 
 ### Manual setup
 
   TBD
+
+
 
 1. Prerequisites
 

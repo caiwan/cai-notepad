@@ -1,18 +1,20 @@
 #!/usr/bin/env
 # coding=utf-8
-
 from flask_script import Server, Manager, Command
-from dotenv import load_dotenv, find_dotenv
+
 import os
 import sys
-
 
 # add import paths for internal imports
 cmd_folder = os.path.dirname(os.path.abspath(__file__))
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-load_dotenv(find_dotenv())
+try:
+    from dotenv import load_dotenv, find_dotenv
+    load_dotenv(find_dotenv())
+except ModuleNotFoundError:
+    pass
 
 import app
 
@@ -86,7 +88,7 @@ def listroles():
         print("{id:<4} {name:<32}".format(**role))
 
 
-# Database maanagement
+# Database management
 @manager.command
 def createdb():
     """Creates the inital database schema and default users"""
@@ -95,12 +97,29 @@ def createdb():
 
     # Quick and dirty way to add a default admin role and user
     from app.auth import _addrole, _adduser, _assignrole, _setuser
-    roles = ["ADMIN"] # ... add more if needed later
+    roles = ["ADMIN"]  # ... add more if needed later
     for role in roles:
         _addrole(role)
     uid = _adduser("admin", "admin")
     _assignrole(uid, "admin")
     _setuser(uid, "is_active", "1")
+
+
+# Migrate db?
+# @manager.command
+# def migratedb():
+#     """Creates the inital database schema and default users"""
+#     from app import components
+#     components.create_tables(app.APP, app.MODELS)
+
+#     # Quick and dirty way to add a default admin role and user
+#     from app.auth import _addrole, _adduser, _assignrole, _setuser
+#     roles = ["ADMIN"]  # ... add more if needed later
+#     for role in roles:
+#         _addrole(role)
+#     uid = _adduser("admin", "admin")
+#     _assignrole(uid, "admin")
+#     _setuser(uid, "is_active", "1")
 
 
 @manager.command

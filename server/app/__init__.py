@@ -31,9 +31,9 @@ MODULES = [
     "worklog"
 ]
 
-PRODUCTION = (os.getenv("FLASK_ENV") == "production")
-DEBUG = (os.getenv("FLASK_DEBUG") == "True")
-TESTING = (os.getenv("FLASK_TESTING") == "True")
+PRODUCTION = (os.getenv("FLASK_ENV", default="production") == "production")
+DEBUG = (os.getenv("FLASK_DEBUG", default="False") == "True")
+TESTING = (os.getenv("FLASK_TESTING", default="False") == "True")
 
 logging.disable(logging.NOTSET)
 if not PRODUCTION:
@@ -41,7 +41,7 @@ if not PRODUCTION:
     logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
 else:
     logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
-    logging.getLogger().setLevel(logging.WARN)
+    logging.getLogger().setLevel(logging.INFO) # ? Isn't it enough?
 
 logging.info("Loading %s, app version = %s", __name__,
              os.getenv("CURRENT_VERSION_ID"))
