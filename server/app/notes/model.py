@@ -5,7 +5,6 @@ from app import components
 
 from app.tags.model import Tag
 from app.categories.model import Category
-# from milestones.model import Milestone
 
 
 class Note(components.BaseDocumentModel):
@@ -16,9 +15,6 @@ class Note(components.BaseDocumentModel):
     tags = peewee.ManyToManyField(Tag)
     category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
     due_date = peewee.DateTimeField(null=True, default=None)
-    # -> Tasks will have milestones, not the notes that were taken
-    # milestone = peewee.ForeignKeyField(Milestone, null=True, default=None)
-    # decoration = ? (like colors, etc)
 
 
 TaggedNote = Note.tags.get_through_model()

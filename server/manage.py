@@ -105,23 +105,6 @@ def createdb():
     _setuser(uid, "is_active", "1")
 
 
-# Migrate db?
-# @manager.command
-# def migratedb():
-#     """Creates the inital database schema and default users"""
-#     from app import components
-#     components.create_tables(app.APP, app.MODELS)
-
-#     # Quick and dirty way to add a default admin role and user
-#     from app.auth import _addrole, _adduser, _assignrole, _setuser
-#     roles = ["ADMIN"]  # ... add more if needed later
-#     for role in roles:
-#         _addrole(role)
-#     uid = _adduser("admin", "admin")
-#     _assignrole(uid, "admin")
-#     _setuser(uid, "is_active", "1")
-
-
 @manager.command
 def backupdb(filename):
     """Creates a backup from the database"""
