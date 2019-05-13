@@ -28,8 +28,8 @@ For development instructions see below.
 
     Note that you also can create your individual Docker images via
 
-    - `dokcer build -t notes-backend -f docker/backend/Dockerfile .`
-    - `dokcer build -t notes-frontend -f docker/frontend/Dockerfile .`
+    - `docker build -t notes-backend -f docker/backend/Dockerfile .`
+    - `docker build -t notes-frontend -f docker/frontend/Dockerfile .`
 
 
 ### Manual setup

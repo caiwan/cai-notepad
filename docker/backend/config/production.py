@@ -1,10 +1,15 @@
 # coding=utf-8
 import os
+import json
 
 SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 # Generate it with manage.py gensalt. You should get something like this:
-SECRET_KEY = b'$2b$12$4KQgT9MsGuHCQ2i3aA05Cu'
+SECRET_KEY = b"$2b$12$4KQgT9MsGuHCQ2i3aA05Cu"
+with open("app.bootstrap") as f:
+    config = json.load(f)
+    SECRET_KEY = config["secret"].encode("utf-8")
+
 FLASH_MESSAGES = True
 
 DATABASE = os.environ["DATABASE"]

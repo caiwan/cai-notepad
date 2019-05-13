@@ -1,1 +1,1 @@
-python manage.py createdb
+python manage.py bootstrap migrate admin admin

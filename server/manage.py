@@ -1,9 +1,14 @@
 #!/usr/bin/env
 # coding=utf-8
-from flask_script import Server, Manager, Command
+from flask_script import Server, Manager
 
-import os
-import sys
+import os, sys
+import bcrypt
+import json
+
+from peewee_migrate import Router
+from pathlib import Path
+
 
 # add import paths for internal imports
 cmd_folder = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +21,21 @@ try:
 except ModuleNotFoundError:
     pass
 
-import app
+
+import app  # noqua: E402
+from app import components  # noqua: E402
+from app.components import DB  # noqua: E402
+from app.auth import _adduser  # noqua: E402
+from app.auth import _rmuser  # noqua: E402
+from app.auth import _setuser  # noqua: E402
+from app.auth import _assignrole  # noqua: E402
+from app.auth import _revokerole  # noqua: E402
+from app.auth import _listusers  # noqua: E402
+from app.auth import _listuserroles  # noqua: E402
+from app.auth import _listroles  # noqua: E402
+from app.categories import _flatten_all_categories  # noqua: E402
+from app.auth import _addrole, _adduser, _assignrole, _setuser  # noqua: E402
+
 
 manager = Manager(app.APP)
 
@@ -25,42 +44,36 @@ manager = Manager(app.APP)
 @manager.command
 def adduser(username, password):
     """Adds a new user"""
-    from app.auth import _adduser
     _adduser(username, password)
 
 
 @manager.command
 def rmuser(user_id):
     """Removes an existing user"""
-    from app.auth import _rmuser
     _rmuser(user_id)
 
 
 @manager.command
 def setuser(user_id, key, value):
     """Sets a user"s credentials and other parameters"""
-    from app.auth import _setuser
     _setuser(user_id, key, value)
 
 
 @manager.command
 def assignrole(user_id, role):
     """Adds a role to an user"""
-    from app.auth import _assignrole
     _assignrole(user_id, role)
 
 
 @manager.command
 def revokerole(user_id, role):
     """Revokes a role from a user"""
-    from app.auth import _revokerole
     _revokerole(user_id, role)
 
 
 @manager.command
 def listusers():
     """Lists all the existing users"""
-    from app.auth import _listusers
     users = _listusers()
     print("{:<4} {:<32} {:<2} {:<2} {:<10} {:<10} {:<32}".format(
         "Id", "Name", "A", "D", "Created", "Edited", "Ref id"))
@@ -75,7 +88,6 @@ def listusers():
 @manager.command
 def listuserroles(user_id):
     """Lists all the roles assigned to a user"""
-    from app.auth import _listuserroles
     print(", ".join(p["name"] for p in _listuserroles(user_id)))
     pass
 
@@ -83,7 +95,6 @@ def listuserroles(user_id):
 @manager.command
 def listroles():
     """Lists all the existing roles"""
-    from app.auth import _listroles
     roles = _listroles()
     print("{:<4} {:<32}".format("Id", "Name"))
     for role in roles:
@@ -94,7 +105,6 @@ def listroles():
 @manager.command
 def createdb():
     """Creates the inital database schema and default users"""
-    from app import components
     components.create_tables(app.APP, app.MODELS)
 
     # Quick and dirty way to add a default admin role and user
@@ -120,7 +130,6 @@ def backupdb(filename):
 @manager.command
 def restoredb(filename):
     """Restores db from a backup"""
-    import json
     from app.components import _database_restore
     with open(filename, mode="r") as file:
         backup = json.load(file)
@@ -130,8 +139,6 @@ def restoredb(filename):
 @manager.command
 def createmigration(migration_name):
     """Creates a migration script from the database"""
-    from peewee_migrate import Router
-    from app.components import DB
     router = Router(DB)
     router.create(migration_name)
 
@@ -139,8 +146,6 @@ def createmigration(migration_name):
 @manager.command
 def runmigration(migration_name):
     """Runs a migration script from the database"""
-    from peewee_migrate import Router
-    from app.components import DB
     router = Router(DB)
     router.run(migration_name)
 
@@ -148,8 +153,6 @@ def runmigration(migration_name):
 @manager.command
 def rollbackmigration(migration_name):
     """Rolls back a migration script from the database"""
-    from peewee_migrate import Router
-    from app.components import DB
     router = Router(DB)
     router.rollback(migration_name)
 
@@ -158,7 +161,6 @@ def rollbackmigration(migration_name):
 @manager.command
 def flattencategories():
     """ Reorganizes and make catecory trees flatten for all users """
-    from app.categories import _flatten_all_categories
     _flatten_all_categories()
 
 
@@ -166,16 +168,14 @@ def flattencategories():
 @manager.command
 def bootstrap(migration, user, password):
     """Bootstraps the application for the first time"""
-    from pathlib import Path
 
-    bootstrap_lockfile = "app.bootstrap"
+    bootstrap_lockfile = "config/app.bootstrap"
     if Path(bootstrap_lockfile).is_file():
         return
 
     runmigration(migration)
 
     # Quick and dirty way to add a default admin role and user
-    from app.auth import _addrole, _adduser, _assignrole, _setuser
     roles = ["ADMIN"]  # ... add more if needed later
     for role in roles:
         _addrole(role)
@@ -183,7 +183,10 @@ def bootstrap(migration, user, password):
     _assignrole(uid, "admin")
     _setuser(uid, "is_active", "1")
 
-    open(bootstrap_lockfile, "a").close()
+    config = {"salt": bcrypt.gensalt().decode("utf-8")}
+    with open(bootstrap_lockfile, "a") as f:
+        json.dump(config, f, indent=2)
+        f.close()
 
 
 # override the default 127.0.0.1 binding address

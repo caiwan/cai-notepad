@@ -10,4 +10,4 @@ ignore =
   E701
 inline-quotes = double
 docstring-quotes = double
-disable-noqua
+# disable-noqua
