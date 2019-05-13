@@ -20,12 +20,14 @@ import app
 
 manager = Manager(app.APP)
 
+
 # User management
 @manager.command
 def adduser(username, password):
     """Adds a new user"""
     from app.auth import _adduser
     _adduser(username, password)
+
 
 @manager.command
 def rmuser(user_id):
@@ -36,7 +38,7 @@ def rmuser(user_id):
 
 @manager.command
 def setuser(user_id, key, value):
-    """Sets a user's credentials and other parameters"""
+    """Sets a user"s credentials and other parameters"""
     from app.auth import _setuser
     _setuser(user_id, key, value)
 
@@ -61,7 +63,7 @@ def listusers():
     from app.auth import _listusers
     users = _listusers()
     print("{:<4} {:<32} {:<2} {:<2} {:<10} {:<10} {:<32}".format(
-        'Id', 'Name', 'A', 'D', 'Created', 'Edited', 'Ref id'))
+        "Id", "Name", "A", "D", "Created", "Edited", "Ref id"))
     for user in users:
         _df = "%s"
         user["user_ref_id"] = str(user["user_ref_id"])
@@ -83,7 +85,7 @@ def listroles():
     """Lists all the existing roles"""
     from app.auth import _listroles
     roles = _listroles()
-    print("{:<4} {:<32}".format('Id', 'Name'))
+    print("{:<4} {:<32}".format("Id", "Name"))
     for role in roles:
         print("{id:<4} {name:<32}".format(**role))
 
@@ -119,7 +121,7 @@ def backupdb(filename):
 def restoredb(filename):
     """Restores db from a backup"""
     import json
-    from app.components import MyJsonDecoder, _database_restore
+    from app.components import _database_restore
     with open(filename, mode="r") as file:
         backup = json.load(file)
         _database_restore(app.MODELS, backup)
@@ -158,6 +160,30 @@ def flattencategories():
     """ Reorganizes and make catecory trees flatten for all users """
     from app.categories import _flatten_all_categories
     _flatten_all_categories()
+
+
+# Bootstrapping app for the first time
+@manager.command
+def bootstrap(migration, user, password):
+    """Bootstraps the application for the first time"""
+    from pathlib import Path
+
+    bootstrap_lockfile = "app.bootstrap"
+    if Path(bootstrap_lockfile).is_file():
+        return
+
+    runmigration(migration)
+
+    # Quick and dirty way to add a default admin role and user
+    from app.auth import _addrole, _adduser, _assignrole, _setuser
+    roles = ["ADMIN"]  # ... add more if needed later
+    for role in roles:
+        _addrole(role)
+    uid = _adduser(user, password)
+    _assignrole(uid, "admin")
+    _setuser(uid, "is_active", "1")
+
+    open(bootstrap_lockfile, "a").close()
 
 
 # override the default 127.0.0.1 binding address

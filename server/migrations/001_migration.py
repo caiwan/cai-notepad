@@ -30,7 +30,7 @@ try:
 except ImportError:
     pass
 
-SQL = pw.SQL
+SQL = peewee.SQL
 
 
 class BaseModel(peewee.Model):
@@ -65,6 +65,17 @@ class User(BaseUser):
     is_active = peewee.BooleanField(null=False, default=False)
     permissions = peewee.ManyToManyField(Role, backref="users")
 
+
+Permission = User.permissions.through_model
+
+
+class Token(BaseModel):
+    user = peewee.ForeignKeyField(User)
+    issued_at = peewee.DateTimeField(null=False, default=datetime.now)
+    expiration = peewee.DateTimeField(null=False)
+    jwt = peewee.TextField(null=False)
+
+
 # User setting tables
 class UserAuthenticator(BaseModel):
     owner = peewee.ForeignKeyField(BaseUser, backref="authenticators")
@@ -76,20 +87,24 @@ class UserAuthenticator(BaseModel):
     expires_at = peewee.DateTimeField(null=False)
     profile = peewee.TextField(null=False)
 
+
 class UserProperty(BaseModel):
     user = peewee.ForeignKeyField(BaseUser)
     module = peewee.TextField(null=False)
     key = peewee.TextField(null=False)
     value = peewee.TextField(null=False)
 
+
 # Tagging
 class Tag(BaseModel):
     tag = peewee.TextField(null=False)
     owner = peewee.ForeignKeyField(BaseUser)
 
+
 class FuzzyTag(BaseModel):
     tag = peewee.ForeignKeyField(Tag)
     fuzzy = peewee.TextField(null=False)
+
 
 # Category
 class Category(BaseDocumentModel):
@@ -101,21 +116,6 @@ class Category(BaseDocumentModel):
     path = peewee.TextField()
     parent = peewee.ForeignKeyField("self", backref="children", null=True)
 
-# We don't have this feature ATM
-"""
-# Milestone
-@migrator.create_model
-class Milestone(components.BaseDocumentModel):
-    name = peewee.TextField()
-    description = peewee.TextField()
-    due_date = peewee.DateTimeField(null=True, default=None)
-    tags = peewee.ManyToManyField(Tag)
-    category = peewee.ForeignKeyField(Category, null=True, default=None)
-    pass
-
-TaggedMilestone = Milestone.tags.get_through_model()
-migrator.create_model(TaggedMilestone)
-"""
 
 # Notes
 class Note(BaseDocumentModel):
@@ -129,18 +129,37 @@ class Note(BaseDocumentModel):
 
 TaggedNote = Note.tags.get_through_model()
 
-# We don't have this feature ATM
-"""
-@migrator.create_model
-class NoteAttachment(components.BaseModel):
-    name = peewee.TextField()
-    attachment_id = peewee.TextField()
-    provider = peewee.TextField()
-    note = peewee.ForeignKeyField(Note)
-"""
+
+# Task
+class Task(BaseDocumentModel):
+    title = peewee.TextField()
+    is_completed = peewee.BooleanField(default=False)
+    is_archived = peewee.BooleanField(default=False)
+    note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
+    category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
+    due_date = peewee.DateTimeField(null=True, default=None)
+    color = peewee.IntegerField(null=False, default=0)
+    order = peewee.IntegerField(null=False, default=0)
 
 
 def migrate(migrator, database, fake=False, **kwargs):
+    migrator.create_model(User)
+    migrator.create_model(Role)
+    migrator.create_model(Permission)
+    migrator.create_model(Token)
+
+    migrator.create_model(UserAuthenticator)
+    migrator.create_model(UserProperty)
+
+    migrator.create_model(Tag)
+    migrator.create_model(FuzzyTag)
+
+    migrator.create_model(Category)
+
+    migrator.create_model(Note)
+    migrator.create_model(TaggedNote)
+
+    migrator.create_model(Task)
     pass
 
 
