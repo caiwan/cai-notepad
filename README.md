@@ -43,56 +43,56 @@ For development instructions see below.
     To build manually you'll need the following packages installed:
 
     - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
-    - **Node 11.7** and **NPM 6.5** for client (frontend)
+    - **Node 11.7** and **NPM 6.5** for frontend
     - **uWSGI** via pip for hosting the backend code
     - **nginx** for delegate it to be accessible via http
 
-1. Build client (frontend)
+1. Build frontend
 
     ```bash
-    cd client
+    cd frontend
     npm i && npm build
     cd ..
     ```
 
-2. Install server dependencies
+2. Install backend dependencies
 
     ```bash
-    cd server
+    cd backend
     pip install Cython && pip install -r requirements.txt
     cd ..
     ```
 
-3. Copy static files from client
+3. Copy static files from frontend
 
   ```bash
-  cp client/dist server/static
+  cp frontend/dist backend/static
   ```
 
 3. Install and Configure Nginx:
 
   TBD
 
-3. Configure your server with uWSGI
+3. Configure your backend with uWSGI
 
   ```bash
-  cp ./docker/uwsgi.ini /server/wusgi.ini
+  cp ./docker/uwsgi.ini /backend/wusgi.ini
 ```
 
 See Flask's [uWSGI documentation](http://flask.pocoo.org/docs/1.0/deploying/uwsgi/) for further details
 
-3. Configure your server app
+3. Configure your backend app
 
-  - Take `./server/app/config/base.py`
-  - For dev and debugging the app loads `./server/app/config/local.py` for it's config
-  - For production the app loads `./server/app/config/prodction.py`
+  - Take `./backend/app/config/base.py`
+  - For dev and debugging the app loads `./backend/app/config/local.py` for it's config
+  - For production the app loads `./backend/app/config/prodction.py`
 
-4. Run the server with uwsgi:
+4. Run the backend with uwsgi:
 
   ***TODO:*** *This needs to be defined and tested well*
 
   ```bash
-  uwsgi -s /tmp/notes.sock --manage-script-name --mount /notes=server:app
+  uwsgi -s /tmp/notes.sock --manage-script-name --mount /notes=backend:app
   ```
 
 ## Features
@@ -107,26 +107,26 @@ TBD, See `SPECS.md` for rough details
   To build manually you'll need the following packages installed:
 
   - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
-  - **Node 11.7** and **NPM 6.5** for client (frontend)
+  - **Node 11.7** and **NPM 6.5** for frontend
 
-2. Start client (frontend)
+2. Start frontend
 
   ```bash
-  cd client
+  cd frontend
   npm i
   npm run dev
   ```
 
-3. Start server (backend)
+3. Start backend
 
   Install all the dependencies:
 
   ```bash
-  cd server
+  cd backend
   pip install Cython && pip install -r requirements.txt && pip install -r requirements-dev.txt
   python manage,py createdb
   cp dev.env .env
-  python manage.py runserver
+  python manage.py runbackend
   ```
 
 4. Integrated Development Environment
@@ -148,14 +148,14 @@ there isn't any developer guideline set at this moment.
 
 Make sure that requirements for development has been installed `pip install -r requirements-dev.txt`
 
-1. Server (backend)
+1. backend
 
     ```bash
-    cd server/
+    cd backend/
     python tests.py
     ```
 
-2. Client (frontend)
+2. frontend
     - There's none ATM
 
 ### Future development
