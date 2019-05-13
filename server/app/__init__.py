@@ -27,8 +27,8 @@ MODULES = [
     "tags",
     "tasks",
     "categories",
-    "milestones",
-    "worklog"
+    # "milestones",
+    # "worklog"
 ]
 
 PRODUCTION = (os.getenv("FLASK_ENV", default="production") == "production")
