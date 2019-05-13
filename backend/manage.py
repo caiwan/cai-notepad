@@ -169,7 +169,7 @@ def flattencategories():
 def bootstrap(migration, user, password):
     """Bootstraps the application for the first time"""
 
-    bootstrap_lockfile = "config/app.bootstrap"
+    bootstrap_lockfile = "./config/app.bootstrap"
     if Path(bootstrap_lockfile).is_file():
         return
 
@@ -183,10 +183,7 @@ def bootstrap(migration, user, password):
     _assignrole(uid, "admin")
     _setuser(uid, "is_active", "1")
 
-    config = {"salt": bcrypt.gensalt().decode("utf-8")}
-    with open(bootstrap_lockfile, "a") as f:
-        json.dump(config, f, indent=2)
-        f.close()
+    open(bootstrap_lockfile, "a").close()
 
 
 # override the default 127.0.0.1 binding address

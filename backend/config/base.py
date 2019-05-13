@@ -11,6 +11,15 @@ FLASH_MESSAGES = True
 DATABASE = "sqlite"
 DATABASE_NAME = "cai-notes"
 DATABASE_PATH = "./app.db"
+# -- OR --
+DATABASE = "postgresql"
+DATABASE_NAME = "notesapp"
+DATABASE_AUTH = {
+    "user": "notesappuser",
+    "password": "notespassword",
+    "host": "127.0.0.1",
+    "port": 5432
+}
 
 # Application in-dev. settings
 TESTING = False

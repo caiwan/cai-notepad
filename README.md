@@ -31,70 +31,6 @@ For development instructions see below.
     - `docker build -t notes-backend -f docker/backend/Dockerfile .`
     - `docker build -t notes-frontend -f docker/frontend/Dockerfile .`
 
-
-### Manual setup
-
-  TBD
-
-
-
-1. Prerequisites
-
-    To build manually you'll need the following packages installed:
-
-    - **Python 3.7** and **pip 18.1** (optionally within a virtual environment) for backend
-    - **Node 11.7** and **NPM 6.5** for frontend
-    - **uWSGI** via pip for hosting the backend code
-    - **nginx** for delegate it to be accessible via http
-
-1. Build frontend
-
-    ```bash
-    cd frontend
-    npm i && npm build
-    cd ..
-    ```
-
-2. Install backend dependencies
-
-    ```bash
-    cd backend
-    pip install Cython && pip install -r requirements.txt
-    cd ..
-    ```
-
-3. Copy static files from frontend
-
-  ```bash
-  cp frontend/dist backend/static
-  ```
-
-3. Install and Configure Nginx:
-
-  TBD
-
-3. Configure your backend with uWSGI
-
-  ```bash
-  cp ./docker/uwsgi.ini /backend/wusgi.ini
-```
-
-See Flask's [uWSGI documentation](http://flask.pocoo.org/docs/1.0/deploying/uwsgi/) for further details
-
-3. Configure your backend app
-
-  - Take `./backend/app/config/base.py`
-  - For dev and debugging the app loads `./backend/app/config/local.py` for it's config
-  - For production the app loads `./backend/app/config/prodction.py`
-
-4. Run the backend with uwsgi:
-
-  ***TODO:*** *This needs to be defined and tested well*
-
-  ```bash
-  uwsgi -s /tmp/notes.sock --manage-script-name --mount /notes=backend:app
-  ```
-
 ## Features
 
 TBD, See `SPECS.md` for rough details
@@ -126,7 +62,7 @@ TBD, See `SPECS.md` for rough details
   pip install Cython && pip install -r requirements.txt && pip install -r requirements-dev.txt
   python manage,py createdb
   cp dev.env .env
-  python manage.py runbackend
+  python manage.py runserver
   ```
 
 4. Integrated Development Environment

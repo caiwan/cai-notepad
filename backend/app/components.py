@@ -369,11 +369,11 @@ def register_controllers(api, controllers):
 
 
 def database_init(app, models):
-    logging.debug("ConnectDB: " + app.config["DATABASE"])
+    logging.info("ConnectDB: %s" % (app.config["DATABASE"]))
     if app.config["DATABASE"] == "postgresql":
         from playhouse.pool import PooledPostgresqlExtDatabase
-        database = PooledPostgresqlExtDatabase(
-            app.config["DATABASE_NAME"], max_connections=16, stale_timeout=300, **app.config["DATABASE_AUTH"])
+        logging.info("Lol %s %s %s %s" % (str(PooledPostgresqlExtDatabase), str(app.config["DATABASE_NAME"]), str(app.config["DATABASE_AUTH"]), str(app.config["DATABASE"])))
+        database = PooledPostgresqlExtDatabase(app.config["DATABASE_NAME"], max_connections=16, stale_timeout=300, **app.config["DATABASE_AUTH"])
 
     elif app.config["DATABASE"] == "sqlite":
         from playhouse.pool import PooledSqliteDatabase
@@ -382,7 +382,6 @@ def database_init(app, models):
             "cache_size": -1024 * 64,
             "foreign_keys": 1
         })
-
     else:
         raise RuntimeError("No database set or invalid")
 

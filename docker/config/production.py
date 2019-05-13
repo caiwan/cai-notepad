@@ -1,25 +1,36 @@
 # coding=utf-8
 import os
 import json
+import bcrypt
 
+CONFIG_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-# Generate it with manage.py gensalt. You should get something like this:
-SECRET_KEY = b"$2b$12$4KQgT9MsGuHCQ2i3aA05Cu"
-with open("app.bootstrap") as f:
-    config = json.load(f)
-    SECRET_KEY = config["secret"].encode("utf-8")
+# This is a Big No.
+SECRET_KEY = None
+try:
+    with open(os.path.join(CONFIG_DIR, "app.secret")) as f:
+        config = json.load(f)
+        SECRET_KEY = config["secret"].encode("utf-8")
+except:
+    with open(os.path.join(CONFIG_DIR, "app.secret"), "w") as f:
+        SECRET_KEY = bcrypt.gensalt()
+        json.dump({"secret": SECRET_KEY.decode("utf-8")}, f)
+    pass
+
+if not SECRET_KEY:
+    raise RuntimeError("Could not load / generate secret key")
 
 FLASH_MESSAGES = True
 
-DATABASE = os.environ["DATABASE"]
-DATABASE_NAME = os.environ["DATABASE_NAME"]
-DATABASE_PATH = os.getenv("DATABASE_PATH")
+DATABASE = os.getenv("DATABASE")
+DATABASE_NAME = os.getenv("DATABASE_NAME", default="")
+DATABASE_PATH = os.getenv("DATABASE_PATH", default="")
 DATABASE_AUTH = {
     "user": os.getenv("DATABASE_USER"),
     "password": os.getenv("DATABASE_PASSWORD"),
-    "host": os.getenv("DATABASE_HOST", "127.0.0.1"),
-    "port": int(os.getenv("DATABASE_PORT", 5432))
+    "host": os.getenv("DATABASE_HOST", default="127.0.0.1"),
+    "port": int(os.getenv("DATABASE_PORT", default=5432))
 }
 
 # Application in-dev. settings
