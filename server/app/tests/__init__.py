@@ -1,7 +1,7 @@
 import peewee
 
 # import logging
-
+import os, sys
 import json
 import jwt, bcrypt
 import datetime
@@ -10,6 +10,10 @@ from app import components
 
 
 from app.user.model import User, Role, Token
+
+
+TEST_ROOT = os.path.dirname(__file__)
+TEST_ASSET_ROOT = os.path.join(os.path.dirname(__file__), "assets")
 
 
 class TestUtils:
@@ -36,7 +40,12 @@ class TestUtils:
         pass
 
     def _setup_app(self):
-        self._db = peewee.SqliteDatabase(":memory:")
+        from playhouse.pool import PooledSqliteDatabase
+        self._db = PooledSqliteDatabase(":memory:", pragmas={
+            "journal_mode": "wal",
+            "cache_size": -1024 * 64,
+            "foreign_keys": 1
+        })
         components.DB.initialize(self._db)
         components.DB.connect()
         components.DB.create_tables(app.MODELS, safe=True)
