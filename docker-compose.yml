@@ -12,7 +12,13 @@ services:
       - 8001:8001
     links:
       - "database:database"
-    depends_on:
-      - database
+  #   # depends_on:
+  #     # - database
     env_file:
       - ./docker.env
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    depends_on:
+      - app

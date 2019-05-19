@@ -15,6 +15,7 @@ DATABASE_PATH = "./app.db"
 DATABASE = "postgresql"
 DATABASE_NAME = "notesapp"
 DATABASE_AUTH = {
+    "dbname": "notesapp"
     "user": "notesappuser",
     "password": "notespassword",
     "host": "127.0.0.1",

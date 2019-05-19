@@ -369,10 +369,9 @@ def register_controllers(api, controllers):
 
 
 def database_init(app, models):
-    logging.info("ConnectDB: %s" % (app.config["DATABASE"]))
+    logging.info("Init database connection: %s %s" % (app.config["DATABASE"], app.config["DATABASE_NAME"]))
     if app.config["DATABASE"] == "postgresql":
         from playhouse.pool import PooledPostgresqlExtDatabase
-        logging.info("Lol %s %s %s %s" % (str(PooledPostgresqlExtDatabase), str(app.config["DATABASE_NAME"]), str(app.config["DATABASE_AUTH"]), str(app.config["DATABASE"])))
         database = PooledPostgresqlExtDatabase(app.config["DATABASE_NAME"], max_connections=16, stale_timeout=300, **app.config["DATABASE_AUTH"])
 
     elif app.config["DATABASE"] == "sqlite":
@@ -384,16 +383,24 @@ def database_init(app, models):
         })
     else:
         raise RuntimeError("No database set or invalid")
-
-    DB.initialize(database)
+    try:
+        DB.initialize(database)
+    except:
+        logging.exception("Could not initialize database")
 
 
 def database_connect():
-    DB.connect()
+    try:
+        DB.connect()
+    except:
+        logging.exception("Could not connect to database")
 
 
 def create_tables(app, models):
-    DB.create_tables(models, safe=True)
+    try:
+        DB.create_tables(models, safe=True)
+    except:
+        logging.exception("Could not create tables")
 
 
 # maintenance tools
@@ -411,6 +418,7 @@ def _database_restore(models, data):
     DB.create_tables(models, safe=True)
     model_map = dict((m.__name__, m) for m in models)
     with DB.atomic():
+        # TODO: TBD
         # this doesn't work this way, because we'll need to insert all the FKs later some way
         # 1. Trim FKs
         # 2 ...

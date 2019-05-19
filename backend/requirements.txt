@@ -11,6 +11,7 @@ MarkupSafe==0.23
 peewee==3.6.0
 Peewee-Migrate>=1.1.5
 psycopg2>=2.8.2
+psycopg2-binary>=2.8.2
 python-slugify
 python-Levenshtein
 pyjwt==1.4.2

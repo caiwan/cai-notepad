@@ -2,14 +2,22 @@
 
 set -e
 
-echo "env DATABASE $DATABASE"
-echo "env DATABASE_NAME $DATABASE_NAME"
-echo "env DATABASE_USER $DATABASE_USER"
-echo "env DATABASE_PASSWORD $DATABASE_PASSWORD"
-echo "env DATABASE_HOST $DATABASE_HOST"
-echo "env DATABASE_PORT $DATABASE_PORT"
-echo "env CSRF_SESSION_KEY $CSRF_SESSION_KEY"
-echo "env GOOGLE_CLIENT_ID $GOOGLE_CLIENT_ID"
-echo "env GOOGLE_CLIENT_SECRET $GOOGLE_CLIENT_SECRET"
+# If there's a prestart.sh script in the /app directory, run it before starting
+PRE_START_PATH=/app/prestart.sh
+echo "Checking for script in $PRE_START_PATH"
+if [ -f $PRE_START_PATH ]; then
+    echo "Running script $PRE_START_PATH"
+    if [ "$DATABASE" == "sqlite" ]; then
+      source $PRE_START_PATH
+    else
+      exec ./wait-for-it.sh -h $DATABASE_HOST -p $DATABASE_PORT -t $DATABASE_WAIT_TIMEOUT -- $PRE_START_PATH
+    fi
+else
+    echo "There is no script $PRE_START_PATH"
+fi
 
-exec $@
+if [ "$DATABASE" == "sqlite" ]; then
+  exec $@
+else
+  exec ./wait-for-it.sh -h $DATABASE -p $DATABASE_PORT -t $DATABASE_WAIT_TIMEOUT -- $@
+fi

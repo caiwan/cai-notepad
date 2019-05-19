@@ -27,7 +27,6 @@ DATABASE = os.getenv("DATABASE")
 DATABASE_NAME = os.getenv("DATABASE_NAME", default="")
 DATABASE_PATH = os.getenv("DATABASE_PATH", default="")
 DATABASE_AUTH = {
-    # "dbname": os.getenv("DATABASE_NAME", default=""),
     "user": os.getenv("DATABASE_USER"),
     "password": os.getenv("DATABASE_PASSWORD"),
     "host": os.getenv("DATABASE_HOST", default="127.0.0.1"),
