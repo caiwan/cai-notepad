@@ -8,15 +8,17 @@ SRC_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 SECRET_KEY = b'$2b$12$4KQgT9MsGuHCQ2i3aA05Cu'
 FLASH_MESSAGES = True
 
+# DB Connection
+# Sqlite
 DATABASE = "sqlite"
 DATABASE_NAME = "cai-notes"
 DATABASE_PATH = "./app.db"
 # -- OR --
+# Postgresql
 DATABASE = "postgresql"
 DATABASE_NAME = "notesapp"
 DATABASE_AUTH = {
-    "dbname": "notesapp"
-    "user": "notesappuser",
+    "user": "notesuser",
     "password": "notespassword",
     "host": "127.0.0.1",
     "port": 5432
