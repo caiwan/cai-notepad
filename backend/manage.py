@@ -3,7 +3,6 @@
 from flask_script import Server, Manager
 
 import os, sys
-import bcrypt
 import json
 
 from peewee_migrate import Router
@@ -166,24 +165,20 @@ def flattencategories():
 
 # Bootstrapping app for the first time
 @manager.command
-def bootstrap(migration, user, password):
+def bootstrap(migration_name, user, password):
     """Bootstraps the application for the first time"""
 
-    bootstrap_lockfile = "./config/app.bootstrap"
-    if Path(bootstrap_lockfile).is_file():
-        return
-
-    runmigration(migration)
+    router = Router(DB)
+    router.run(migration_name)
 
     # Quick and dirty way to add a default admin role and user
-    roles = ["ADMIN"]  # ... add more if needed later
-    for role in roles:
-        _addrole(role)
-    uid = _adduser(user, password)
-    _assignrole(uid, "admin")
-    _setuser(uid, "is_active", "1")
-
-    open(bootstrap_lockfile, "a").close()
+    if not _listusers():
+        roles = ["ADMIN"]  # ... add more if needed later
+        for role in roles:
+            _addrole(role)
+        uid = _adduser(user, password)
+        _assignrole(uid, "admin")
+        _setuser(uid, "is_active", "1")
 
 
 # override the default 127.0.0.1 binding address

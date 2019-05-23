@@ -40,7 +40,7 @@ class BaseUser(peewee.Model):
     """ Base model for user
     """
     class Meta:
-        table_name = "user"
+        table_name = "users"
     name = peewee.TextField(null=False, unique=True)
     password = peewee.TextField(null=False)
 
