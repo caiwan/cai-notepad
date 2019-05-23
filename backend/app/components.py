@@ -46,7 +46,7 @@ class BaseUser(BaseModel):
     """
     class Meta:
         table_name = "users"  # 'user' is reserved in most of dbs
-    name = peewee.TextField(null=False, unique=True)
+    name = peewee.TextField(null=False, index=True, unique=True)
     password = peewee.TextField(null=False)
     pass
 

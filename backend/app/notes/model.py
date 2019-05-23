@@ -17,4 +17,4 @@ class Note(components.BaseDocumentModel):
     due_date = peewee.DateTimeField(null=True, default=None)
 
 
-TaggedNote = Note.tags.get_through_model()
+TaggedNote = Note.tags.through_model

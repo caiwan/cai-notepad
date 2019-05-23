@@ -15,4 +15,4 @@ class Milestone(components.BaseDocumentModel):
     pass
 
 
-TaggedMilestone = Milestone.tags.get_through_model()
+TaggedMilestone = Milestone.tags.through_model

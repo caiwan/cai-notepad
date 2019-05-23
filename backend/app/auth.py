@@ -28,11 +28,13 @@ class Role(components.BaseRole):
 
 
 class User(components.BaseUser):
+    class Meta:
+        table_name = "users"
     display_name = peewee.TextField(null=True)
     created = peewee.DateTimeField(null=False, default=datetime.now)
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
 
-    user_ref_id = peewee.UUIDField(null=False, unique=True, default=uuid4)
+    user_ref_id = peewee.UUIDField(null=False, unique=True, index=True, default=uuid4)
     is_deleted = peewee.BooleanField(null=False, default=False)
     is_active = peewee.BooleanField(null=False, default=False)
 

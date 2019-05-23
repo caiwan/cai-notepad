@@ -33,133 +33,111 @@ except ImportError:
 SQL = peewee.SQL
 
 
-class BaseModel(peewee.Model):
-    pass
-
-class BaseUser(peewee.Model):
-    """ Base model for user
-    """
-    class Meta:
-        table_name = "users"
-    name = peewee.TextField(null=False, unique=True)
-    password = peewee.TextField(null=False)
-
-class BaseDocumentModel(peewee.Model):
-    created = peewee.DateTimeField(null=False, default=datetime.now)
-    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
-    is_deleted = peewee.BooleanField(null=False, default=False)
-    owner = peewee.ForeignKeyField(BaseUser, null=True)
-
-class Role(peewee.Model):
-    name = peewee.TextField(null=False, unique=True)
-    pass
-
-class User(BaseUser):
-    name = peewee.TextField(null=False, unique=True)
-    password = peewee.TextField(null=False)#
-    display_name = peewee.TextField(null=True)
-    created = peewee.DateTimeField(null=False, default=datetime.now)
-    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
-    user_ref_id = peewee.UUIDField(null=False, unique=True, default=uuid4)
-    is_deleted = peewee.BooleanField(null=False, default=False)
-    is_active = peewee.BooleanField(null=False, default=False)
-    permissions = peewee.ManyToManyField(Role, backref="users")
-
-
-Permission = User.permissions.through_model
-
-
-class Token(BaseModel):
-    user = peewee.ForeignKeyField(User)
-    issued_at = peewee.DateTimeField(null=False, default=datetime.now)
-    expiration = peewee.DateTimeField(null=False)
-    jwt = peewee.TextField(null=False)
-
-
-# User setting tables
-class UserAuthenticator(BaseModel):
-    owner = peewee.ForeignKeyField(BaseUser, backref="authenticators")
-    is_deleted = peewee.BooleanField(null=False, default=False)
-    idp_id = peewee.TextField(null=False)
-    access_token = peewee.TextField(null=False)
-    id_token = peewee.TextField(null=False)
-    token_type = peewee.TextField(null=False, default="Bearer")
-    expires_at = peewee.DateTimeField(null=False)
-    profile = peewee.TextField(null=False)
-
-
-class UserProperty(BaseModel):
-    user = peewee.ForeignKeyField(BaseUser)
-    module = peewee.TextField(null=False)
-    key = peewee.TextField(null=False)
-    value = peewee.TextField(null=False)
-
-
-# Tagging
-class Tag(BaseModel):
-    tag = peewee.TextField(null=False)
-    owner = peewee.ForeignKeyField(BaseUser)
-
-
-class FuzzyTag(BaseModel):
-    tag = peewee.ForeignKeyField(Tag)
-    fuzzy = peewee.TextField(null=False)
-
-
-# Category
-class Category(BaseDocumentModel):
-    name = peewee.TextField()
-    comment = peewee.TextField(default="")
-    is_archived = peewee.BooleanField(default=False)
-    is_protected = peewee.BooleanField(default=False)
-    order = peewee.IntegerField(default=0)
-    path = peewee.TextField()
-    parent = peewee.ForeignKeyField("self", backref="children", null=True)
-
-
-# Notes
-class Note(BaseDocumentModel):
-    title = peewee.TextField()
-    content = peewee.TextField()
-    is_archived = peewee.BooleanField(default=False)
-    is_pinned = peewee.BooleanField(default=False)
-    tags = peewee.ManyToManyField(Tag)
-    category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
-    due_date = peewee.DateTimeField(null=True, default=None)
-
-TaggedNote = Note.tags.get_through_model()
-
-
-# Task
-class Task(BaseDocumentModel):
-    title = peewee.TextField()
-    is_completed = peewee.BooleanField(default=False)
-    is_archived = peewee.BooleanField(default=False)
-    note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
-    category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
-    due_date = peewee.DateTimeField(null=True, default=None)
-    color = peewee.IntegerField(null=False, default=0)
-    order = peewee.IntegerField(null=False, default=0)
-
-
 def migrate(migrator, database, fake=False, **kwargs):
-    migrator.create_model(User)
-    migrator.create_model(Role)
-    migrator.create_model(Permission)
-    migrator.create_model(Token)
 
-    migrator.create_model(UserAuthenticator)
-    migrator.create_model(UserProperty)
+    class BaseModel(peewee.Model):
+        pass
 
-    migrator.create_model(Tag)
-    migrator.create_model(FuzzyTag)
+    @migrator.create_model
+    class Role(peewee.Model):
+        name = peewee.TextField(null=False, unique=True)
+        pass
 
-    migrator.create_model(Category)
+    @migrator.create_model
+    class User(BaseModel):
+        class Meta:
+            table_name = "users"
+        name = peewee.TextField(null=False, unique=True)
+        password = peewee.TextField(null=False)
+        display_name = peewee.TextField(null=True)
+        created = peewee.DateTimeField(null=False, default=datetime.now)
+        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+        user_ref_id = peewee.UUIDField(null=False, unique=True, index=True, default=uuid4)
+        is_deleted = peewee.BooleanField(null=False, default=False)
+        is_active = peewee.BooleanField(null=False, default=False)
+        permissions = peewee.ManyToManyField(Role, backref="users")
 
-    migrator.create_model(Note)
-    migrator.create_model(TaggedNote)
+    migrator.create_model(User.permissions.through_model)
 
-    migrator.create_model(Task)
+    @migrator.create_model
+    class Token(BaseModel):
+        user = peewee.ForeignKeyField(User)
+        issued_at = peewee.DateTimeField(null=False, default=datetime.now)
+        expiration = peewee.DateTimeField(null=False)
+        jwt = peewee.TextField(null=False)
+
+    # User setting tables
+    @migrator.create_model
+    class UserAuthenticator(BaseModel):
+        owner = peewee.ForeignKeyField(User, backref="authenticators")
+        is_deleted = peewee.BooleanField(null=False, default=False)
+        idp_id = peewee.TextField(null=False)
+        access_token = peewee.TextField(null=False)
+        id_token = peewee.TextField(null=False)
+        token_type = peewee.TextField(null=False, default="Bearer")
+        expires_at = peewee.DateTimeField(null=False)
+        profile = peewee.TextField(null=False)
+
+    @migrator.create_model
+    class UserProperty(BaseModel):
+        user = peewee.ForeignKeyField(User)
+        module = peewee.TextField(null=False)
+        key = peewee.TextField(null=False)
+        value = peewee.TextField(null=False)
+
+    class BaseDocumentModel(peewee.Model):
+        created = peewee.DateTimeField(null=False, default=datetime.now)
+        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+        is_deleted = peewee.BooleanField(null=False, default=False)
+        owner = peewee.ForeignKeyField(User, null=True)
+
+    # Tagging
+    @migrator.create_model
+    class Tag(BaseModel):
+        tag = peewee.TextField(null=False)
+        owner = peewee.ForeignKeyField(User)
+
+    @migrator.create_model
+    class FuzzyTag(BaseModel):
+        tag = peewee.ForeignKeyField(Tag)
+        fuzzy = peewee.TextField(null=False)
+
+    # Category
+    @migrator.create_model
+    class Category(BaseDocumentModel):
+        name = peewee.TextField()
+        comment = peewee.TextField(default="")
+        is_archived = peewee.BooleanField(default=False)
+        is_protected = peewee.BooleanField(default=False)
+        order = peewee.IntegerField(default=0)
+        path = peewee.TextField()
+        parent = peewee.ForeignKeyField("self", backref="children", null=True)
+
+    # Notes
+    @migrator.create_model
+    class Note(BaseDocumentModel):
+        title = peewee.TextField()
+        content = peewee.TextField()
+        is_archived = peewee.BooleanField(default=False)
+        is_pinned = peewee.BooleanField(default=False)
+        tags = peewee.ManyToManyField(Tag)
+        category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
+        due_date = peewee.DateTimeField(null=True, default=None)
+
+    migrator.create_model(Note.tags.through_model)
+
+    # Task
+    @migrator.create_model
+    class Task(BaseDocumentModel):
+        title = peewee.TextField()
+        is_completed = peewee.BooleanField(default=False)
+        is_archived = peewee.BooleanField(default=False)
+        note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
+        category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
+        due_date = peewee.DateTimeField(null=True, default=None)
+        color = peewee.IntegerField(null=False, default=0)
+        order = peewee.IntegerField(null=False, default=0)
+
     pass
 
 
