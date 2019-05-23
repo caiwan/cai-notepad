@@ -5,10 +5,6 @@ from flask_script import Server, Manager
 import os, sys
 import json
 
-from peewee_migrate import Router
-# from playhouse import migrate
-# from pathlib import Path
-
 
 # add import paths for internal imports
 cmd_folder = os.path.dirname(os.path.abspath(__file__))
@@ -35,6 +31,7 @@ from app.auth import _listuserroles  # noqua: E402
 from app.auth import _listroles  # noqua: E402
 from app.categories import _flatten_all_categories  # noqua: E402
 from app.auth import _addrole, _adduser, _assignrole, _setuser  # noqua: E402
+
 
 
 manager = Manager(app.APP)
@@ -105,7 +102,7 @@ def listroles():
 @manager.command
 def createdb():
     """Creates the inital database schema and default users"""
-    components.create_tables(app.APP, app.MODELS)
+    components._create_tables(app.APP, app.MODELS)
 
     # Quick and dirty way to add a default admin role and user
     from app.auth import _addrole, _adduser, _assignrole, _setuser
@@ -139,22 +136,19 @@ def restoredb(filename):
 @manager.command
 def createmigration(migration_name):
     """Creates a migration script from the database"""
-    router = Router(DB)
-    router.create(migration_name)
+    components._createmigration(migration_name)
 
 
 @manager.command
 def runmigration(migration_name):
     """Runs a migration script from the database"""
-    router = Router(DB)
-    router.run(migration_name)
+    components._runmigration(migration_name)
 
 
 @manager.command
 def rollbackmigration(migration_name):
     """Rolls back a migration script from the database"""
-    router = Router(DB)
-    router.rollback(migration_name)
+    components._rollbackmigration(migration_name)
 
 
 # Entity management
@@ -169,8 +163,7 @@ def flattencategories():
 def bootstrap(migration_name, user, password):
     """Bootstraps the application for the first time"""
 
-    router = Router(DB)
-    router.run(migration_name)
+    components._runmigration(migration_name)
 
     # Quick and dirty way to add a default admin role and user
     if not _listusers():

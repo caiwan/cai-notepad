@@ -40,15 +40,9 @@ class TestUtils:
         pass
 
     def _setup_app(self):
-        from playhouse.pool import PooledSqliteDatabase
-        self._db = PooledSqliteDatabase(":memory:", pragmas={
-            "journal_mode": "wal",
-            "cache_size": -1024 * 64,
-            "foreign_keys": 1
-        })
-        components.DB.initialize(self._db)
-        components.DB.connect()
-        components.DB.create_tables(app.MODELS, safe=True)
+        components.database_init(app.APP, app.MODELS)
+        components._drop_tables(app.APP, app.MODELS)
+        components._runmigration("migration")
         self.config = app.APP.config
         self.app = app.APP.test_client()
         self._create_test_users()

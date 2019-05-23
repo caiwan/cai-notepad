@@ -9,6 +9,8 @@ import peewee
 from playhouse.shortcuts import Proxy
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
+from peewee_migrate import Router
+
 from flask_restful import Resource
 # from flask import g, current_app
 from flask import g
@@ -396,12 +398,18 @@ def database_connect():
         logging.exception("Could not connect to database")
 
 
-def create_tables(app, models):
+def _create_tables(app, models):
     try:
         DB.create_tables(models, safe=True)
     except:
         logging.exception("Could not create tables")
 
+
+def _drop_tables(app, models):
+    try:
+        DB.drop_tables(models, safe=True)
+    except:
+        logging.exception("Could not create tables")
 
 # maintenance tools
 def _database_backup(models):
@@ -428,6 +436,21 @@ def _database_restore(models, data):
                 model = model_map[table]
                 model.insert_many(records).on_conflict_ignore(True).execute()
                 logging.info("Restored db: %s" % (model.__name__))
+
+
+def _createmigration(migration_name):
+    router = Router(DB)
+    router.create(migration_name)
+
+
+def _runmigration(migration_name):
+    router = Router(DB)
+    router.run(migration_name)
+
+
+def _rollbackmigration(migration_name):
+    router = Router(DB)
+    router.rollback(migration_name)
 
 
 # Module descriptor

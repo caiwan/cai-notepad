@@ -10,9 +10,9 @@ FLASH_MESSAGES = True
 
 # DB Connection
 # Sqlite
-DATABASE = "sqlite"
-DATABASE_NAME = "cai-notes"
-DATABASE_PATH = "./app.db"
+# DATABASE = "sqlite"
+# DATABASE_NAME = "cai-notes"
+# DATABASE_PATH = "./app.db"
 
 # -- OR --
 # Postgresql
@@ -27,9 +27,9 @@ DATABASE_PATH = "./app.db"
 
 # -- OR --
 # for testing
-# DATABASE = "sqlite"
-# DATABASE_NAME = "cai-notes"
-# DATABASE_PATH = ":memory"
+DATABASE = "sqlite"
+DATABASE_NAME = "cai-notes"
+DATABASE_PATH = ":memory"
 
 # Application in-dev. settings
 TESTING = False
@@ -55,3 +55,4 @@ APP_INTEGRATIONS = {
         "enabled": False,
     },
 }
+
