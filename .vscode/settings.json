@@ -79,5 +79,4 @@
   "python.testing.nosetestsEnabled": false,
   "pythonTestExplorer.testFramework": "unittest",
   "python.testing.autoTestDiscoverOnSaveEnabled": true,
-  "python.pythonPath": "~/.pyenv/versions/cai-notepad/bin/python"
 }
