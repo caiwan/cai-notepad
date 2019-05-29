@@ -61,22 +61,22 @@
     "editor.autoIndent": true
   },
   // -- Python settings
-  "python.envFile": "${workspaceFolder}/server/dev.env",
+  "python.envFile": "${workspaceFolder}/backend/dev.env",
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false,
-  // New python settings
   "python.testing.unittestArgs": [
     "-v",
     "-s",
-    "${workspaceFolder}/server/",
+    "./backend",
     "-p",
     "test_*.py"
   ],
-  "python.testing.cwd": "${workspaceFolder}/server",
+  "python.testing.cwd": "${workspaceFolder}/backend",
   "python.testing.unittestEnabled": true,
   "python.testing.pyTestEnabled": false,
   "python.testing.nosetestsEnabled": false,
   "pythonTestExplorer.testFramework": "unittest",
   "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  // "python.testing.promptToConfigure": false,
 }
