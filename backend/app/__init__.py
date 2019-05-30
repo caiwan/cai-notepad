@@ -31,14 +31,15 @@ MODULES = [
     # "worklog"
 ]
 
+ENVIRONMENT = os.getenv("FLASK_ENV", default="production")
 PRODUCTION = (os.getenv("FLASK_ENV", default="production") == "production")
+TEST = (os.getenv("FLASK_ENV", default="production") == "test")
 DEBUG = (os.getenv("FLASK_DEBUG", default="False") == "True")
-TESTING = (os.getenv("FLASK_TESTING", default="False") == "True")
 
 logging.disable(logging.NOTSET)
 if not PRODUCTION:
     logging.basicConfig(format="%(levelname)-7s %(module)s.%(funcName)s - %(message)s")
-    logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TESTING else logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TEST else logging.INFO)
 else:
     logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
     logging.getLogger().setLevel(logging.INFO) # ? Isn't it enough?
@@ -66,7 +67,9 @@ class MyConfig(object):
         if APP_ROOT not in sys.path:
             sys.path.insert(0, os.path.dirname(APP_ROOT + "/../"))
 
-        config = "config.production" if PRODUCTION else "config.local"
+        # config = "config.production" if PRODUCTION else "config.local"
+        # config = "config.test" if TEST else config
+        config = "config.%s" % ENVIRONMENT
         try:
             cfg = importlib.import_module(config)
             logging.info("Loaded %s" % config)
@@ -131,6 +134,6 @@ for module in MODULES:
 
 app.settings.settingsService.set_settings(SETTINGS)
 
-if not TESTING:
+if not TEST:
     app.components.database_init(APP, MODELS)
     app.components.database_connect()

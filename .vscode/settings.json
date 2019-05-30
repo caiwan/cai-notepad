@@ -68,11 +68,11 @@
   "python.testing.unittestArgs": [
     "-v",
     "-s",
-    "./backend",
+    "${workspaceFolder}/backend/",
     "-p",
     "test_*.py"
   ],
-  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.testing.cwd": "${workspaceFolder}/backend/",
   "python.testing.unittestEnabled": true,
   "python.testing.pyTestEnabled": false,
   "python.testing.nosetestsEnabled": false,

@@ -29,7 +29,7 @@ FLASH_MESSAGES = True
 # for testing
 DATABASE = "sqlite"
 DATABASE_NAME = "cai-notes"
-DATABASE_PATH = ":memory"
+DATABASE_PATH = ":memory:"
 
 # Application in-dev. settings
 TESTING = False

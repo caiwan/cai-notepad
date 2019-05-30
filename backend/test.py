@@ -1,5 +1,6 @@
 # coding=utf-8
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
+# from dotenv import find_dotenv
 import os
 import sys
 import unittest
@@ -7,7 +8,8 @@ import unittest
 from tests import test_runner
 
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
+load_dotenv("test.env")
 
 
 # add import paths for internal imports

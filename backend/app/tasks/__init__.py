@@ -5,6 +5,7 @@ from app.tasks.model import Task
 
 from app.categories import categoryService
 
+
 class TaskService(components.Service):
     name = "tasks"
     model_class = Task
