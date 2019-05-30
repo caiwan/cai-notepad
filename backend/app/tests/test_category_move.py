@@ -2,16 +2,16 @@ from unittest import TestCase, skip
 import json
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 
-class TestCategoryMove(TestUtils, TestCase):
+class TestCategoryMove(BaseTest, TestCase):
 
     CATEGORY_LIST = components.BASE_PATH + "/categories/"
     CATEGORY_GET = components.BASE_PATH + "/categories/{id}/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
@@ -35,7 +35,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - the element should be the first element among children at index 0 position 0.0
@@ -56,7 +56,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - the element should be the last element among children at index 4 position 0.4
@@ -77,7 +77,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - the order should be changed accordingly: at index 1 position 0.1
@@ -98,7 +98,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - a category should be moved accordingly at index 0 position 0
@@ -120,7 +120,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - a category should be moved accordingly at index 3 position 3
@@ -142,7 +142,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - a category should be moved accordingly at index 2 position 2
@@ -164,7 +164,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         self.assertEquals(2, category_json["order"])
@@ -190,7 +190,7 @@ class TestCategoryMove(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category["id"]),
             data=json.dumps(category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         self.assertEquals(2, category_json["order"])
@@ -244,7 +244,7 @@ class TestCategoryMove(TestUtils, TestCase):
             } for j in range(5)]])
         return categories
 
-    def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
+    def _insert_category(self, payload, mock_user=BaseTest.REGULAR_USER):
         return self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),
@@ -252,7 +252,7 @@ class TestCategoryMove(TestUtils, TestCase):
             **self.create_user_header(mock_user)
         ), status=201)
 
-    def _get_categories(self, parent_id, mock_user=TestUtils.REGULAR_USER):
+    def _get_categories(self, parent_id, mock_user=BaseTest.REGULAR_USER):
         categories = []
         for category in self.response(self.app.get(self.CATEGORY_LIST, **self.create_user_header(mock_user))):
             if category["parent"] == parent_id:

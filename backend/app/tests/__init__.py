@@ -16,7 +16,7 @@ TEST_ROOT = os.path.dirname(__file__)
 TEST_ASSET_ROOT = os.path.join(os.path.dirname(__file__), "assets")
 
 
-class TestUtils:
+class BaseTest:
 
     post_args = {
         "content_type": "application/json"

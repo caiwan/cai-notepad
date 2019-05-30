@@ -7,14 +7,14 @@ import json
 from uuid import UUID
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 from app.user.model import Token
 
 API_BASE = components.BASE_PATH
 
 
-class TestUser(TestUtils, TestCase):
+class TestUser(BaseTest, TestCase):
 
     LOGIN = API_BASE + "/auth/login/"
     LOGOUT = API_BASE + "/auth/logout/"
@@ -22,7 +22,7 @@ class TestUser(TestUtils, TestCase):
     PROFILE = API_BASE + "/auth/profile/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):

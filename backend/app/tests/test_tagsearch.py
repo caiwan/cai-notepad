@@ -6,19 +6,19 @@ from chrono import Timer
 import logging
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 API_BASE = components.BASE_PATH
 
 
 @ddt.ddt
-class TestTagsearch(TestUtils, TestCase):
+class TestTagsearch(BaseTest, TestCase):
 
     TAGS_GET = components.BASE_PATH + "/tags/autocomplete/"
     NOTES_LIST = components.BASE_PATH + "/notes/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
@@ -46,7 +46,7 @@ class TestTagsearch(TestUtils, TestCase):
                 self.NOTES_LIST,
                 data=json.dumps(note),
                 **TestTagsearch.post_args,
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ), status=201)
 
     def tearDown(self):
@@ -70,7 +70,7 @@ class TestTagsearch(TestUtils, TestCase):
                 self.TAGS_GET,
                 query_string=query_string,
                 **self.post_args,
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ))
 
             # then
@@ -95,7 +95,7 @@ class TestTagsearch(TestUtils, TestCase):
             self.TAGS_GET,
             query_string=query_string,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ))
 
         # then
@@ -109,6 +109,6 @@ class TestTagsearch(TestUtils, TestCase):
         response = self.response(self.app.get(
             self.TAGS_GET,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         self.assertNotEqual(0, len(response))

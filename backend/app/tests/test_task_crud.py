@@ -4,18 +4,18 @@ import json
 # from chrono import Timer
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 API_BASE = components.BASE_PATH
 
 
-class TestTaskCrud(TestUtils, TestCase):
+class TestTaskCrud(BaseTest, TestCase):
 
     TASK_LIST = API_BASE + "/tasks/"
     TASK_GET = API_BASE + "/tasks/{id}/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
@@ -46,7 +46,7 @@ class TestTaskCrud(TestUtils, TestCase):
         task_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=200)
 
         # then
@@ -69,7 +69,7 @@ class TestTaskCrud(TestUtils, TestCase):
             self.TASK_GET.format(id=task_id),
             data=json.dumps(edited_task),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # then
@@ -90,7 +90,7 @@ class TestTaskCrud(TestUtils, TestCase):
         self.response(self.app.delete(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # then
@@ -98,7 +98,7 @@ class TestTaskCrud(TestUtils, TestCase):
         error_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
         self.assertTrue("message" in error_json)
 
@@ -107,21 +107,21 @@ class TestTaskCrud(TestUtils, TestCase):
     def test_list_rights(self):
         # given
         # - Tasks from two different user
-        my_tasks = [self._insert_task({"title": "My Title %d" % i}, mock_user=TestUtils.REGULAR_USER) for i in range(3)]
-        alt_tasks = [self._insert_task({"title": "Other My Title %d" % i}, mock_user=TestUtils.REGULAR_ALT_USER) for i in range(4)]
+        my_tasks = [self._insert_task({"title": "My Title %d" % i}, mock_user=BaseTest.REGULAR_USER) for i in range(3)]
+        alt_tasks = [self._insert_task({"title": "Other My Title %d" % i}, mock_user=BaseTest.REGULAR_ALT_USER) for i in range(4)]
 
         # when
         # - They reads their own tasks
         my_tasks_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         alt_tasks_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ))
 
         # then
@@ -148,7 +148,7 @@ class TestTaskCrud(TestUtils, TestCase):
         response_json = self.response(self.app.get(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
@@ -169,7 +169,7 @@ class TestTaskCrud(TestUtils, TestCase):
             self.TASK_GET.format(id=task_id),
             data=json.dumps(edited_task),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
@@ -188,7 +188,7 @@ class TestTaskCrud(TestUtils, TestCase):
         response_json = self.response(self.app.delete(
             self.TASK_GET.format(id=task_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
@@ -196,7 +196,7 @@ class TestTaskCrud(TestUtils, TestCase):
         self.assertTrue("message" in response_json)
 
     # ---
-    def _insert_task(self, task, mock_user=TestUtils.REGULAR_USER):
+    def _insert_task(self, task, mock_user=BaseTest.REGULAR_USER):
         response_json = self.response(self.app.post(
             self.TASK_LIST,
             data=json.dumps(task),

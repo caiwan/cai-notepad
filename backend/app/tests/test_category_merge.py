@@ -2,10 +2,10 @@ from unittest import TestCase, skip
 import json
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 
-class TestCategoryMerge(TestUtils, TestCase):
+class TestCategoryMerge(BaseTest, TestCase):
 
     CATEGORY_LIST = components.BASE_PATH + "/categories/"
     CATEGORY_GET = components.BASE_PATH + "/categories/{id}/"
@@ -17,7 +17,7 @@ class TestCategoryMerge(TestUtils, TestCase):
     TASK_GET = components.BASE_PATH + "/tasks/{id}/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
@@ -51,7 +51,7 @@ class TestCategoryMerge(TestUtils, TestCase):
         self.response(self.app.delete(
             self.CATEGORY_GET.format(id=category_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # then
@@ -60,7 +60,7 @@ class TestCategoryMerge(TestUtils, TestCase):
         self.response(self.app.get(
             self.CATEGORY_GET.format(id=category_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=404)
 
         # TODO: Test if children are merged to its parent
@@ -71,11 +71,11 @@ class TestCategoryMerge(TestUtils, TestCase):
         ):
             note_json = self.response(self.app.get(
                 self.NOTE_GET.format(id=note_id),
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ))
             task_json = self.response(self.app.get(
                 self.TASK_GET.format(id=task_id),
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ))
             self.assertEqual(parent_id, note_json["category"], msg="note")
             self.assertEqual(parent_id, task_json["category"], msg="task")
@@ -94,7 +94,7 @@ class TestCategoryMerge(TestUtils, TestCase):
         self.response(self.app.delete(
             self.CATEGORY_GET.format(id=category_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # TODO: Test if children are merged to its parent
@@ -105,11 +105,11 @@ class TestCategoryMerge(TestUtils, TestCase):
         ):
             note_json = self.response(self.app.get(
                 self.NOTE_GET.format(id=note_id),
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ))
             task_json = self.response(self.app.get(
                 self.TASK_GET.format(id=task_id),
-                **self.create_user_header(TestUtils.REGULAR_USER)
+                **self.create_user_header(BaseTest.REGULAR_USER)
             ))
             self.assertEqual(None, note_json["category"])
             self.assertEqual(None, task_json["category"])
@@ -127,7 +127,7 @@ class TestCategoryMerge(TestUtils, TestCase):
         error_json = self.response(self.app.delete(
             self.CATEGORY_GET.format(id=merge_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
         self.assertTrue("message" in error_json)
 
@@ -152,7 +152,7 @@ class TestCategoryMerge(TestUtils, TestCase):
                            for payload in child_categories])
         return categories
 
-    def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
+    def _insert_category(self, payload, mock_user=BaseTest.REGULAR_USER):
         return self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),
@@ -168,7 +168,7 @@ class TestCategoryMerge(TestUtils, TestCase):
             "category": category["id"]}
         ) for i in range(3)]
 
-    def _insert_note(self, note, mock_user=TestUtils.REGULAR_USER):
+    def _insert_note(self, note, mock_user=BaseTest.REGULAR_USER):
         note_json = self.response(self.app.post(
             self.NOTE_LIST,
             data=json.dumps(note),
@@ -180,7 +180,7 @@ class TestCategoryMerge(TestUtils, TestCase):
     def _insert_tasks(self, category):
         return [self._insert_task({"title": "My Title %d" % (i), "category": category["id"]}) for i in range(3)]
 
-    def _insert_task(self, task, mock_user=TestUtils.REGULAR_USER):
+    def _insert_task(self, task, mock_user=BaseTest.REGULAR_USER):
         response_json = self.response(self.app.post(
             self.TASK_LIST,
             data=json.dumps(task),

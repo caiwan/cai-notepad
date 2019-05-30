@@ -3,7 +3,7 @@ import os
 import json
 import ddt
 
-from app.tests import TestUtils, TEST_ASSET_ROOT
+from app.tests import BaseTest, TEST_ASSET_ROOT
 import app
 from app import components
 
@@ -25,10 +25,10 @@ def verify(filename):
 
 
 @ddt.ddt
-class TestBackupRestore(TestUtils, TestCase):
+class TestBackupRestore(BaseTest, TestCase):
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):

@@ -7,7 +7,7 @@ import json
 import ddt
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 API_BASE = components.BASE_PATH
 
@@ -32,10 +32,10 @@ def attr(path, method,
 
 
 @ddt.ddt
-class TestEndpointAccess(TestUtils, TestCase):
+class TestEndpointAccess(BaseTest, TestCase):
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):

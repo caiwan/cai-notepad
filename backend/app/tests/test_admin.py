@@ -3,10 +3,10 @@ from unittest import TestCase, skip
 import json
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 
-class TestAdmin(TestUtils, TestCase):
+class TestAdmin(BaseTest, TestCase):
 
     USER_LIST = components.BASE_PATH + "/users/"
     USER_GET = components.BASE_PATH + "/users/{id}/"
@@ -18,14 +18,15 @@ class TestAdmin(TestUtils, TestCase):
     }
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
         self._setup_app()
 
     def tearDown(self):
-        self._db.close()
+        # self._db.close()
+        pass
 
     def test_create(self):
         # given

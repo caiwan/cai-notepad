@@ -1,11 +1,11 @@
 from unittest import TestCase
 import json
 
-from app.tests import TestUtils
+from app.tests import BaseTest
 from app import components
 
 
-class TestTaskFiltering(TestCase, TestUtils):
+class TestTaskFiltering(TestCase, BaseTest):
 
     CATEGORY_LIST = components.BASE_PATH + "/categories/"
     CATEGORY_GET = components.BASE_PATH + "/categories/{id}/"
@@ -15,7 +15,7 @@ class TestTaskFiltering(TestCase, TestUtils):
 
     def __init__(self, methodName):
         TestCase.__init__(self, methodName)
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
 
     def setUp(self):
         self._setup_app()
@@ -34,7 +34,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args, query_string=query_string,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # then
@@ -52,7 +52,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args, query_string=query_string,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - should receive all the 3 notes unassigned
@@ -71,7 +71,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args, query_string=query_string,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - should receive all the 3 notes assigned to it
@@ -91,7 +91,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         error_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args, query_string=query_string,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
         # then
         # - should receive 404 and error message
@@ -109,7 +109,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.TASK_LIST,
             **self.post_args, query_string=query_string,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
         # then
         # - should receive all 3 and the remaining 9 notes assigned to its children, 12 in total
@@ -119,7 +119,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         pass
 
     # ---- UTILS
-    def _insert_note(self, note, mock_user=TestUtils.REGULAR_USER):
+    def _insert_note(self, note, mock_user=BaseTest.REGULAR_USER):
         note_json = self.response(self.app.post(
             self.TASK_LIST,
             data=json.dumps(note),
@@ -128,7 +128,7 @@ class TestTaskFiltering(TestCase, TestUtils):
         ), status=201)
         return note_json
 
-    def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
+    def _insert_category(self, payload, mock_user=BaseTest.REGULAR_USER):
         return self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),

@@ -2,16 +2,16 @@ from unittest import TestCase, skip
 import json
 
 from app import components
-from app.tests import TestUtils
+from app.tests import BaseTest
 
 
-class TestCategoryCrud(TestUtils, TestCase):
+class TestCategoryCrud(BaseTest, TestCase):
 
     CATEGORY_LIST = components.BASE_PATH + "/categories/"
     CATEGORY_GET = components.BASE_PATH + "/categories/{id}/"
 
     def __init__(self, methodName):
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
         TestCase.__init__(self, methodName)
 
     def setUp(self):
@@ -42,7 +42,7 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category_id),
             data=json.dumps(updated_category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # Then
@@ -74,7 +74,7 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category_id),
             data=json.dumps(updated_category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # Then
@@ -100,7 +100,7 @@ class TestCategoryCrud(TestUtils, TestCase):
         category_json = self.response(self.app.get(
             self.CATEGORY_GET.format(id=insert_category_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         self._validate_fields(category_json)
@@ -131,13 +131,13 @@ class TestCategoryCrud(TestUtils, TestCase):
         root_category_json = self.response(self.app.get(
             self.CATEGORY_GET.format(id=root_id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         responses = [self.response(self.app.get(
             self.CATEGORY_GET.format(id=id),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         )) for id in child_categories_id]
 
         for (category, category_json) in zip(child_categories, responses):
@@ -162,7 +162,7 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.CATEGORY_LIST,
             data=json.dumps(category_json),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=400)
 
         # then
@@ -190,7 +190,7 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.CATEGORY_LIST,
             data=json.dumps(child_json),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=400)
 
         # then
@@ -218,14 +218,14 @@ class TestCategoryCrud(TestUtils, TestCase):
             self.CATEGORY_GET.format(id=category_id),
             data=json.dumps(updated_category),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=400)
 
         # then
         # - Insertion should fail
         self.assertTrue("message" in error_json)
 
-    def _insert_category(self, payload, mock_user=TestUtils.REGULAR_USER):
+    def _insert_category(self, payload, mock_user=BaseTest.REGULAR_USER):
         return self.response(self.app.post(
             self.CATEGORY_LIST,
             data=json.dumps(payload),

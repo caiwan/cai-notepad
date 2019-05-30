@@ -1,11 +1,11 @@
 from unittest import TestCase
 import json
 
-from app.tests import TestUtils
+from app.tests import BaseTest
 from app import components
 
 
-class TestNotes(TestCase, TestUtils):
+class TestNotes(TestCase, BaseTest):
 
     NOTE_LIST = components.BASE_PATH + "/notes/"
     NOTE_GET = components.BASE_PATH + "/notes/{id}/"
@@ -26,7 +26,7 @@ class TestNotes(TestCase, TestUtils):
 
     def __init__(self, methodName):
         TestCase.__init__(self, methodName)
-        TestUtils.__init__(self)
+        BaseTest.__init__(self)
 
     def setUp(self):
         self._setup_app()
@@ -43,7 +43,7 @@ class TestNotes(TestCase, TestUtils):
             self.NOTE_LIST,
             data=json.dumps(self.new_note),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=201)
 
         # then
@@ -53,7 +53,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # TODO: Test for tags
@@ -72,7 +72,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # then
@@ -87,7 +87,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.delete(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         self.assertEqual(0, len(response_json))
@@ -96,7 +96,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ), status=404)
         self.assertTrue("message" in response_json)
 
@@ -113,7 +113,7 @@ class TestNotes(TestCase, TestUtils):
             self.NOTE_GET.format(id=note_json["id"]),
             data=json.dumps(self.edited_note),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         self._validate_fields(edited_json)
@@ -124,7 +124,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         # TODO: Test for tags
@@ -139,21 +139,21 @@ class TestNotes(TestCase, TestUtils):
         # given
         # - notes inserted by an user
 
-        my_notes = [self._insert_note(self.new_note, mock_user=TestUtils.REGULAR_USER) for _ in range(5)]
-        alt_notes = [self._insert_note(self.new_note, mock_user=TestUtils.REGULAR_ALT_USER) for _ in range(4)]
+        my_notes = [self._insert_note(self.new_note, mock_user=BaseTest.REGULAR_USER) for _ in range(5)]
+        alt_notes = [self._insert_note(self.new_note, mock_user=BaseTest.REGULAR_ALT_USER) for _ in range(4)]
 
         # when
         # - requesting notes with another user
         my_notes_read = self.response(self.app.get(
             self.NOTE_LIST,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_USER)
+            **self.create_user_header(BaseTest.REGULAR_USER)
         ))
 
         alt_notes_read = self.response(self.app.get(
             self.NOTE_LIST,
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ))
 
         # then
@@ -181,7 +181,7 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.get(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
@@ -199,7 +199,7 @@ class TestNotes(TestCase, TestUtils):
             self.NOTE_GET.format(id=note_json["id"]),
             data=json.dumps(self.edited_note),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
@@ -216,14 +216,14 @@ class TestNotes(TestCase, TestUtils):
         response_json = self.response(self.app.delete(
             self.NOTE_GET.format(id=note_json["id"]),
             **self.post_args,
-            **self.create_user_header(TestUtils.REGULAR_ALT_USER)
+            **self.create_user_header(BaseTest.REGULAR_ALT_USER)
         ), status=404)
 
         # then
         self.assertTrue("message" in response_json)
 
     # utils
-    def _insert_note(self, note, mock_user=TestUtils.REGULAR_USER):
+    def _insert_note(self, note, mock_user=BaseTest.REGULAR_USER):
         note_json = self.response(self.app.post(
             self.NOTE_LIST,
             data=json.dumps(note),
