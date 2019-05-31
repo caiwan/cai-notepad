@@ -106,7 +106,7 @@ class CategoryService(components.Service):
     def delete_item(self, item_id):
         from app.notes.model import Note
         from app.tasks.model import Task
-        from app.milestones.model import Milestone
+        # from app.milestones.model import Milestone
         # from app.worklog.model import Worklog
 
         # --- delete -> merge all the stuff to its parents
@@ -124,7 +124,10 @@ class CategoryService(components.Service):
         # We need to have an event dispatch-thingy to notify all the depending modules to move around
         user_id = components.current_user_id()
         with components.DB.atomic():
-            for clazz in [Note, Task, Milestone]:
+            for clazz in [
+                Note, Task
+                # , Milestone
+            ]:
                 # Why can't you just simply update?
                 # clazz.update(
                 #     category=parent,  # parent.id if parent else None,
