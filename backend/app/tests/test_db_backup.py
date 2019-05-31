@@ -34,17 +34,17 @@ class TestBackupRestore(BaseTest, TestCase):
     def setUp(self):
         self._setup_app()
 
-    @ddt.data(
-        verify("db_1.json")
-    )
-    @skip("Not implemented")
-    def test_backup(self, file):
-        pass
+    # @ddt.data(
+    #     verify("db_1.json")
+    # )
+    # @skip("Not implemented")
+    # def test_backup(self, file):
+    #     pass
 
-    @ddt.data(
-        load("db_1.json")
-    )
-    @skip("Not implemented")
-    def test_restore(self, data):
-        components._database_restore(app.MODELS, data)
-        pass
+    # @ddt.data(
+        # load("db_1.json")
+    # )
+    # @skip("Not implemented")
+    # def test_restore(self, data):
+    #     components._database_restore(app.MODELS, data)
+    #     pass

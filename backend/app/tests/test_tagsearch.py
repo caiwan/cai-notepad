@@ -50,7 +50,7 @@ class TestTagsearch(BaseTest, TestCase):
             ), status=201)
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     @ddt.data(
         ("the", ["these", "the"]),

@@ -18,7 +18,7 @@ class TestCategoryCrud(BaseTest, TestCase):
         self._setup_app()
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     # curd
     def test_update(self):

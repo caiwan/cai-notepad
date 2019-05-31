@@ -32,7 +32,7 @@ class TestNotes(TestCase, BaseTest):
         self._setup_app()
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     def test_create_note(self):
         # given

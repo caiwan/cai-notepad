@@ -36,7 +36,7 @@ class TestCategoryMerge(BaseTest, TestCase):
                 self.task_map[category["id"]].append(task)
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     # Test merge stuff
 

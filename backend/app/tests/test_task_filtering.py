@@ -23,7 +23,7 @@ class TestTaskFiltering(TestCase, BaseTest):
         self.notes = self._create_tasks(self.categories)
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     def test_select_category_all(self):
         # given

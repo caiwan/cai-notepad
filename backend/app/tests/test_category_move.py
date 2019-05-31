@@ -19,7 +19,7 @@ class TestCategoryMove(BaseTest, TestCase):
         self.categories = self._insert_categories()
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     # --- TEST CASES
 

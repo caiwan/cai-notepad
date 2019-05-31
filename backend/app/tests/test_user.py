@@ -29,7 +29,7 @@ class TestUser(BaseTest, TestCase):
         self._setup_app()
 
     def tearDown(self):
-        self._db.close()
+        pass
 
     @skip("Registration is not implemented yet")
     def test_register(self):
