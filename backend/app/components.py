@@ -407,7 +407,7 @@ def _create_tables(app, models):
 
 def _drop_tables(app, models):
     try:
-        DB.drop_tables(models, safe=True)
+        DB.drop_tables(models, safe=True, cascade=True)
     except:
         logging.exception("Could not create tables")
 
