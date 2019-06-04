@@ -16,20 +16,20 @@ FLASH_MESSAGES = True
 
 # -- OR --
 # Postgresql
-# DATABASE = "postgresql"
-# DATABASE_NAME = "notesapp"
-# DATABASE_AUTH = {
-#     "user": "notesuser",
-#     "password": "notespassword",
-#     "host": "127.0.0.1",
-#     "port": 5432
-# }
+DATABASE = "postgresql"
+DATABASE_NAME = "notesapp"
+DATABASE_AUTH = {
+    "user": "notesuser",
+    "password": "notespassword",
+    "host": "127.0.0.1",
+    "port": 5432
+}
 
 # -- OR --
 # for testing
-DATABASE = "sqlite"
-DATABASE_NAME = "cai-notes"
-DATABASE_PATH = ":memory:"
+# DATABASE = "sqlite"
+# DATABASE_NAME = "cai-notes"
+# DATABASE_PATH = ":memory:"
 
 # Application in-dev. settings
 TESTING = False

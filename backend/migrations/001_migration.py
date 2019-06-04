@@ -50,8 +50,8 @@ def migrate(migrator, database, fake=False, **kwargs):
         name = peewee.TextField(null=False, unique=True)
         password = peewee.TextField(null=False)
         display_name = peewee.TextField(null=True)
-        created = peewee.DateTimeField(null=False, default=datetime.now)
-        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+        created = peewee.DateTimeField(null=False, default=datetime.now, formats=["%s"])
+        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True, formats=["%s"])
         user_ref_id = peewee.UUIDField(null=False, unique=True, index=True, default=uuid4)
         is_deleted = peewee.BooleanField(null=False, default=False)
         is_active = peewee.BooleanField(null=False, default=False)
@@ -62,8 +62,8 @@ def migrate(migrator, database, fake=False, **kwargs):
     @migrator.create_model
     class Token(BaseModel):
         user = peewee.ForeignKeyField(User)
-        issued_at = peewee.DateTimeField(null=False, default=datetime.now)
-        expiration = peewee.DateTimeField(null=False)
+        issued_at = peewee.DateTimeField(null=False, default=datetime.now, formats=["%s"])
+        expiration = peewee.DateTimeField(null=False, formats=["%s"])
         jwt = peewee.TextField(null=False)
 
     # User setting tables
@@ -75,7 +75,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         access_token = peewee.TextField(null=False)
         id_token = peewee.TextField(null=False)
         token_type = peewee.TextField(null=False, default="Bearer")
-        expires_at = peewee.DateTimeField(null=False)
+        expires_at = peewee.DateTimeField(null=False, formats=["%s"])
         profile = peewee.TextField(null=False)
 
     @migrator.create_model
@@ -86,8 +86,8 @@ def migrate(migrator, database, fake=False, **kwargs):
         value = peewee.TextField(null=False)
 
     class BaseDocumentModel(peewee.Model):
-        created = peewee.DateTimeField(null=False, default=datetime.now)
-        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+        created = peewee.DateTimeField(null=False, default=datetime.now, formats=["%s"])
+        edited = peewee.DateTimeField(null=False, default=datetime.now, index=True, formats=["%s"])
         is_deleted = peewee.BooleanField(null=False, default=False)
         owner = peewee.ForeignKeyField(User, null=True)
 
@@ -122,7 +122,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         is_pinned = peewee.BooleanField(default=False)
         tags = peewee.ManyToManyField(Tag)
         category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
-        due_date = peewee.DateTimeField(null=True, default=None)
+        due_date = peewee.DateTimeField(null=True, default=None, )
 
     migrator.create_model(Note.tags.through_model)
 
@@ -134,7 +134,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         is_archived = peewee.BooleanField(default=False)
         note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
         category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
-        due_date = peewee.DateTimeField(null=True, default=None)
+        due_date = peewee.DateTimeField(null=True, default=None, formats=["%s"])
         color = peewee.IntegerField(null=False, default=0)
         order = peewee.IntegerField(null=False, default=0)
 

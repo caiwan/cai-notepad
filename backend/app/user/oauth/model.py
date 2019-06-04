@@ -13,6 +13,6 @@ class UserAuthenticator(BaseModel):
     id_token = peewee.TextField(null=False)
     token_type = peewee.TextField(null=False, default="Bearer")
 
-    expires_at = peewee.DateTimeField(null=False)
+    expires_at = peewee.DateTimeField(null=False, formats=["%s"])
 
     profile = peewee.TextField(null=False)

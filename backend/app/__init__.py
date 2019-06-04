@@ -22,8 +22,8 @@ MODULES = [
     "user.oauth",
     "user.settings",
     "notes",
-    "notes.attachments",
-    "sync",
+    # "notes.attachments",
+    # "sync",
     "tags",
     "tasks",
     "categories",
@@ -86,6 +86,9 @@ API = Api(APP)
 CORS = CORS(APP)
 
 app.auth.principal.init_app(APP)
+
+# APP.json_encoder = app.components.MyJsonEncoder
+# APP.json_decoder = app.components.MyJsonDecoder
 
 # setup all the message handlers
 @app.auth.error_handler

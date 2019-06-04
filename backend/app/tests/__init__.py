@@ -41,7 +41,7 @@ class BaseTest:
 
     def _setup_app(self):
         components.database_init(app.APP, app.MODELS)
-        components._drop_tables(app.APP, app.MODELS)
+        components._truncate_tables(app.APP, app.MODELS)
         components._runmigration("migration")
         self.config = app.APP.config
         self.app = app.APP.test_client()

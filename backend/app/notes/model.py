@@ -14,7 +14,7 @@ class Note(components.BaseDocumentModel):
     is_pinned = peewee.BooleanField(default=False)
     tags = peewee.ManyToManyField(Tag)
     category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
-    due_date = peewee.DateTimeField(null=True, default=None)
+    due_date = peewee.DateTimeField(null=True, default=None, formats=["%s"])
 
 
 TaggedNote = Note.tags.through_model

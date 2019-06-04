@@ -3,6 +3,7 @@ import logging
 import json
 
 from datetime import datetime, date
+# import dateutil
 from uuid import UUID
 
 import peewee
@@ -64,8 +65,8 @@ class BaseDocumentModel(BaseModel):
     """ Base model for document handling
     w/ extra fields built-in
     """
-    created = peewee.DateTimeField(null=False, default=datetime.now)
-    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True)
+    created = peewee.DateTimeField(null=False, default=datetime.now, formats=["%s"])
+    edited = peewee.DateTimeField(null=False, default=datetime.now, index=True, formats=["%s"])
     is_deleted = peewee.BooleanField(null=False, default=False)
 
     owner = peewee.ForeignKeyField(BaseUser, null=True)
@@ -342,9 +343,9 @@ class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
         if callable(obj):
             return self.default(obj())
         if isinstance(obj, date):
-            return int(obj.strftime("%s"))
+            return str(obj.strftime("%s"))
         if isinstance(obj, datetime):
-            return int(obj.strftime("%s"))
+            return str(obj.strftime("%s"))
         if isinstance(obj, UUID):
             return str(obj)
         if type(obj) is bytes:
@@ -352,15 +353,20 @@ class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
         return json.JSONEncoder.default(self, obj)
 
 
-class MyJsonDecoder(json.JSONDecoder, metaclass=Singleton):
-    #     def __init__(self):
-    #         json.MyJsonDecoder.__init__(self, json)
-    #     def object_hook(self, obj):
-    # pass
-    pass
+# class MyJsonDecoder(json.JSONDecoder):
+#     def __init__(self, *args, **kwargs):
+#         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
+
+#     def object_hook(self, obj):
+#         if '_type' not in obj:
+#             return obj
+#         type = obj['_type']
+#         # if type == 'datetime':
+#         #     return dateutil.parser.parse(obj['value'])
+#         return obj
+
 
 # Register and connection tools
-
 
 def register_controllers(api, controllers):
     for clazz in controllers:
@@ -409,7 +415,16 @@ def _drop_tables(app, models):
     try:
         DB.drop_tables(models, safe=True, cascade=True)
     except:
-        logging.exception("Could not create tables")
+        logging.exception("Could not drop tables")
+
+
+def _truncate_tables(app, models):
+    try:
+        for model in models:
+            model.truncate_table(restart_identity=True, cascade=True)
+    except:
+        logging.exception("Could not truncate tables")
+
 
 # maintenance tools
 def _database_backup(models):
