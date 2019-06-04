@@ -8,7 +8,7 @@ Flask-RESTful==0.3.7
 Flask-Script==2.0.6
 Fuzzy==1.2.2
 MarkupSafe==0.23
-peewee==3.6.0
+peewee==3.9.5
 Peewee-Migrate>=1.1.5
 # psycopg2>=2.8.2
 psycopg2-binary>=2.8.2
