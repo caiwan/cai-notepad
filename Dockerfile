@@ -80,7 +80,7 @@ ENV DATABASE_PATH="notes.db"
 # ENV DATABASE_HOST="database"
 # ENV DATABASE_PORT="5432"
 # -- Max timeout for wait-for-it in sec
-ENV DATABASE_WAIT_TIMEOUT=240
+ENV DATABASE_WAIT_TIMEOUT=380
 
 ENV CSRF_SESSION_KEY=""
 ENV GOOGLE_CLIENT_ID=""
@@ -107,4 +107,5 @@ COPY ./docker/config /app/config
 COPY ./docker/uwsgi.ini /app/
 COPY ./docker/supervisord.conf /etc/supervisord.conf
 
-ENTRYPOINT ["sh", "/app/entrypoint.sh", "/usr/bin/supervisord", "--configuration", "/etc/supervisord.conf"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+CMD ["sh", "echo 'I AM A USELESS PIECE OF SHIT' "]

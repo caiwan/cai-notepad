@@ -16,8 +16,5 @@ else
     echo "There is no script $PRE_START_PATH"
 fi
 
-if [ "$DATABASE" == "sqlite" ]; then
-  exec $@
-else
-  exec ./wait-for-it.sh -h $DATABASE -p $DATABASE_PORT -t $DATABASE_WAIT_TIMEOUT -- $@
-fi
+echo "--- Starting supervisord"
+exec /usr/bin/supervisord --configuration /etc/supervisord.conf
