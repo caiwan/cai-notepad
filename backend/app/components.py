@@ -2,6 +2,8 @@ import logging
 
 import json
 
+from functools import wraps
+
 from datetime import datetime, date
 # import dateutil
 from uuid import UUID
@@ -13,7 +15,8 @@ from playhouse.shortcuts import dict_to_model, model_to_dict
 from peewee_migrate import Router
 
 from flask_restful import Resource
-# from flask import g, current_app
+from flask_restful import request
+
 from flask import g
 
 
@@ -237,6 +240,7 @@ class Service(metaclass=Singleton):
         ), recurse=False)
         return item_json
 
+    # TODO: Remoe this later on
     def sanitize_fields(self, item_json):
         if "id" in item_json:
             del item_json["id"]
@@ -424,6 +428,31 @@ def _truncate_tables(app, models):
             model.truncate_table(restart_identity=True, cascade=True)
     except:
         logging.exception("Could not truncate tables")
+
+
+# Object mapping
+def _map(mapper, object):
+    if not mapper:
+        return object
+    return mapper(object)
+    pass
+
+
+def object_mapping(request_mapper=None, response_mapper=None):
+    def decorator_marshal(f):
+        @wraps(f)
+        def check_rx_tx_type(*args, **kwargs):
+            payload = _map(request_mapper, request.json)
+            result = f(payload, *args, **kwargs)
+            response = result
+            status = 200
+            if isinstance(response, tuple):
+                (response, status) = result
+            response = _map(response_mapper, response)
+            return (response, status)
+        pass
+    pass
+    return decorator_marshal
 
 
 # maintenance tools
