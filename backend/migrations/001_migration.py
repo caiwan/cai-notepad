@@ -122,7 +122,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         is_pinned = peewee.BooleanField(default=False)
         tags = peewee.ManyToManyField(Tag)
         category = peewee.ForeignKeyField(Category, null=True, default=None, backref="notes")
-        due_date = peewee.DateTimeField(null=True, default=None, )
+        due_date = peewee.DateTimeField(null=True, default=None, formats=["%s", "%Y-%m-%d"])
 
     migrator.create_model(Note.tags.through_model)
 
@@ -134,7 +134,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         is_archived = peewee.BooleanField(default=False)
         note = peewee.ForeignKeyField(Note, null=True, backref="tasks")
         category = peewee.ForeignKeyField(Category, null=True, backref="tasks")
-        due_date = peewee.DateTimeField(null=True, default=None, formats=["%s"])
+        due_date = peewee.DateTimeField(null=True, default=None, formats=["%s", "%Y-%m-%d"])
         color = peewee.IntegerField(null=False, default=0)
         order = peewee.IntegerField(null=False, default=0)
 

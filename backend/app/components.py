@@ -240,7 +240,7 @@ class Service(metaclass=Singleton):
         ), recurse=False)
         return item_json
 
-    # TODO: Remoe this later on
+    # TODO: QnD hack, Remove this later on
     def sanitize_fields(self, item_json):
         if "id" in item_json:
             del item_json["id"]
@@ -252,6 +252,10 @@ class Service(metaclass=Singleton):
             del item_json["uuid"]
         if "children" in item_json:
             del item_json["children"]
+        if "created" in item_json:
+            item_json["created"] = datetime.fromtimestamp(int(item_json["created"]))
+        if "edited" in item_json:
+            item_json["edited"] = datetime.fromtimestamp(int(item_json["edited"]))
         return item_json
 
 
