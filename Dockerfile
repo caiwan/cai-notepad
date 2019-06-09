@@ -89,13 +89,11 @@ ENV DEFAULT_USER="USER"
 ENV DEFAULT_PASSWORD="PASSWORD"
 
 # Use for debugging inside the docker image
-ENV FLASK_ENV=local
-ENV FLASK_DEBUG=True
-ENV FLASK_TESTING=False
-
 # ENV FLASK_ENV=production
-# ENV FLASK_DEBUG=False
-# ENV FLASK_TESTING=False
+# ENV FLASK_DEBUG=True
+
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=False
 
 ADD ./backend /app
 WORKDIR /app
