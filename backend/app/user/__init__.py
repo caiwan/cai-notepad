@@ -1,5 +1,7 @@
 # coding=utf-8
 
+import logging
+
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from app import components
@@ -54,6 +56,9 @@ class UserService(components.Service):
         ))
 
         item_json["permissions"] = [role.name for role in item.permissions]
+
+        logging.debug("--- SERIALIZE USER TOKEN: %s" %(str(item_json)))
+
         return item_json
 
 

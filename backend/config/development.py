@@ -55,4 +55,3 @@ APP_INTEGRATIONS = {
         "enabled": False,
     },
 }
-

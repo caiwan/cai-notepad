@@ -11,16 +11,17 @@ services:
     build: ./
     restart: always
     ports:
-      - 8001:8001
+      - 3031:3031
+      - 3032:3032
     links:
       - "database:database"
-  #   # depends_on:
-  #     # - database
     env_file:
       - ./docker.env
   frontend:
     build:
       context: .
       dockerfile: frontend.Dockerfile
-    depends_on:
-      - app
+    links:
+    - "app:app"
+    ports:
+      - 8081:8081

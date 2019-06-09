@@ -43,11 +43,6 @@ DEBUG = False
 CSRF_SESSION_KEY = os.getenv("CSRF_SESSION_KEY", "")
 CSRF_ENABLED = os.getenv("CSRF_SESSION_KEY") is not None or len(str(os.getenv("CSRF_SESSION_KEY")))
 
-RESTFUL_JSON = {
-    "indent": 0,
-    "sort_keys": False
-}
-
 APP_INTEGRATIONS = {
     "oauth-google": {
         "enabled": os.getenv("GOOGLE_CLIENT_ID") is not None or len(str(os.getenv("GOOGLE_CLIENT_ID"))),

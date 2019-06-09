@@ -11,5 +11,5 @@ RUN npm install && \
 
 FROM nginx:alpine as frontend
 EXPOSE 8081
-COPY --from=frontend-build /frontend/dist/* /usr/share/nginx/html/
-# COPY ./docler/nginx.conf /etc/nginx/nginx.conf
+COPY --from=frontend-build /frontend/dist/ /usr/share/nginx/html/
+COPY ./docker/nginx.default.conf /etc/nginx/conf.d/default.conf

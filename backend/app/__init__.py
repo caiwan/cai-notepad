@@ -1,18 +1,17 @@
 # coding=utf-8
 
+import importlib
 import logging
 import os
 import sys
-import importlib
 
 from flask import Flask
-from flask_restful import Api
 from flask_cors import CORS
-
 from flask_principal import PermissionDenied
+from flask_restful import Api
 
-import app.components
 import app.auth
+import app.components
 import app.settings
 
 # modules
@@ -42,9 +41,9 @@ if not PRODUCTION:
     logging.getLogger().setLevel(logging.DEBUG if DEBUG and not TEST else logging.INFO)
 else:
     logging.basicConfig(format="%(asctime)s %(levelname)-7s %(module)s.%(funcName)s - %(message)s")
-    logging.getLogger().setLevel(logging.INFO) # ? Isn't it enough?
+    logging.getLogger().setLevel(logging.INFO)
 
-logging.info("Loading %s, app version = %s", __name__,
+logging.debug("Loading %s, app version = %s", __name__,
              os.getenv("CURRENT_VERSION_ID"))
 
 
@@ -87,8 +86,6 @@ CORS = CORS(APP)
 
 app.auth.principal.init_app(APP)
 
-# APP.json_encoder = app.components.MyJsonEncoder
-# APP.json_decoder = app.components.MyJsonDecoder
 
 # setup all the message handlers
 @app.auth.error_handler
@@ -124,7 +121,7 @@ SETTINGS = {
 for module in MODULES:
     try:
         module = importlib.import_module("app." + module)
-        logging.info("Loaded %s" % module.__name__)
+        logging.debug("Loaded %s" % module.__name__)
         module.module.register(
             app=APP,
             api=API,

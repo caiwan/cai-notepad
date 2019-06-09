@@ -351,9 +351,9 @@ class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
         if callable(obj):
             return self.default(obj())
         if isinstance(obj, date):
-            return str(obj.strftime("%s"))
+            return int(obj.strftime("%s"))
         if isinstance(obj, datetime):
-            return str(obj.strftime("%s"))
+            return int(obj.strftime("%s"))
         if isinstance(obj, UUID):
             return str(obj)
         if type(obj) is bytes:
@@ -361,21 +361,7 @@ class MyJsonEncoder(json.JSONEncoder, metaclass=Singleton):
         return json.JSONEncoder.default(self, obj)
 
 
-# class MyJsonDecoder(json.JSONDecoder):
-#     def __init__(self, *args, **kwargs):
-#         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-
-#     def object_hook(self, obj):
-#         if '_type' not in obj:
-#             return obj
-#         type = obj['_type']
-#         # if type == 'datetime':
-#         #     return dateutil.parser.parse(obj['value'])
-#         return obj
-
-
 # Register and connection tools
-
 def register_controllers(api, controllers):
     for clazz in controllers:
         path = BASE_PATH + clazz.path
@@ -412,6 +398,7 @@ def database_connect():
         logging.exception("Could not connect to database")
 
 
+# Maintenance / testing stuff
 def _create_tables(app, models):
     try:
         DB.create_tables(models, safe=True)
@@ -434,7 +421,7 @@ def _truncate_tables(app, models):
         logging.exception("Could not truncate tables")
 
 
-# Object mapping
+# Quick and dirty Object mapping
 def _map(mapper, object):
     if not mapper:
         return object
@@ -459,7 +446,7 @@ def object_mapping(request_mapper=None, response_mapper=None):
     return decorator_marshal
 
 
-# maintenance tools
+# Maintenance tools
 def _database_backup(models):
     backup = {}
     for model in models:
@@ -534,21 +521,21 @@ class Module(metaclass=Singleton):
         self.pre_register(*args, **kwargs)
 
         if not self.__is_initialized:
-            logging.info("=== Register module: {}".format(self.name))
+            logging.debug("=== Register module: {}".format(self.name))
 
             for model in self.models:
-                logging.info("Register model {}".format(model.__name__))
+                logging.debug("Register model {}".format(model.__name__))
                 models.append(model)
                 pass
 
             for service in self.services:
-                logging.info("Register service {}".format(service.name))
+                logging.debug("Register service {}".format(service.name))
                 if service.name and service.settings:
                     settings[service.name] = service.settings.copy()
 
             for controller in self.controllers:
                 path = BASE_PATH + controller.path
-                logging.info("Register endpoint {} {}".format(
+                logging.debug("Register endpoint {} {}".format(
                     path, controller.__name__))
                 api.add_resource(controller, path, strict_slashes=False)
                 pass

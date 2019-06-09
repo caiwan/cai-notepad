@@ -30,6 +30,7 @@ class Role(components.BaseRole):
 class User(components.BaseUser):
     class Meta:
         table_name = "users"
+
     display_name = peewee.TextField(null=True)
     created = peewee.DateTimeField(null=False, default=datetime.now, formats=["%s"])
     edited = peewee.DateTimeField(null=False, default=datetime.now, index=True, formats=["%s"])
@@ -171,6 +172,7 @@ class LoginService(components.Service):
                             User.is_deleted == False, User.is_active == True)
             if user and bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
                 token = self._tokenService.create(user)
+                logging.debug("--- TOKEN: %s" % token)
                 return ({"token": token}, 200)
             else:
                 raise components.AuthorizationError()

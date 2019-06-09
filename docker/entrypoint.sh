@@ -1,4 +1,4 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 
 set -e
 
@@ -10,7 +10,13 @@ if [ -f $PRE_START_PATH ]; then
     if [ "$DATABASE" == "sqlite" ]; then
       source $PRE_START_PATH
     else
-      exec ./wait-for-it.sh -h $DATABASE_HOST -p $DATABASE_PORT -t $DATABASE_WAIT_TIMEOUT -- $PRE_START_PATH
+#       exec ./wait-for-it.sh -h $DATABASE_HOST -p $DATABASE_PORT -t $DATABASE_WAIT_TIMEOUT -- echo "OK"
+      while ! exec 6<>/dev/tcp/${DATABASE_HOST}/${DATABASE_PORT}; do
+        echo "Trying to connect to DB ${DATABASE_HOST}"
+        sleep 10
+        echo "Retrying"
+      done
+      source $PRE_START_PATH
     fi
 else
     echo "There is no script $PRE_START_PATH"

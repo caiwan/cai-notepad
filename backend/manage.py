@@ -33,7 +33,6 @@ from app.categories import _flatten_all_categories  # noqua: E402
 from app.auth import _addrole, _adduser, _assignrole, _setuser  # noqua: E402
 
 
-
 manager = Manager(app.APP)
 
 
@@ -166,10 +165,11 @@ def bootstrap(migration_name, user, password):
     components._runmigration(migration_name)
 
     # Quick and dirty way to add a default admin role and user
-    if not _listusers():
-        roles = ["ADMIN"]  # ... add more if needed later
+    if not _listroles():
+        roles = ["ADMIN", "USER"]  # ... add more if needed later
         for role in roles:
             _addrole(role)
+    if not _listusers():
         uid = _adduser(user, password)
         _assignrole(uid, "admin")
         _setuser(uid, "is_active", "1")
