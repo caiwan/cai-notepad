@@ -207,7 +207,9 @@ class Service(metaclass=Singleton):
                 self.model_class.owner.id == user_id
             ).get()
 
-            item = dict_to_model(self.model_class, item_json)
+            item = dict_to_model(
+                self.model_class, self.sanitize_fields(item_json)
+            )
             item.id = my_item.id
             item.changed()
             # item.save(only=item.dirty_fields)
@@ -242,6 +244,7 @@ class Service(metaclass=Singleton):
 
     # TODO: QnD hack, Remove this later on
     def sanitize_fields(self, item_json):
+        logging.debug("Sanitize: %s" % str(item_json))
         if "id" in item_json:
             del item_json["id"]
         if "owner" in item_json:
