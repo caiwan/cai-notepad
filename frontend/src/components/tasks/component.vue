@@ -19,20 +19,16 @@
             @keyup.enter="addNewTask()"
             placeholder="What needs to be done?"
             id="new-task-input"
-          />
-          <button
-            class="btn btn-success input-group-append"
-            @click="addNewTask()"
-          ><i class="fa fa-plus"></i></button>
+          >
+          <button class="btn btn-success input-group-append" @click="addNewTask()">
+            <i class="fa fa-plus"></i>
+          </button>
         </div>
       </div>
     </header>
     <!-- -->
 
-    <section
-      class="task-list"
-      v-if="tasks.length"
-    >
+    <section class="task-list" v-if="tasks.length">
       <ul v-cloak>
         <task
           v-for="task in filteredTasks"
@@ -43,32 +39,18 @@
           v-on:toggle="toggleTask"
           v-on:remove="removeTask"
         />
-
       </ul>
     </section>
 
-    <footer
-      class="justify-content-between align-items-center"
-      v-show="tasks.length"
-      v-cloak
-    >
-      <span
-        class="mr-auto task-count badge badge-secondary"
-        v-show="remainingTasks"
-      ><strong>{{ remainingTasks }}</strong>
-        {{ remainingTasks | pluralize }} left</span>
-      <span class="gap" />
+    <footer class="justify-content-between align-items-center" v-show="tasks.length" v-cloak>
+      <span class="mr-auto task-count badge badge-secondary" v-show="remainingTasks">
+        <strong>{{ remainingTasks }}</strong>
+        {{ remainingTasks | pluralize }} left
+      </span>
+      <span class="gap"/>
 
-      <button
-        href="#"
-        class="btn btn-outline-primary"
-        @click="setFilterTasks('all')"
-      >All</button>
-      <button
-        href="#"
-        class="btn btn-outline-primary"
-        @click="setFilterTasks('active')"
-      >Active</button>
+      <button href="#" class="btn btn-outline-primary" @click="setFilterTasks('all')">All</button>
+      <button href="#" class="btn btn-outline-primary" @click="setFilterTasks('active')">Active</button>
       <button
         href="#"
         class="btn btn-outline-primary"
@@ -77,66 +59,47 @@
 
       <!-- ALL DONE  -->
       <div>
-        <input
-          class="toggle"
-          type="checkbox"
-          v-model="allDone"
-        >
+        <input class="toggle" type="checkbox" v-model="allDone">
         <label class="toggle btn btn-warning">
           <i class="checkmark fa fa-check-double"></i>
           <span class="placeholder">&nbsp;</span>
         </label>
       </div>
 
-      <button
-        href="#"
-        class="btn btn-danger"
-        @click="archiveCompleted()"
-      ><i class="fa fa-archive"></i></button>
+      <button href="#" class="btn btn-danger" @click="archiveCompleted()">
+        <i class="fa fa-archive"></i>
+      </button>
     </footer>
     <!-- -->
 
     <!-- Archived tasks -->
     <!-- TODO: move to separate component -->
-    <hr />
-    <section
-      class="archived"
-      v-if="archivedTaks.length"
-    >
+    <hr>
+    <section class="archived" v-if="archivedTaks.length">
       <header>Archived</header>
       <section class="task-list">
         <ul>
-          <li
-            class="task"
-            v-for="task in archivedTaks"
-            :key="task.id"
-          ><span class="task-title">
-              {{task.title}}</span>
+          <li class="task" v-for="task in archivedTaks" :key="task.id">
+            <span class="task-title">{{task.title}}</span>
             <span
               class="badge badge-secondary fill color"
               :class="colorName(task.color)"
-            >
-              {{categoryName(task.category)}}
-            </span>
+            >{{categoryName(task.category)}}</span>
 
             <span
               class="badge badge-secondary fill color"
               :class="colorName(task.color)"
               v-if="task.due_date"
-            >
-              {{task.due_date | formatDate}}
-            </span>
+            >{{task.due_date | formatDate}}</span>
 
             <!-- BUTTONS -->
-            <button
-              class="btn btn-primary"
-              @click="toggleArchive(task)"
-            > <i class="fa fa-level-up-alt"></i></button>
+            <button class="btn btn-primary" @click="toggleArchive(task)">
+              <i class="fa fa-level-up-alt"></i>
+            </button>
             <!-- DELETE -->
-            <button
-              class="btn btn-danger"
-              @click="removeTask(task)"
-            ><i class="fa fa-trash"></i></button>
+            <button class="btn btn-danger" @click="removeTask(task)">
+              <i class="fa fa-trash"></i>
+            </button>
           </li>
         </ul>
       </section>
@@ -145,12 +108,12 @@
 </template>
 
 <script>
-import moment from 'moment';
-
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import CategorySelector from '../category-selector.vue';
 import Task from './task.vue';
 // import ArchivedTask from './archived-task.vue';
+
+import { formatFuzzyDate } from '@/utils';
 
 export default {
   components: {
@@ -226,9 +189,15 @@ export default {
       await this.$store.dispatch('Tasks/fetchAll');
       const self = this;
       setTimeout(() => {
-        self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;
+        self.lastSelectedCategory = self.selectedCategory
+          ? self.selectedCategory.id
+          : null;
         self.newTask.category = self.lastSelectedCategory;
-        console.log('filtering', self.selectedCategory, self.selectedCategoryId);
+        console.log(
+          'filtering',
+          self.selectedCategory,
+          self.selectedCategoryId
+        );
       });
     },
 
@@ -237,7 +206,6 @@ export default {
       this.newTask = {
         title: '',
         category: this.lastSelectedCategory
-
       };
     },
 
@@ -253,15 +221,7 @@ export default {
     pluralize: function (n) {
       return n === 1 ? 'item' : 'itmes';
     },
-    formatDate (date) {
-      return moment(new Date(date)).calendar(null, {
-        sameDay: '[Today]',
-        sameElse (now) {
-          return `[${this.fromNow()}], YYYY-MM-DD`;
-        }
-      });
-    }
-
+    formatDate: date => formatFuzzyDate(date)
   },
 
   directives: {
@@ -272,8 +232,7 @@ export default {
     }
   },
 
-  updated () {
-  },
+  updated () {},
 
   watch: {
     $route (to, from) {

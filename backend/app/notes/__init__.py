@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import logging
-# import copy
+from datetime import datetime
 
 import markupsafe
 from playhouse.shortcuts import dict_to_model, model_to_dict
@@ -70,6 +70,12 @@ class NoteService(components.Service):
         tags = [tag for tag in item.tags]
         item_json["tags"] = [tag.tag for tag in tags]
         return item_json
+
+    def sanitize_fields(self, item_json):
+        if "due_date" in item_json:
+            due_date = datetime.fromtimestamp(int(item_json["due_date"])).date() if item_json["due_date"] else None
+            item_json["due_date"] = due_date
+        return super().sanitize_fields(item_json)
 
     def _select_and_sanitize_tags(self, item_json):
         tags = []

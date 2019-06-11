@@ -1,13 +1,7 @@
         <template>
   <div class="card bg-light mx-1 my-2">
     <header class="card-header">
-      <input
-        type="text"
-        autofocus
-        autocomplete="off"
-        placeholder="Title"
-        v-model="note.title"
-      >
+      <input type="text" autofocus autocomplete="off" placeholder="Title" v-model="note.title">
     </header>
     <div class="card-body">
       <textarea
@@ -22,17 +16,11 @@
       <!-- - category | tags -->
       <div class="footer-tagline">
         <i class="fa fa-tags"></i>
-        <tag-input
-          :choices="autocomplete"
-          :tags="pTags"
-        />
+        <tag-input :choices="autocomplete" :tags="pTags"/>
       </div>
       <div class="footer-bottom-line">
         <!-- CATEGORY SELECTOR  -->
-        <category-selector
-          :selected="category(note.category)"
-          v-on:selected="categorySelected"
-        />
+        <category-selector :selected="category(note.category)" v-on:selected="categorySelected"/>
 
         <!-- DATE PICKER  -->
         <datepicker
@@ -60,33 +48,24 @@
           @click="archive()"
           class="btn btn-sm btn-primary btn-raised"
         >{{note.is_archived ? "Restore" : "Archive"}}</button>
-        <button
-          v-if="!isCreating"
-          @click="remove()"
-          class="btn btn-sm btn-danger btn-raised"
-        >Delete</button>
+        <button v-if="!isCreating" @click="remove()" class="btn btn-sm btn-danger btn-raised">Delete</button>
         <span class="gap"></span>
-        <button
-          @click="done()"
-          class="btn btn-sm btn-success btn-raised"
-        >Done</button>
-        <button
-          @click="cancel()"
-          class="btn btn-sm btn-secondary btn-raised"
-        >Cancel</button>
+        <button @click="done()" class="btn btn-sm btn-success btn-raised">Done</button>
+        <button @click="cancel()" class="btn btn-sm btn-secondary btn-raised">Cancel</button>
       </div>
     </footer>
   </div>
 </template>
 
 <script>
-import autoResize from '@/utils/autoresize-textarea';
+import Datepicker from 'vuejs-datepicker';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 
 import TagInput from '../tag-input.vue';
 import CategorySelector from '../category-selector.vue';
 
-import Datepicker from 'vuejs-datepicker';
+import autoResize from '@/utils/autoresize-textarea';
+import { formatFuzzyDate } from '@/utils';
 
 export default {
   components: {
@@ -123,7 +102,6 @@ export default {
   computed: {
     ...mapState('Notes/Tags', { autocompleteTags: 'items' }),
     ...mapGetters('Categories', ['category', 'categoryName'])
-
   },
 
   methods: {
@@ -186,18 +164,16 @@ export default {
         this.done();
       }
     }
-
   },
 
   watch: {
     pDate () {
       if (this.pDate !== null) {
-        this.note.due_date = this.pDate.getTime();
+        this.note.due_date = this.pDate.getTime() / 1000;
       } else {
         this.note.due_date = null;
       }
     }
-
   },
 
   mounted () {

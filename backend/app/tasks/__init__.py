@@ -1,4 +1,5 @@
 # coding=utf-8
+from datetime import datetime
 
 from app import components
 from app.tasks.model import Task
@@ -40,6 +41,12 @@ class TaskService(components.Service):
             Task.owner_id == user_id
         ).order_by(Task.order.asc())
         pass
+
+    def sanitize_fields(self, item_json):
+        if "due_date" in item_json:
+            due_date = datetime.fromtimestamp(int(item_json["due_date"])).date() if item_json["due_date"] else None
+            item_json["due_date"] = due_date
+        return super().sanitize_fields(item_json)
 
 
 taskService = TaskService()

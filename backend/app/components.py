@@ -190,7 +190,8 @@ class Service(metaclass=Singleton):
             item.owner = current_user()
             item.save()
             return item
-        except peewee.IntegrityError as ex:
+        except Exception as ex:
+            DB.rollback()
             raise BadRequestError(payload={"reason": str(ex)})
 
     def update_item(self, item_id, item_json):
@@ -215,25 +216,30 @@ class Service(metaclass=Singleton):
             # item.save(only=item.dirty_fields)
             item.save()
             return item
-        except peewee.IntegrityError as ex:
+        except Exception as ex:
+            DB.rollback()
             raise BadRequestError(payload={"reason": str(ex)})
 
     def delete_item(self, item_id):
         assert self.model_class
-        user_id = current_user_id()
-        my_item = self.model_class.select(
-            self.model_class
-        ).join(
-            BaseUser, on=(self.model_class.owner == BaseUser.id)
-        ).where(
-            self.model_class.id == item_id,
-            self.model_class.is_deleted == False,
-            self.model_class.owner.id == user_id
-        ).get()
-        my_item.is_deleted = True
-        my_item.changed()
-        my_item.save()
-        return my_item
+        try:
+            user_id = current_user_id()
+            my_item = self.model_class.select(
+                self.model_class
+            ).join(
+                BaseUser, on=(self.model_class.owner == BaseUser.id)
+            ).where(
+                self.model_class.id == item_id,
+                self.model_class.is_deleted == False,
+                self.model_class.owner.id == user_id
+            ).get()
+            my_item.is_deleted = True
+            my_item.changed()
+            my_item.save()
+            # return my_item
+        except Exception as ex:
+            DB.rollback()
+            raise BadRequestError(payload={"reason": str(ex)})
 
     def serialize_item(self, item):
         item_json = model_to_dict(item, exclude=(

@@ -1,9 +1,5 @@
 <template>
-  <li
-    class="task ui-state-default"
-    :class="{completed: task.is_completed}"
-    v-cloak
-  >
+  <li class="task ui-state-default" :class="{completed: task.is_completed}" v-cloak>
     <!--VIEW -->
     <template v-if="!isEditing">
       <div>
@@ -24,24 +20,14 @@
         </label>
       </div>
 
-      <span
-        @dblclick="startEdit"
-        @click="toggle"
-        class="task-title"
-      >
-        {{ task.title }}
-      </span>
-      <span class="badge badge-secondary">
-        {{categoryName(task.category)}}
-      </span>
+      <span @dblclick="startEdit" @click="toggle" class="task-title">{{ task.title }}</span>
+      <span class="badge badge-secondary">{{categoryName(task.category)}}</span>
 
       <span
         class="badge badge-secondary color fill"
         v-show="task.due_date"
         :class="colorName(task.color)"
-      >
-        {{task.due_date | formatDate}}
-      </span>
+      >{{task.due_date | formatDate}}</span>
     </template>
 
     <!-- EDIT -->
@@ -65,7 +51,7 @@
 
         <!-- SCHEDULE  -->
         <datepicker
-          v-model="editingTask.due_date"
+          v-model="pDate"
           :placeholder="'Due date'"
           :format="'yyyy-MM-dd'"
           :bootstrapStyling="true"
@@ -85,17 +71,12 @@
             class="btn btn-outline-secondary outline color"
             :class="editingTask ? colorName(editingTask.color) : ''"
             @click="toggleColorPalette"
-          ><i class="fa fa-palette"></i>
-          </button>
-          <nav
-            class="selector color-palette"
-            v-if="showColorPalette"
           >
+            <i class="fa fa-palette"></i>
+          </button>
+          <nav class="selector color-palette" v-if="showColorPalette">
             <ul class="selector-group color-selector">
-              <li
-                v-for="(color, index) in colors"
-                :key="index"
-              >
+              <li v-for="(color, index) in colors" :key="index">
                 <button
                   class="btn fill color"
                   :class="color.name"
@@ -107,42 +88,36 @@
         </div>
 
         <!--SAVE/CANCEL  -->
-        <button
-          class="btn btn-secondary input-group-append"
-          @click="cancelEdit"
-        ><i class=" fa fa-times"></i></button>
+        <button class="btn btn-secondary input-group-append" @click="cancelEdit">
+          <i class="fa fa-times"></i>
+        </button>
 
-        <button
-          class="btn btn-success input-group-append"
-          @click="doneEdit"
-        ><i class="fa fa-check"></i></button>
-
+        <button class="btn btn-success input-group-append" @click="doneEdit">
+          <i class="fa fa-check"></i>
+        </button>
       </div>
     </template>
 
     <!-- Enter edit mode -->
-    <button
-      v-show="!isEditing"
-      class="btn btn-primary"
-      @click="startEdit()"
-    ><i class="fa fa-edit"></i></button>
+    <button v-show="!isEditing" class="btn btn-primary" @click="startEdit()">
+      <i class="fa fa-edit"></i>
+    </button>
 
     <!-- DELETE -->
-    <button
-      class="btn btn-danger"
-      @click="removeTask"
-    ><i class="fa fa-trash"></i></button>
-
+    <button class="btn btn-danger" @click="removeTask">
+      <i class="fa fa-trash"></i>
+    </button>
   </li>
 </template>
 
 <script>
-import moment from 'moment';
+import Datepicker from 'vuejs-datepicker';
 
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-import CategorySelector from '../category-selector.vue';
 
-import Datepicker from 'vuejs-datepicker';
+import { formatFuzzyDate } from '@/utils';
+
+import CategorySelector from '../category-selector.vue';
 
 export default {
   name: 'task',
@@ -158,12 +133,12 @@ export default {
 
   data () {
     return {
+      pDate: this.task.due_date ? new Date(this.task.due_date) : '',
       pTask: this.task,
       editingTask: null,
       showColorPalette: false,
       datepickerState: {
-        highlighted: {
-        }
+        highlighted: {}
       }
     };
   },
@@ -207,7 +182,11 @@ export default {
 
     categorySelected (category) {
       const categoryId = category ? category.id : null;
-      console.log('select category', { task: this.editingTask, categoryId, category });
+      console.log('select category', {
+        task: this.editingTask,
+        categoryId,
+        category
+      });
       this.editingTask.category = categoryId;
     },
 
@@ -225,19 +204,10 @@ export default {
       this.showColorPalette = false;
       this.editingTask = null;
     }
-
   },
 
   filters: {
-    formatDate (date) {
-      return moment(new Date(date)).calendar(null, {
-        sameDay: '[Today]',
-        sameElse (now) {
-          return `[${this.fromNow()}], YYYY-MM-DD`;
-        }
-      });
-    }
-
+    formatDate: date => formatFuzzyDate(date)
   },
 
   directives: {
@@ -245,9 +215,16 @@ export default {
       if (binding.value) {
         el.focus();
       }
-    }
-  }
+    } //
+  },
 
+  watch: {
+    pDate () {
+      this.editingTask.due_date = this.pDate
+        ? this.pDate.getTime() / 1000
+        : null;
+    } //
+  }
 };
 </script>
 
@@ -335,4 +312,3 @@ span {
 }
 // --- toggle
 </style>
-//

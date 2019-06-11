@@ -2,39 +2,27 @@
   <section class="card bg-light mx-1 my-2">
     <header class="card-header note-title-row">
       <span @dblclick="edit()">{{ note.title }}&nbsp;</span>
-      <button
-        class="btn btn-sm btn-danger"
-        @click="remove()"
-      ><i class="fa fa-trash"></i></button>
-      <button
-        class="btn btn-sm btn-warning"
-        @click="edit()"
-      ><i class="fa fa-edit"></i></button>
-      <button
-        class="btn btn-sm btn-primary"
-        @click="archive()"
-      ><i class="fas fa-archive"></i></button>
-      <button
-        class="btn btn-sm btn-primary"
-        @click="pin()"
-      ><i class="fas fa-bookmark"></i></button>
+      <button class="btn btn-sm btn-danger" @click="remove()">
+        <i class="fa fa-trash"></i>
+      </button>
+      <button class="btn btn-sm btn-warning" @click="edit()">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button class="btn btn-sm btn-primary" @click="archive()">
+        <i class="fas fa-archive"></i>
+      </button>
+      <button class="btn btn-sm btn-primary" @click="pin()">
+        <i class="fas fa-bookmark"></i>
+      </button>
     </header>
     <section class="card-body p-2 m-0">
       <vue-markdown :source="note.content"></vue-markdown>
     </section>
     <footer class="card-footer p-2">
-
-      <div
-        class="footer-tagline"
-        v-if="note.tags.length"
-      >
+      <div class="footer-tagline" v-if="note.tags.length">
         <i class="fa fa-tags"></i>
         <ul class="tags">
-          <li
-            v-for="tag in note.tags"
-            :key="tag"
-            class="tag"
-          >{{tag}}</li>
+          <li v-for="tag in note.tags" :key="tag" class="tag">{{tag}}</li>
         </ul>
       </div>
       <i class="fa fa-folder"></i>
@@ -48,12 +36,13 @@
       </template>
     </footer>
   </section>
-
 </template>
 
 <script>
 import moment from 'moment';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+
+import { formatFuzzyDate } from '@/utils';
 
 export default {
   props: ['note'],
@@ -75,9 +64,7 @@ export default {
     }
   },
   filters: {
-    formatDate (date) {
-      return moment(new Date(date)).format('YYYY-MM-DD');
-    }
+    formatDate: date => formatFuzzyDate(date)
   }
 };
 </script>
