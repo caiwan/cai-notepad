@@ -9,7 +9,7 @@ from datetime import datetime, date
 from uuid import UUID
 
 import peewee
-from playhouse.shortcuts import Proxy
+from peewee import DatabaseProxy as Proxy
 from playhouse.shortcuts import dict_to_model, model_to_dict
 
 from peewee_migrate import Router

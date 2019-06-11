@@ -100,5 +100,6 @@ TBD
 
 ### Known issues
 
-- On some enviromnent live reload of the backend app simply doens't work, and stuck.
+- On some enviromnent, live reload of the backend app simply doens't work, and stuck.
 - DB restore script doesn't work due foreign key issues on insertion.
+- When DB disconnects, Backand can't recover.
