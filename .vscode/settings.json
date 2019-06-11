@@ -34,9 +34,6 @@
   },
   "editor.insertSpaces": true,
   "editor.autoIndent": true,
-  "vetur.format.defaultFormatter.ts": "none",
-  "vetur.format.defaultFormatter.js": "none",
-  "vetur.format.defaultFormatter.html": "js-beautify-html",
   "files.exclude": {
     "**/__pycache__/": true,
     "**/.DS_Store": true,
