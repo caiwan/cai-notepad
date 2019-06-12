@@ -133,7 +133,7 @@ export default {
 
   data () {
     return {
-      pDate: this.task.due_date ? new Date(this.task.due_date) : '',
+      pDate: this.task.due_date ? new Date(this.task.due_date * 1000) : '',
       pTask: this.task,
       editingTask: null,
       showColorPalette: false,

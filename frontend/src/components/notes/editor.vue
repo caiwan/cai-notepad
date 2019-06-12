@@ -92,7 +92,7 @@ export default {
 
   data () {
     return {
-      pDate: this.note.due_date ? new Date(this.note.due_date) : '',
+      pDate: this.note.due_date ? new Date(this.note.due_date * 1000) : '',
       pTags: this.note.tags !== undefined ? this.note.tags.slice() : [],
       _tab: '    ',
       __textarea: null
