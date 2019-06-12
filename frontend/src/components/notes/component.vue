@@ -1,15 +1,13 @@
 <template>
   <section class="main container-flex">
-    <!-- <div class="row"> -->
+    <!-- NEW NOTE  -->
     <div class="col-md-12">
       <header>
         <template v-if="!isCreateNew">
           <section class="card bg-light mx-1 my-2">
             <div class="card-body py-2">
-              <button
-                @click="createNewNote"
-                class="btn btn-primary btn-raised"
-              >New note</button></div>
+              <button @click="createNewNote" class="btn btn-primary btn-raised">New note</button>
+            </div>
           </section>
         </template>
         <template v-else>
@@ -21,20 +19,21 @@
           ></note-editor>
         </template>
       </header>
-      <!-- </div> -->
     </div>
 
     <!-- PINNED NOTES -->
-    <section
-      class=""
-      v-show="hasPinned"
-    >
+    <section class v-show="hasPinned">
       <div class="col-12">
         <header>Pinned</header>
         <note-container
           v-for="note in pinnedNotes"
           :key="note.id"
           :note="note"
+          :isCreateNew="isCreateNew"
+          :editingNote="editingNote"
+          v-on:startEdit="startEdit"
+          v-on:doneEdit="doneEdit"
+          v-on:cancelEdit="cancelEdit"
         />
       </div>
     </section>
@@ -60,6 +59,11 @@
         v-for="note in archivedNotes"
         :key="note.id"
         :note="note"
+        :isCreateNew="isCreateNew"
+        :editingNote="editingNote"
+        v-on:startEdit="startEdit"
+        v-on:doneEdit="doneEdit"
+        v-on:cancelEdit="cancelEdit"
       />
     </section>
   </section>
@@ -75,7 +79,8 @@ export default {
   name: 'notes',
 
   components: {
-    NoteContainer, NoteEditor
+    NoteContainer,
+    NoteEditor
   },
 
   created () {
@@ -109,9 +114,15 @@ export default {
     ...mapGetters('Categories', {
       category: 'category'
     }),
-    hasPinned () { return this.pinnedNotes !== null && this.pinnedNotes.length > 0; },
-    hasOthers () { return this.notes !== null && this.notes.length > 0; },
-    hasArchived () { return this.archivedNotes !== null && this.archivedNotes.length > 0; },
+    hasPinned () {
+      return this.pinnedNotes !== null && this.pinnedNotes.length > 0;
+    },
+    hasOthers () {
+      return this.notes !== null && this.notes.length > 0;
+    },
+    hasArchived () {
+      return this.archivedNotes !== null && this.archivedNotes.length > 0;
+    },
 
     selectedCategory () {
       return this.category(this.selectedCategoryId);
@@ -126,9 +137,15 @@ export default {
       });
       const self = this;
       this.$store.dispatch('Notes/fetchAll').then(() => {
-        self.lastSelectedCategory = self.selectedCategory ? self.selectedCategory.id : null;
+        self.lastSelectedCategory = self.selectedCategory
+          ? self.selectedCategory.id
+          : null;
         self.newNote.category = self.lastSelectedCategory;
-        console.log('filtering', self.selectedCategory, self.selectedCategoryId);
+        console.log(
+          'filtering',
+          self.selectedCategory,
+          self.selectedCategoryId
+        );
       });
     },
 
@@ -144,7 +161,9 @@ export default {
 
     clearNewNote () {
       this.newNote = {
-        title: '', content: '', category: this.selectedCategoryId
+        title: '',
+        content: '',
+        category: this.selectedCategoryId
       };
       this.isCreateNew = false;
     },
@@ -181,7 +200,6 @@ export default {
       this._fetchAndUpdate(to);
     }
   }
-
 };
 </script>
 

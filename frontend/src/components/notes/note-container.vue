@@ -9,8 +9,7 @@
         v-on:pinNote="togglePinNote"
         v-on:removeNote="removeNote"
         v-on:archiveNote="toggleArchiveNote"
-      >
-      </note-editor>
+      ></note-editor>
     </div>
 
     <div v-else>
@@ -28,10 +27,9 @@
       <li>Task</li>
       <li>Task</li>
       <li>Task</li>
-    </ul> -->
+    </ul>-->
 
     <!-- todos || tasks goez here -->
-
   </article>
 </template>
 
@@ -44,17 +42,20 @@ import Note from './note.vue';
 export default {
   name: 'note-container',
   components: {
-    Note, NoteEditor
+    Note,
+    NoteEditor
   },
   props: ['note', 'editingNote'],
   computed: {
-    isEditing () { return this.editingNote && this.editingNote.id === this.note.id; }
+    isEditing () {
+      return this.editingNote && this.editingNote.id === this.note.id;
+    }
   },
 
   methods: {
-    ...mapActions('Notes', {
-      toggleArchiveNote: 'toggleArchive'
-    }),
+    // ...mapActions('Notes', {
+    // toggleArchiveNote: 'toggleArchive'
+    // }),
 
     removeNote () {
       if (confirm('Are you sure?')) {
@@ -65,12 +66,22 @@ export default {
       }
     },
 
-    togglePinNote () { this.$store.dispatch('Notes/togglePin', this.note); },
+    togglePinNote () {
+      this.$store.dispatch('Notes/togglePin', this.note);
+    },
+    toggleArchiveNote () {
+      this.$store.dispatch('Notes/toggleArchive', this.note);
+    },
 
-    startEditNote () { this.$emit('startEdit', this.note); },
-    doneEditNote () { this.$emit('doneEdit'); },
-    cancelEditNote () { this.$emit('cancelEdit'); }
-
+    startEditNote () {
+      this.$emit('startEdit', this.note);
+    },
+    doneEditNote () {
+      this.$emit('doneEdit');
+    },
+    cancelEditNote () {
+      this.$emit('cancelEdit');
+    }
   }
 };
 </script>
