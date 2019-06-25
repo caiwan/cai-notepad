@@ -188,6 +188,7 @@ export default {
       });
       await this.$store.dispatch('Tasks/fetchAll');
       const self = this;
+      // TODO: selectedCategoryId shall be the ID we send to the backend
       setTimeout(() => {
         self.lastSelectedCategory = self.selectedCategory
           ? self.selectedCategory.id

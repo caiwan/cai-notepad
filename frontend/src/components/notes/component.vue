@@ -135,6 +135,7 @@ export default {
         categoryId: route.query.category ? route.query.category : 'all',
         milestoneId: route.query.milesonte ? route.query.milesonte : 'all'
       });
+      // TODO: selectedCategoryId shall be the ID we send to the backend
       const self = this;
       this.$store.dispatch('Notes/fetchAll').then(() => {
         self.lastSelectedCategory = self.selectedCategory
@@ -155,7 +156,7 @@ export default {
           return;
         }
       }
-      this.newNote.category = this.selectedCategoryId;
+      this.newNote.category = this.selectedCategory;
       this.isCreateNew = true;
     },
 
@@ -163,7 +164,7 @@ export default {
       this.newNote = {
         title: '',
         content: '',
-        category: this.selectedCategoryId
+        category: this.selectedCategory
       };
       this.isCreateNew = false;
     },
