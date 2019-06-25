@@ -136,7 +136,7 @@ export default {
     },
 
     removeCategory (category) {
-      if (!confirm('Deleting a category will merge everything assigned to it to its parent. However it cannnot be undone. Are you sure?')) {
+      if (confirm('Deleting a category will merge everything assigned to it to its parent. However it cannnot be undone. Are you sure?')) {
         this.$store.dispatch('Categories/remove', category);
       }
     }
