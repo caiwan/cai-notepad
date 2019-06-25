@@ -29,6 +29,7 @@ class OauthService(metaclass=components.Singleton):
             config = app.config[self.APP_INTEGRATIONS][self.name]
             self.enabled = "enabled" in config and bool(config["enabled"])
             self.settings = {
+                "enabled": config["enabled"],
                 "client_id": config["client_id"],
                 "scope": config["scope"]
             }
