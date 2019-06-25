@@ -156,9 +156,11 @@ class Service(metaclass=Singleton):
     model_class = None
     settings = {}
 
+    @DB.atomic()
     def fetch_all_items(self):
         assert self.model_class
         user_id = current_user_id()
+        # TODO: opt out join w/ base user
         return self.model_class.select(
             self.model_class
         ).join(
@@ -168,10 +170,12 @@ class Service(metaclass=Singleton):
             BaseUser.id == user_id
         ).objects()
 
+    @DB.atomic()
     def read_item(self, item_id):
         assert self.model_class
         user_id = current_user_id()
         # This will raise not exist exception when not found anyways
+        # TODO: opt out join w/ base user
         return self.model_class.select(
             self.model_class
         ).join(
@@ -182,21 +186,25 @@ class Service(metaclass=Singleton):
             self.model_class.owner.id == user_id
         ).get()
 
+    @DB.atomic()
     def create_item(self, item_json):
         assert self.model_class
         try:
+            # TODO: opt out join w/ base user
             item = dict_to_model(
                 self.model_class, self.sanitize_fields(item_json))
             item.owner = current_user()
             item.save()
             return item
         except Exception as ex:
-            DB.rollback()
+            # DB.rollback()
             raise BadRequestError(payload={"reason": str(ex)})
 
+    @DB.atomic()
     def update_item(self, item_id, item_json):
         assert self.model_class
         try:
+            # TODO: opt out join w/ base user
             user_id = current_user_id()
             my_item = self.model_class.select(
                 self.model_class
@@ -217,9 +225,10 @@ class Service(metaclass=Singleton):
             item.save()
             return item
         except Exception as ex:
-            DB.rollback()
+            # DB.rollback()
             raise BadRequestError(payload={"reason": str(ex)})
 
+    @DB.atomic()
     def delete_item(self, item_id):
         assert self.model_class
         try:
@@ -238,7 +247,7 @@ class Service(metaclass=Singleton):
             my_item.save()
             # return my_item
         except Exception as ex:
-            DB.rollback()
+            # DB.rollback()
             raise BadRequestError(payload={"reason": str(ex)})
 
     def serialize_item(self, item):
