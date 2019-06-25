@@ -39,7 +39,8 @@
         />
 
         <!-- FOOTER BUTTONS -->
-        <button
+        <!-- Todo: fix pin or archive in edit mode  -->
+        <!-- <button
           @click="pin()"
           class="btn btn-sm btn-primary btn-raised"
         >{{note.is_pinned ? "Unpin" : "Pin"}}</button>
@@ -47,7 +48,7 @@
           v-if="!isCreating"
           @click="archive()"
           class="btn btn-sm btn-primary btn-raised"
-        >{{note.is_archived ? "Restore" : "Archive"}}</button>
+        >{{note.is_archived ? "Restore" : "Archive"}}</button>-->
         <button v-if="!isCreating" @click="remove()" class="btn btn-sm btn-danger btn-raised">Delete</button>
         <span class="gap"></span>
         <button @click="done()" class="btn btn-sm btn-success btn-raised">Done</button>
