@@ -17,8 +17,9 @@ For development instructions see below.
     [Docker](https://www.docker.com/get-started) and
     [Compose](https://docs.docker.com/compose/install/).
 
-2. Create docker image
+2. Create docker images
 
+    - run `docker-compose build` to build individual images
     - run `docker-compose up`
     - or to detach it right away to run it in the background `docker-compose up -d`
 
@@ -28,8 +29,8 @@ For development instructions see below.
 
     Note that you also can create your individual Docker images via
 
-    - `docker build -t notes-backend -f docker/backend/Dockerfile .`
-    - `docker build -t notes-frontend -f docker/frontend/Dockerfile .`
+    - `docker build -t notes-backend -f docker/backend/Dockerfile ./`
+    - `docker build -t notes-frontend -f docker/frontend/Dockerfile ./`
 
 ## Features
 
