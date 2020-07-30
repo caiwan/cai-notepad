@@ -75,5 +75,8 @@
   "python.testing.nosetestsEnabled": false,
   "pythonTestExplorer.testFramework": "unittest",
   "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   // "python.testing.promptToConfigure": false,
 }
